@@ -45,36 +45,4 @@ namespace GodotExtensions
             return $"{node.GetType()} \"{node.Name}\" ({node.GetInstanceId().ToString()})";
         }
     }
-
-    /// <summary>
-    /// A shorter-named GDLogger to avoid having to use a Using statement on every script to shorten the name
-    /// Again, way too many overrides in here. For something that can be thrown into any hot path, it's for the best.
-    /// </summary>
-    public static class GDL
-    {
-        public static void Log(object obj, string log) => GDLogger.Log(obj, log);
-        public static void Error(object obj, string log) => GDLogger.Error(obj, log);
-        public static void Exception(object obj, string log, Exception e) => GDLogger.Exception(obj, log, e);
-
-        public static void Log(IIdentified obj, string log) => GDLogger.Log(obj, log);
-        public static void Error(IIdentified obj, string log) => GDLogger.Error(obj, log);
-        public static void Exception(IIdentified obj, string log, Exception e) => GDLogger.Exception(obj, log, e);
-
-        public static void Log(Object obj, string log) => GDLogger.Log(obj, log);
-        public static void Error(Object obj, string log) => GDLogger.Error(obj, log);
-        public static void Exception(Object obj, string log, Exception e) => GDLogger.Exception(obj, log, e);
-        
-        public static void Log(Node node, string log) => GDLogger.Log(node, log);
-        public static void Error(Node node, string log) => GDLogger.Error(node, log);
-        public static void Exception(Node node, string log, Exception e) => GDLogger.Exception(node, log, e);
-
-        public static void Log(NodeExt obj, string log) => GDLogger.Log(obj, log);
-        public static void Error(NodeExt obj, string log) => GDLogger.Error(obj, log);
-        public static void Exception(NodeExt obj, string log, Exception e) => GDLogger.Exception(obj, log, e);
-        
-        public static void Log(ObjectExt obj, string log) => GDLogger.Log(obj, log);
-        public static void Error(ObjectExt obj, string log) => GDLogger.Error(obj, log);
-        public static void Exception(ObjectExt obj, string log, Exception e) => GDLogger.Exception(obj, log, e);
-
-    }
 }

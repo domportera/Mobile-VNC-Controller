@@ -7,6 +7,8 @@
     <PackageReference Include="Quamotion.RemoteViewing.LibVnc" Version="1.1.211" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Controls" />
+    <Folder Include="CustomInputEvents" />
     <Folder Include="GodotExtensions\EditorScripts" />
   </ItemGroup>
 </Project>

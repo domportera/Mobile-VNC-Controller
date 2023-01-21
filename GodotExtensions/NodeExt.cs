@@ -27,17 +27,18 @@ namespace GodotExtensions
 
         protected virtual void Log(string toLog)
         {
-            GDL.Log(this, toLog);
+            
+            GDLogger.Log(this, toLog);
         }
         
         protected virtual void LogError(string toLog)
         {
-            GDL.Error(this, toLog);
+            GDLogger.Error(this, toLog);
         }
         
         protected virtual void LogException(string toLog, Exception exception)
         {
-            GDL.Exception(this, toLog, exception);
+            GDLogger.Exception(this, toLog, exception);
         }
     }
 }

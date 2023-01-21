@@ -12,7 +12,7 @@ namespace CustomDotNetExtensions
         public static event EventHandler<LogEventArgs> ErrorEvent;
         public static event EventHandler<ExceptionEventArgs> ExceptionEvent;
 
-        const string HEADER_SEPARATOR = " |~| ";
+        const string HEADER_SEPARATOR = " | ";
 
         public static void Log(object sender, string log, bool useDotNetConsole)
         {
@@ -73,7 +73,7 @@ namespace CustomDotNetExtensions
 
         public static void Exception(object sender, string header, string devLog, Exception e, bool useDotNetConsole)
         {
-            string log = $"{header}{HEADER_SEPARATOR}Exception thrown! Log: {devLog}\n{e}";
+            string log = $"{header}{HEADER_SEPARATOR}Exception! {devLog} || {e}\n{e.StackTrace}";
             
             if(useDotNetConsole)
                 Console.Error.WriteLine(log);
