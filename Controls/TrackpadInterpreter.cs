@@ -75,10 +75,13 @@ public class TrackpadInterpreter : GDTIMInterpreter
 		Log($"Dragging {moveAmount.ToString()}");
 	}
 
+	private bool _longPressed = false;
 	public override void OnSingleLongPress(Vector2 position)
 	{
-		Log("Single long press");
-		// want to use this for click and drag
+		Log($"Single long press");
+		
+		_vncHandler.MouseButtonDown(MouseButton.Left);
+		_longPressed = true;
 	}
 
 	public override void OnSingleSwipe(Vector2 position, Vector2 relative)
@@ -95,15 +98,15 @@ public class TrackpadInterpreter : GDTIMInterpreter
 
 	public override void OnSingleTouch(Vector2 position, bool pressed, bool cancelled)
 	{
-		Log($"Single touch {(pressed ? "down": "up")}");
-		return;
-		if (pressed)
+		Log($"Touch {(pressed ? "began": "ended")}");
+
+		if (!pressed)
 		{
-			_vncHandler.MouseButtonUp(MouseButton.Left);
-		}
-		else
-		{
-			_vncHandler.MouseButtonDown(MouseButton.Left);
+			if (_longPressed)
+			{
+				_vncHandler.MouseButtonUp(MouseButton.Left);
+				_longPressed = false;
+			}
 		}
 	}
 

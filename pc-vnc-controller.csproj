@@ -8,7 +8,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controls" />
-    <Folder Include="CustomInputEvents" />
     <Folder Include="GodotExtensions\EditorScripts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="CustomInputEvents\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="CustomInputEvents\**" />
   </ItemGroup>
 </Project>

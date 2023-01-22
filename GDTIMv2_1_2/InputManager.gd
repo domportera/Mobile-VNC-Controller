@@ -3,8 +3,8 @@
 
 extends Control
 
-enum EVENT_MODE { input,gui,unhandled }
-export(EVENT_MODE) var event_mode = EVENT_MODE.gui
+enum EVENT_MODE { input,unhandled }
+export(EVENT_MODE) var event_mode = EVENT_MODE.unhandled
 
 ##########
 # Config #
@@ -139,10 +139,6 @@ func _handle_input_event(event : InputEvent) -> void:
 		
 func _input(event : InputEvent) -> void:
 	if event_mode == EVENT_MODE.input:
-		_handle_input_event(event)
-
-func _gui_input(event : InputEvent) -> void:
-	if event_mode == EVENT_MODE.gui:
 		_handle_input_event(event)
 
 func _unhandled_input(event : InputEvent) -> void:
