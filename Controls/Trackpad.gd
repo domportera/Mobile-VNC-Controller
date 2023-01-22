@@ -24,7 +24,7 @@ func _unhandled_input(event : InputEvent):
 	elif event is InputEventSingleScreenLongPress:
 		trackpad_interpreter.OnSingleLongPress(event.position)
 	elif event is InputEventSingleScreenTouch:
-		trackpad_interpreter.OnSingleTouch(event.position, event.cancelled)
+		trackpad_interpreter.OnSingleTouch(event.position, event.pressed, event.cancelled)
 	elif event is InputEventSingleScreenSwipe:
 		trackpad_interpreter.OnSingleSwipe(event.position, event.relative)
 	elif event is RawGesture:

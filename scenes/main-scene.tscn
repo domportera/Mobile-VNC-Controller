@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://VNC/VncHandler.cs" type="Script" id=1]
-[ext_resource path="res://Integration/Console/GDConsoleBridge.cs" type="Script" id=2]
+[ext_resource path="res://GodotExtensions/Scenes/Log Handler.tscn" type="PackedScene" id=2]
 [ext_resource path="res://GDTIM-v2_1_2/InputManager.gd" type="Script" id=3]
 [ext_resource path="res://Controls/Trackpad.gd" type="Script" id=4]
 [ext_resource path="res://Controls/TrackpadInterpreter.cs" type="Script" id=5]
@@ -13,13 +13,12 @@ margin_top = 8.0
 margin_bottom = 8.0
 mouse_filter = 2
 
-[node name="Log Handler" type="Node" parent="."]
-script = ExtResource( 2 )
+[node name="Log Handler" parent="." instance=ExtResource( 2 )]
 
-[node name="VNC Initializer" type="Node" parent="."]
+[node name="VncHandler" type="Node" parent="."]
 script = ExtResource( 1 )
-_ip = "127.0.0.1"
-_port = 5900
+_ip = "192.168.137.1"
+_port = 58998
 _password = ""
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]

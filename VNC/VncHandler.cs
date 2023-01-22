@@ -69,11 +69,17 @@ public class VncHandler : NodeExt
         _client.SendKeyEvent(key, false);
     }
 
-    public void Scroll(bool up)
+    public void Scroll(int amount)
     {
-        MouseButton scrollButton = up ? MouseButton.ScrollUp : MouseButton.ScrollDown;
-        MouseButtonDown(scrollButton);
-        MouseButtonUp(scrollButton);
+        MouseButton scrollButton = amount > 0 ? MouseButton.ScrollUp : MouseButton.ScrollDown;
+
+        amount = Mathf.Abs(amount);
+
+        for (int i = 0; i < amount; i++)
+        {
+            MouseButtonDown(scrollButton);
+            MouseButtonUp(scrollButton);
+        }
     }
 
     public void MouseButtonUp(MouseButton button)
@@ -126,13 +132,13 @@ public class VncHandler : NodeExt
     {
         _client.SendPointerEvent((int)_mousePosition.x, (int)_mousePosition.y, _currentPressedButtons);
     }
+}
 
-    public enum MouseButton
-    {
-        Left = 1,
-        Middle = 2,
-        Right = 4,
-        ScrollUp = 8,
-        ScrollDown = 16
-    }
+public enum MouseButton
+{
+    Left = 1,
+    Middle = 2,
+    Right = 4,
+    ScrollUp = 8,
+    ScrollDown = 16
 }
