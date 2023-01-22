@@ -11,7 +11,7 @@ public class GDConsoleBridge : Node
 	[Export] private float _height = 0.3f;
 	private readonly Queue<Log> _logs = new Queue<Log>();
 	private CanvasLayer _canvasLayer;
-	private VBoxContainer _logParent;
+	private VBoxContainer _logVBox;
 	private ScrollContainer _scrollContainer;
 	private Panel _panel;
 	
@@ -34,7 +34,7 @@ public class GDConsoleBridge : Node
 		_canvasLayer = GetNode("CanvasLayer") as CanvasLayer;
 		_panel = _canvasLayer.GetNode("Panel") as Panel;
 		_scrollContainer = _panel.GetNode("ScrollContainer") as ScrollContainer;
-		_logParent = _scrollContainer.GetNode("VBoxContainer") as VBoxContainer;
+		_logVBox = _scrollContainer.GetNode("VBoxContainer") as VBoxContainer;
 		
 		_panel.AnchorBottom = _height;
 		EditorDescription = "A bridge between the native c# console and the Godot console, homogenizing their output";
@@ -64,8 +64,8 @@ public class GDConsoleBridge : Node
 			logItem = _logs.Dequeue();
 			logItem.Label.RemoveColorOverride(ColorOverrideName);
 			
-			int childCount = _logParent.GetChildCount();
-			_logParent.MoveChild(logItem.Label, childCount);
+			int childCount = _logVBox.GetChildCount();
+			_logVBox.MoveChild(logItem.Label, childCount);
 		}
 		else
 		{
@@ -73,7 +73,7 @@ public class GDConsoleBridge : Node
 			var label = new Label();
 			label.AnchorRight = 1;
 			logItem.Label = label;
-			_logParent.AddChild(label);
+			_logVBox.AddChild(label);
 		}
 
 		logItem.Type = type;
