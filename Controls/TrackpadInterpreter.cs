@@ -3,20 +3,24 @@ using System;
 using System.Diagnostics;
 using GodotExtensions;
 
-public class TrackpadInterpreter : NodeExt
+public class TrackpadInterpreter : GDTIMInterpreter
 {
 	private VncHandler _vncHandler;
-	[Export] private float _scrollSpeed = 1f;
-	private Vector2 _resolution;
+	[Export] private float _mouseSpeed = 10f;
+	[Export] private float _scrollSpeed = 10f;
+	[Export] private string _trackpadControlPathRelative = "../Panel";
+	[Export] private string _vncHandlerPathRelative = "../../VncHandler";
+	private Control _trackpadGui;
+	private Vector2 RealSize => _trackpadGui.RealPixelSize();
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		_vncHandler = GetNode("../../VncHandler") as VncHandler;
-		_resolution = OS.WindowSize;
+		_vncHandler = GetNode(_vncHandlerPathRelative) as VncHandler;
+		_trackpadGui = GetNode(_trackpadControlPathRelative) as Control;
 	}
 
-	public void OnMultiDrag(Vector2 position, Vector2 relative, int fingers)
+	public override void OnMultiDrag(Vector2 position, Vector2 relative, int fingers)
 	{
 		//bug wrangling - I don't want a drag if it hasn't been dragged
 		if (relative == Vector2.Zero) 
@@ -25,12 +29,12 @@ public class TrackpadInterpreter : NodeExt
 		Log($"Multi drag: {position.ToString()}, {relative.ToString()}, {fingers.ToString()}");
 	}
 
-	public void OnMultiLongPress(Vector2 position, int fingers)
+	public override void OnMultiLongPress(Vector2 position, int fingers)
 	{
 		Log("Multi long press");
 	}
 
-	public void OnMultiSwipe(Vector2 position, Vector2 relative, int fingers)
+	public override void OnMultiSwipe(Vector2 position, Vector2 relative, int fingers)
 	{
 		if (fingers != 2)
 			return;
@@ -38,7 +42,7 @@ public class TrackpadInterpreter : NodeExt
 		Scroll(relative);
 	}
 
-	public void OnMultiTap(Vector2 position, int fingers)
+	public override void OnMultiTap(Vector2 position, int fingers)
 	{
 		if (fingers == 2)
 		{
@@ -52,39 +56,44 @@ public class TrackpadInterpreter : NodeExt
 		Log("Multi tap");
 	}
 
-	public void OnPinch(Vector2 position, float relative, float distance, int fingers)
+	public override void OnPinch(Vector2 position, float relative, float distance, int fingers)
 	{
 		Log("Pinch");
 	}
 
-	public void OnSingleDrag(Vector2 position, Vector2 relative)
+	public override void OnSingleDrag(Vector2 position, Vector2 relative)
 	{
 		//bug wrangling - I don't want a drag if it hasn't been dragged
 		if (relative == Vector2.Zero) 
 			return;
+
+		var realSize = RealSize;
+		float minResolution = Mathf.Min(realSize.x, realSize.y);
+		Vector2 moveAmount = relative / minResolution * _mouseSpeed;
+		_vncHandler.MoveMouse(moveAmount);
 		
-		Log($"Dragging! {position.ToString()}, {relative.ToString()}");
+		Log($"Dragging {moveAmount.ToString()}");
 	}
 
-	public void OnSingleLongPress(Vector2 position)
+	public override void OnSingleLongPress(Vector2 position)
 	{
 		Log("Single long press");
 		// want to use this for click and drag
 	}
 
-	public void OnSingleSwipe(Vector2 position, Vector2 relative)
+	public override void OnSingleSwipe(Vector2 position, Vector2 relative)
 	{
 		Log("Single Swipe");
 	}
 
-	public void OnSingleTap(Vector2 position)
+	public override void OnSingleTap(Vector2 position)
 	{
 		Log("Single tap");
 		_vncHandler.MouseButtonDown(MouseButton.Left);
 		_vncHandler.MouseButtonUp(MouseButton.Left);
 	}
 
-	public void OnSingleTouch(Vector2 position, bool pressed, bool cancelled)
+	public override void OnSingleTouch(Vector2 position, bool pressed, bool cancelled)
 	{
 		Log($"Single touch {(pressed ? "down": "up")}");
 		return;
@@ -98,7 +107,7 @@ public class TrackpadInterpreter : NodeExt
 		}
 	}
 
-	public void OnTwist(Vector2 position, float relative, int fingers)
+	public override void OnTwist(Vector2 position, float relative, int fingers)
 	{
 		Log("Twist");
 	}
@@ -122,7 +131,7 @@ public class TrackpadInterpreter : NodeExt
 		if (!vertical)
 			return;
 
-		int scrollAmount = (int)(relative.y / _resolution.y * _scrollSpeed * 1080);
+		var scrollAmount = (int)(relative.y / RealSize.y * _scrollSpeed);
 		_vncHandler.Scroll(scrollAmount);
 	}
 }

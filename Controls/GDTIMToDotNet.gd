@@ -1,32 +1,32 @@
 extends Node
 
-onready var trackpad_interpreter = get_node("../TrackpadInterpreter")
+export var dot_net_interpreter_path_relative = "../MyCSharpNode"
+onready var dot_net_interpreter = get_node(dot_net_interpreter_path_relative)
 
 func _unhandled_input(event : InputEvent):
 
 	if event is InputEventMultiScreenDrag:
-		trackpad_interpreter.OnMultiDrag(event.position, event.relative, event.fingers)
-		#var evt = event as InputEventMultiScreenDrag
+		dot_net_interpreter.OnMultiDrag(event.position, event.relative, event.fingers)
 	elif event is InputEventMultiScreenSwipe:
-		trackpad_interpreter.OnMultiSwipe(event.position, event.relative, event.fingers)
+		dot_net_interpreter.OnMultiSwipe(event.position, event.relative, event.fingers)
 	elif event is InputEventMultiScreenTap:
-		trackpad_interpreter.OnMultiTap(event.position, event.fingers)
+		dot_net_interpreter.OnMultiTap(event.position, event.fingers)
 	elif event is InputEventMultiScreenLongPress:
-		trackpad_interpreter.OnMultiLongPress(event.position, event.fingers)
+		dot_net_interpreter.OnMultiLongPress(event.position, event.fingers)
 	elif event is InputEventSingleScreenDrag:
-		trackpad_interpreter.OnSingleDrag(event.position, event.relative)
+		dot_net_interpreter.OnSingleDrag(event.position, event.relative)
 	elif event is InputEventScreenPinch:
-		trackpad_interpreter.OnPinch(event.position, event.relative, event.distance, event.fingers)
+		dot_net_interpreter.OnPinch(event.position, event.relative, event.distance, event.fingers)
 	elif event is InputEventScreenTwist:
-		trackpad_interpreter.OnTwist(event.position, event.relative, event.fingers)
+		dot_net_interpreter.OnTwist(event.position, event.relative, event.fingers)
 	elif event is InputEventSingleScreenTap:
-		trackpad_interpreter.OnSingleTap(event.position)
+		dot_net_interpreter.OnSingleTap(event.position)
 	elif event is InputEventSingleScreenLongPress:
-		trackpad_interpreter.OnSingleLongPress(event.position)
+		dot_net_interpreter.OnSingleLongPress(event.position)
 	elif event is InputEventSingleScreenTouch:
-		trackpad_interpreter.OnSingleTouch(event.position, event.pressed, event.cancelled)
+		dot_net_interpreter.OnSingleTouch(event.position, event.pressed, event.cancelled)
 	elif event is InputEventSingleScreenSwipe:
-		trackpad_interpreter.OnSingleSwipe(event.position, event.relative)
+		dot_net_interpreter.OnSingleSwipe(event.position, event.relative)
 	elif event is RawGesture:
 		pass
 	
@@ -46,5 +46,3 @@ func _unhandled_input(event : InputEvent):
 	# 		else:
 	# 			text += "T "
 	# 	label5.text = "Events in the last 0.5s:\n"+text
-
-

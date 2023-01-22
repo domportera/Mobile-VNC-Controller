@@ -10,7 +10,6 @@ public class GDConsoleBridge : Node
 	[Export] private int _maxLogs = 1000;
 	[Export] private float _height = 0.3f;
 	private readonly Queue<Log> _logs = new Queue<Log>();
-	private CanvasLayer _canvasLayer;
 	private VBoxContainer _logVBox;
 	private ScrollContainer _scrollContainer;
 	private Panel _panel;
@@ -31,12 +30,13 @@ public class GDConsoleBridge : Node
 		Logger.ErrorEvent += HandleError;
 		Logger.ExceptionEvent += HandleException;
 
-		_canvasLayer = GetNode("CanvasLayer") as CanvasLayer;
-		_panel = _canvasLayer.GetNode("Panel") as Panel;
+		var canvasLayer = GetNode("CanvasLayer") as CanvasLayer;
+		var vSplit = canvasLayer.GetNode("VSplitContainer") as VSplitContainer;
+		_panel = vSplit.GetNode("Panel") as Panel;
 		_scrollContainer = _panel.GetNode("ScrollContainer") as ScrollContainer;
 		_logVBox = _scrollContainer.GetNode("VBoxContainer") as VBoxContainer;
 		
-		_panel.AnchorBottom = _height;
+		vSplit.AnchorBottom = _height;
 		EditorDescription = "A bridge between the native c# console and the Godot console, homogenizing their output";
 	}
 

@@ -9,15 +9,21 @@ script = ExtResource( 1 )
 layer = 128
 follow_viewport_enable = true
 
-[node name="Panel" type="Panel" parent="CanvasLayer"]
+[node name="VSplitContainer" type="VSplitContainer" parent="CanvasLayer"]
 anchor_right = 1.0
 anchor_bottom = 0.3
+split_offset = 50
+collapsed = true
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/Panel"]
+[node name="Panel" type="Panel" parent="CanvasLayer/VSplitContainer"]
+margin_right = 1080.0
+margin_bottom = 576.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/VSplitContainer/Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_vertical = 0
 follow_focus = true
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Panel/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/VSplitContainer/Panel/ScrollContainer"]
 custom_constants/separation = 12

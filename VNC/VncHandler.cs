@@ -18,12 +18,6 @@ public class VncHandler : NodeExt
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-#if GODOT_MOBILE
-        _ip = "10.0.2.2";
-#else
-        _ip = "127.0.0.1";
-#endif
-
         InitializeClient(_ip, _password, _port);
     }
 
@@ -109,6 +103,7 @@ public class VncHandler : NodeExt
         var client = sender as VncClient;
         var frameBuffer = client.Framebuffer;
         _serverResolution = new Vector2(frameBuffer.Width, frameBuffer.Height);
+        _mousePosition = _serverResolution / 2f;
         Log($"Client connected. Server version: {client.ServerVersion}");
         Log($"Client resolution: {_serverResolution.ToString()}");
     }
@@ -119,13 +114,15 @@ public class VncHandler : NodeExt
         OS.Clipboard = e.Contents;
     }
 
-    private void MoveMouse(Vector2 delta)
+    public void MoveMouse(Vector2 delta)
     {
         _mousePosition += delta;
         _mousePosition = new Vector2(
             Mathf.Clamp(_mousePosition.x, 0, _serverResolution.x),
             Mathf.Clamp(_mousePosition.y, 0, _serverResolution.y)
         );
+        
+        UpdateMouse();
     }
 
     void UpdateMouse()
