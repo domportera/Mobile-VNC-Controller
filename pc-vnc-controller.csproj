@@ -2,13 +2,13 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <RootNamespace>pcvnccontroller</RootNamespace>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Quamotion.RemoteViewing.LibVnc" Version="1.1.211" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controls" />
-    <Folder Include="GodotExtensions\EditorScripts" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="CustomInputEvents\**" />

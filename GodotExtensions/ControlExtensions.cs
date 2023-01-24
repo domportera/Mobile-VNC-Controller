@@ -4,6 +4,10 @@ namespace GodotExtensions
 {
     public static class ControlExtensions 
     {
+        public static Vector2 GetRectSize(this Control control)
+        {
+            return control.GetRectSize() * control.RectScale;
+        }
         public static Vector2 RealPixelSize(this Control control)
         {
             return control.RealPixelSize(OS.WindowSize);

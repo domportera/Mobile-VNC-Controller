@@ -1,10 +1,8 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://VNC/VncHandler.cs" type="Script" id=1]
 [ext_resource path="res://GodotExtensions/Scenes/Log Handler.tscn" type="PackedScene" id=2]
-[ext_resource path="res://GDTIMv2_1_2/InputManager.gd" type="Script" id=3]
-[ext_resource path="res://Controls/GDTIMToDotNet.gd" type="Script" id=4]
-[ext_resource path="res://Controls/TrackpadInterpreter.cs" type="Script" id=5]
+[ext_resource path="res://scenes/Trackpad.tscn" type="PackedScene" id=3]
 
 [node name="Control" type="Control"]
 anchor_right = 1.0
@@ -15,27 +13,14 @@ mouse_filter = 2
 
 [node name="VncHandler" type="Node" parent="."]
 script = ExtResource( 1 )
-_ip = "192.168.137.1"
-_port = 58998
-_password = "#fRed09p"
+_ip = "192.168.8.171"
+_port = 5900
+_password = "passpass"
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 follow_viewport_enable = true
 
-[node name="Trackpad" type="Node" parent="CanvasLayer"]
-
-[node name="TrackpadInterpreter" type="Node" parent="CanvasLayer/Trackpad"]
-script = ExtResource( 5 )
-_mouseSpeed = 100.0
-_trackpadControlPathRelative = "Panel"
-_vncHandlerPathRelative = "../../../VncHandler"
-
-[node name="GDTIMToDotNet" type="Node" parent="CanvasLayer/Trackpad/TrackpadInterpreter"]
-script = ExtResource( 4 )
-dot_net_interpreter_path_relative = "../../TrackpadInterpreter"
-
-[node name="Panel" type="Panel" parent="CanvasLayer/Trackpad/TrackpadInterpreter"]
-anchor_top = 0.4
-anchor_right = 1.0
-anchor_bottom = 0.9
-script = ExtResource( 3 )
+[node name="Trackpad" parent="CanvasLayer" instance=ExtResource( 3 )]
+_mouseSpeed = 20.0
+_scrollSpeed = 100.0
+_vncHandlerPathRelative = "../../VncHandler"

@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://GDTIMv2_1_2/InputManager.gd" type="Script" id=1]
+[ext_resource path="res://Controls/TrackpadInterpreter.cs" type="Script" id=2]
+[ext_resource path="res://Controls/GDTIMToDotNet.gd" type="Script" id=3]
+
+[node name="Trackpad" type="Node"]
+script = ExtResource( 2 )
+_vncHandlerPathRelative = "../../../VncHandler"
+
+[node name="GDTIMToDotNet" type="Node" parent="."]
+script = ExtResource( 3 )
+dot_net_interpreter_path_relative = "../../Trackpad"
+
+[node name="Panel" type="Panel" parent="."]
+anchor_top = 0.4
+anchor_right = 1.0
+anchor_bottom = 0.9
+script = ExtResource( 1 )
+event_mode = 0

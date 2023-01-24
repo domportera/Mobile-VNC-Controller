@@ -5,15 +5,16 @@ using RemoteViewing.Vnc;
 
 public class VncHandler : NodeExt
 {
-    [Export] private string _ip;
-    [Export] private int _port;
-    [Export] private string _password;
+    [Export] string _ip;
+    [Export] int _port;
+    [Export] string _password;
     public event EventHandler OnConnected;
     public event EventHandler OnDisconnected;
-    private Vector2 _mousePosition = Vector2.Zero;
-    private Vector2 _serverResolution;
-    private int _currentPressedButtons;
-    private VncClient _client;
+    Vector2 _mousePosition = Vector2.Zero;
+    Vector2 _serverResolution;
+    int _currentPressedButtons;
+    VncClient _client;
+    public Vector2 Resolution => _serverResolution;
     
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -37,11 +38,12 @@ public class VncHandler : NodeExt
         _client.Closed += OnDisconnected;
         _client.Bell += ClientOnBell;
         _client.RemoteClipboardChanged += ClientOnRemoteClipboardChanged;
+        _client.MaxUpdateRate = 0.000001f;
 
         TryConnect(ip, port, options);
     }
 
-    private void TryConnect(string ip, int port, VncClientConnectOptions options)
+    void TryConnect(string ip, int port, VncClientConnectOptions options)
     {
         try
         {
@@ -75,30 +77,30 @@ public class VncHandler : NodeExt
             MouseButtonUp(scrollButton);
         }
     }
-
+    
     public void MouseButtonUp(MouseButton button)
+    {
+        _currentPressedButtons &= ~(int)button;
+        UpdateMouse();
+    }
+
+    public void MouseButtonDown(MouseButton button)
     {
         _currentPressedButtons |= (int)button;
         UpdateMouse();
     }
-    
-    public void MouseButtonDown(MouseButton button)
+
+    void ClientOnBell(object sender, EventArgs e)
     {
-        _currentPressedButtons &= (int)~button;
-        UpdateMouse();
+        LogError($"Bell???");
     }
 
-    private void ClientOnBell(object sender, EventArgs e)
-    {
-        Log($"Bell???");
-    }
-
-    private void ClientOnConnectionFailed(object sender, EventArgs e)
+    void ClientOnConnectionFailed(object sender, EventArgs e)
     {
         LogError($"Client disconnected");
     }
 
-    private void ClientOnConnected(object sender, EventArgs e)
+    void ClientOnConnected(object sender, EventArgs e)
     {
         var client = sender as VncClient;
         var frameBuffer = client.Framebuffer;
@@ -108,7 +110,7 @@ public class VncHandler : NodeExt
         Log($"Client resolution: {_serverResolution.ToString()}");
     }
 
-    private void ClientOnRemoteClipboardChanged(object sender, RemoteClipboardChangedEventArgs e)
+    void ClientOnRemoteClipboardChanged(object sender, RemoteClipboardChangedEventArgs e)
     {
         Log($"Received clipboard: {e.Contents}");
         OS.Clipboard = e.Contents;
