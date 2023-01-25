@@ -22,7 +22,7 @@ public class TrackpadInterpreter : GDTIMInterpreter
 	Rect2 TrackpadRect => _trackpadGui.GetRect();
 	
 	bool _shouldProcessEvents;
-	float _cumulativeScroll;
+	Vector2 _cumulativeScroll;
 	float _deltaTime;
 	float TimeAdjustment => _deltaTime;
 	int _touchCount;
@@ -55,7 +55,7 @@ public class TrackpadInterpreter : GDTIMInterpreter
 		if (!_shouldProcessEvents)
 			return;
 
-		_cumulativeScroll = 0;
+		_cumulativeScroll = Vector2.Zero;
 		LongPress(false);
 	}
 
@@ -66,6 +66,7 @@ public class TrackpadInterpreter : GDTIMInterpreter
 		_vncHandler.MouseButtonUp(MouseButton.Left);
 	}
 	
+	//todo : should continue to move mouse up/left/etc if drag is held on the side after running out of room on the trackpad
 	public override void OnSingleDrag(Vector2 position, Vector2 relative)
 	{
 		if (!_shouldProcessEvents) return;
@@ -161,15 +162,21 @@ public class TrackpadInterpreter : GDTIMInterpreter
 		if (!_shouldSendVncCommands) return;
 		bool vertical = Mathf.Abs(relative.y) > Mathf.Abs(relative.x);
 
-		if (!vertical)
-			return;
+		if(vertical)
+			_cumulativeScroll.y += relative.y / TrackpadRealSize.y * _scrollSpeed;
+		else
+			_cumulativeScroll.x += relative.x / TrackpadRealSize.x * _scrollSpeed;
 
-		_cumulativeScroll += relative.y / TrackpadRealSize.y * _scrollSpeed;
-
-		if (_cumulativeScroll > 1f || _cumulativeScroll < -1f)
+		var scrollAmount = new Vector2((int)_cumulativeScroll.x, (int)_cumulativeScroll.y);
+		_vncHandler.Scroll(scrollAmount);
+		
+		if (_cumulativeScroll.x > 1f || _cumulativeScroll.x < -1f)
 		{
-			_vncHandler.Scroll((int)_cumulativeScroll);
-			_cumulativeScroll = 0f;
+			_cumulativeScroll.x = 0f;
+		}
+		if (_cumulativeScroll.y > 1f || _cumulativeScroll.y < -1f)
+		{
+			_cumulativeScroll.y = 0f;
 		}
 	}
 
@@ -185,7 +192,10 @@ public class TrackpadInterpreter : GDTIMInterpreter
 		if (_shouldSendVncCommands)
 		{
 			if (pressed)
+			{
 				_vncHandler.MouseButtonDown(MouseButton.Left);
+				Input.VibrateHandheld(50);
+			}
 			else if (_longPressed)
 				_vncHandler.MouseButtonUp(MouseButton.Left);
 		}
