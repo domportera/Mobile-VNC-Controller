@@ -21,3 +21,11 @@ Special thanks to [Godot Touch Input Manager](https://github.com/Federico-Ciuffa
     - [ ] general .NET and Godot .NET libraries
         - [ ] fuse with DomsUnityHelper and make many functions platform-agnostic
     - [ ] Android wireless debugging .bat script
+
+
+## Build Instructions
+Standard Godot-for-android build procedure applies, with only a couple of permissions checked:
+  1. Internet
+  2. Vibrate
+
+You may also want to uncheck `Classify As Game`.
