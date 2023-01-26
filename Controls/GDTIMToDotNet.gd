@@ -1,10 +1,20 @@
 extends Node
 
-export var dot_net_interpreter_path_relative = "../MyCSharpNode"
+export var dot_net_interpreter_path_relative = "../MyCSharpInterpreter"
 onready var dot_net_interpreter = get_node(dot_net_interpreter_path_relative)
 
-func _unhandled_input(event : InputEvent):
+enum EVENT_MODE { input,unhandled }
+export(EVENT_MODE) var event_mode = EVENT_MODE.input
 
+func _input(event : InputEvent):
+	if event_mode == EVENT_MODE.input:
+		_handle_input(event)
+
+func _unhandled_input(event : InputEvent):
+	if event_mode == EVENT_MODE.unhandled:
+		_handle_input(event)
+
+func _handle_input(event : InputEvent):
 	if event is InputEventMultiScreenDrag:
 		dot_net_interpreter.OnMultiDrag(event.position, event.relative, event.fingers)
 	elif event is InputEventMultiScreenSwipe:

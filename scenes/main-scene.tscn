@@ -9,8 +9,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
-[node name="Log Handler" parent="." instance=ExtResource( 2 )]
-
 [node name="VncHandler" type="Node" parent="."]
 script = ExtResource( 1 )
 _ip = "192.168.8.171"
@@ -23,4 +21,5 @@ follow_viewport_enable = true
 [node name="Trackpad" parent="CanvasLayer" instance=ExtResource( 3 )]
 _mouseSpeed = 20.0
 _scrollSpeed = 100.0
-_vncHandlerPathRelative = "../../VncHandler"
+
+[node name="Log Handler" parent="CanvasLayer" instance=ExtResource( 2 )]

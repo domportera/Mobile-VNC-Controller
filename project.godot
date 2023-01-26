@@ -92,6 +92,10 @@ boot_splash/fullsize=false
 boot_splash/use_filter=false
 config/icon="res://icon.png"
 
+[autoload]
+
+InputManager="*res://GDTIMv2_1_2/InputManager.gd"
+
 [display]
 
 window/size/width=1080

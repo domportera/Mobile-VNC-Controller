@@ -3,9 +3,6 @@
 
 extends Control
 
-enum EVENT_MODE { input,unhandled }
-export(EVENT_MODE) var event_mode = EVENT_MODE.unhandled
-
 ##########
 # Config #
 ##########
@@ -16,7 +13,7 @@ const DEBUG : bool = false
 
 const DRAG_STARTUP_TIME : float = 0.02
 
-const FINGER_SIZE : float = 100.0
+const FINGER_SIZE : float = 1000.0
 
 const MULTI_FINGER_RELEASE_THRESHOLD : float = 0.1
 
@@ -126,8 +123,7 @@ func _ready() -> void:
 		# _set_default_action("twist_clockwise"        , _native_mouse_button_event(BUTTON_WHEEL_UP)) # TODO
 		# _set_default_action("twist_counterclockwise" , _native_mouse_button_event(BUTTON_WHEEL_DOWN)) # TODO
 
-
-func _handle_input_event(event : InputEvent) -> void:
+func _input(event : InputEvent) -> void:
 	if event is InputEventScreenDrag:
 		_handle_screen_drag(event)
 	elif event is InputEventScreenTouch:
@@ -136,14 +132,6 @@ func _handle_input_event(event : InputEvent) -> void:
 		_handle_mouse_motion(event)
 	else:
 		_handle_action(event)
-		
-func _input(event : InputEvent) -> void:
-	if event_mode == EVENT_MODE.input:
-		_handle_input_event(event)
-
-func _unhandled_input(event : InputEvent) -> void:
-	if event_mode == EVENT_MODE.unhandled:
-		_handle_input_event(event)
 		
 func _handle_mouse_motion(event : InputEventMouseMotion) -> void:
 	if raw_gesture.size() == 1 and _mouse_event == Gesture.SINGLE_DRAG:
