@@ -3,7 +3,7 @@ using GDTIMDotNet;
 using Godot;
 using GodotExtensions;
 
-public abstract class GestureInterpreter : Node
+public class GestureInterpreter : Node
 {
     public event EventHandler<SingleTouchArgs> SingleTouch;
     public event EventHandler<Vector2> SingleTap;
