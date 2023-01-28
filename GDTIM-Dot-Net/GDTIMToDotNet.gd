@@ -1,4 +1,4 @@
-extends Node
+extends Control
 
 export var dot_net_interpreter_path_relative = "../MyCSharpInterpreter"
 onready var dot_net_interpreter = get_node(dot_net_interpreter_path_relative)

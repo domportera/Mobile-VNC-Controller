@@ -1,5 +1,6 @@
 using Godot;
 using GodotExtensions;
+using PCRemoteControl.VNC;
 
 namespace GDTIMDotNet
 {
@@ -20,7 +21,7 @@ namespace GDTIMDotNet
         
         protected override void OnReady(GuiConstrainedGestureInterpreter interpreter)
         {
-            _interpreter = interpreter as GuiConstrainedGestureInterpreter;
+            _interpreter = interpreter;
 
             if (_interpreter is null)
             {
@@ -64,8 +65,6 @@ namespace GDTIMDotNet
             Vector2 moveAmount = dragDelta * speed * minServerResolution;
 		
             MoveMouse(moveAmount);
-		
-            //Log($"Dragging {moveAmount.ToString()}");
         }
 
         protected override void OnSingleTap(object sender, Vector2 e)

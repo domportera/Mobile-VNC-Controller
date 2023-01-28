@@ -1,6 +1,6 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pc-vnc-controller", "pc-vnc-controller.csproj", "{E7C5A34E-B3AA-42D0-A514-A63107B1A75A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCRemoteControl", "PCRemoteControl.csproj", "{E7C5A34E-B3AA-42D0-A514-A63107B1A75A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
