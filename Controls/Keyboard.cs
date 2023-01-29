@@ -25,6 +25,7 @@ namespace GDTIMDotNet
             _activationButton.Connect("pressed", this, OnKeyboardButton);
             
             _autoCorrectTextEdit = GetNode<TextEdit>(_autoCorrectTextEditPath);
+            _vncHandler = GetNode<VncHandler>(_vncHandlerPath);
         }
 
         public override void _UnhandledKeyInput(InputEventKey @event)

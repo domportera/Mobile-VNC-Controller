@@ -14,10 +14,13 @@ namespace GDTIMDotNet
         [Export] bool _shouldSendVncCommands = true;
         [Export] bool _mouseAcceleration = true;
         bool _longPressed;
+        MouseButton _longPressedButton = MouseButton.Left;
+        bool IsMultiLongPressed => _longPressed && _longPressedButton != MouseButton.Left;
 	
         Vector2 _cumulativeScroll;
         float _deltaTime;
         float TimeAdjustment => _deltaTime;
+        
         
         protected override void OnReady(GuiConstrainedGestureInterpreter interpreter)
         {
@@ -40,31 +43,18 @@ namespace GDTIMDotNet
 
         protected override void OnTwist(object sender, TwistArgs e)
         {
+            if (IsMultiLongPressed) return;
             GDLogger.Log(this,"Twist");
         }
 
         protected override void OnSingleLongPress(object sender, Vector2 e)
         {
-            LongPress(true);
+            LongPress(true, MouseButton.Left);
         }
 
         protected override void OnSingleDrag(object sender, SingleDragArgs e)
         {
-            Vector2 trackpadSize = _interpreter.ControlRealSize;
-            float minTrackpadDimension = Mathf.Min(trackpadSize.x, trackpadSize.y);
-		
-            Vector2 serverResolution = _vncHandler.Resolution;
-            float minServerResolution = Mathf.Min(serverResolution.x, serverResolution.y);
-		
-            Vector2 dragDelta = e.Relative / minTrackpadDimension;
-            float dragAccelerationT = dragDelta.LengthSquared();
-            //float dragAccelerationT = dragDelta.Length();
-
-            float speed = _mouseSpeed * TimeAdjustment;
-            speed = _mouseAcceleration ? speed + _mouseSpeed * dragAccelerationT : speed;
-            Vector2 moveAmount = dragDelta * speed * minServerResolution;
-		
-            MoveMouse(moveAmount);
+            HandleDrag(e.Relative);
         }
 
         protected override void OnSingleTap(object sender, Vector2 e)
@@ -80,11 +70,15 @@ namespace GDTIMDotNet
 
         protected override void OnMultiLongPress(object sender, MultiTapArgs e)
         {
-            GDLogger.Log(this, "Multi long press");
+            if (e.Fingers > 3) return;
+            
+            MouseButton longPressButton = e.Fingers == 2 ? MouseButton.Right : MouseButton.Middle;
+            LongPress(true, longPressButton);
         }
 
         protected override void OnMultiSwipe(object sender, MultiDragArgs e)
         {
+            if (IsMultiLongPressed) return;
             if (e.Fingers != 2)
                 return;
 
@@ -107,16 +101,23 @@ namespace GDTIMDotNet
         protected override void OnSingleTouch(object sender, SingleTouchArgs e)
         {
             _cumulativeScroll = Vector2.Zero;
-            LongPress(false);
+            LongPress(false, _longPressedButton);
         }
 
         protected override void OnPinch(object sender, PinchArgs e)
         {
+            if (IsMultiLongPressed) return;
             GDLogger.Log(this, "Pinch");
         }
 
         protected override void OnMultiDrag(object sender, MultiDragArgs e)
         {
+            if (IsMultiLongPressed)
+            {
+                HandleDrag(e.Relative);
+                return;
+            }
+            
             Scroll(e.Relative);
         }
         void RightClick()
@@ -156,24 +157,43 @@ namespace GDTIMDotNet
             }
         }
 
+        void HandleDrag(Vector2 relative)
+        {
+            Vector2 trackpadSize = _interpreter.ControlRealSize;
+            float minTrackpadDimension = Mathf.Min(trackpadSize.x, trackpadSize.y);
+
+            Vector2 serverResolution = _vncHandler.Resolution;
+            float minServerResolution = Mathf.Min(serverResolution.x, serverResolution.y);
+
+            Vector2 dragDelta = relative / minTrackpadDimension;
+            float dragAccelerationT = dragDelta.LengthSquared();
+            //float dragAccelerationT = dragDelta.Length();
+
+            float speed = _mouseSpeed * TimeAdjustment;
+            speed = _mouseAcceleration ? speed + _mouseSpeed * dragAccelerationT : speed;
+            Vector2 moveAmount = dragDelta * speed * minServerResolution;
+
+            MoveMouse(moveAmount);
+        }
+
         void MoveMouse(Vector2 moveAmount)
         {
             if (!_shouldSendVncCommands) return;
             _vncHandler.MoveMouse(moveAmount);
         }
 
-	
-        void LongPress(bool pressed)
+        void LongPress(bool pressed, MouseButton button)
         {
+            _longPressedButton = button;
             if (_shouldSendVncCommands)
             {
                 if (pressed)
                 {
-                    _vncHandler.MouseButtonDown(MouseButton.Left);
+                    _vncHandler.MouseButtonDown(button);
                     Input.VibrateHandheld(50);
                 }
                 else if (_longPressed)
-                    _vncHandler.MouseButtonUp(MouseButton.Left);
+                    _vncHandler.MouseButtonUp(button);
             }
 
             _longPressed = pressed;
