@@ -6,21 +6,29 @@ namespace GDTIMDotNet
 {
     public class Trackpad : GestureConsumer<GuiConstrainedGestureInterpreter>
     {
+        [Export] string _vncHandlerPathRelative = "../../VncHandler";
+        [Export] bool _mouseAcceleration = true;
+        
         GuiConstrainedGestureInterpreter _interpreter;
         VncHandler _vncHandler;
-        [Export] float _mouseSpeed = 100f;
-        [Export] float _scrollSpeed = 10f;
-        [Export] string _vncHandlerPathRelative = "../../VncHandler";
-        [Export] bool _shouldSendVncCommands = true;
-        [Export] bool _mouseAcceleration = true;
-        bool _longPressed;
         MouseButton _longPressedButton = MouseButton.Left;
-        bool IsMultiLongPressed => _longPressed && _longPressedButton != MouseButton.Left;
+        bool IsMultiLongPressed => _state == MouseState.LongPress && _longPressedButton != MouseButton.Left;
 	
-        Vector2 _cumulativeScroll;
         float _deltaTime;
-        float TimeAdjustment => _deltaTime;
+        // constants here are just comfortable numbers after regulating input speeds by
+        // control resolution and frame time
+        float ScrollSpeed => 2000f * _deltaTime;
+        float ZoomSpeed => 800f * _deltaTime;
+        float MouseSpeed => 40f * _deltaTime;
+
+        MouseState _state = MouseState.Default;
+        bool StateIsDefault => _state == MouseState.Default;
+        enum MouseState { Default, Zooming, Scrolling, LongPress }
+        const KeyList ZoomModifierKey = KeyList.Control;
         
+        Vector2 _cumulativeScroll;
+        Vector2 _cumulativeMouseMovement;
+        float _cumulativeZoom;
         
         protected override void OnReady(GuiConstrainedGestureInterpreter interpreter)
         {
@@ -43,7 +51,7 @@ namespace GDTIMDotNet
 
         protected override void OnTwist(object sender, TwistArgs e)
         {
-            if (IsMultiLongPressed) return;
+            if (!StateIsDefault) return;
             GDLogger.Log(this,"Twist");
         }
 
@@ -87,7 +95,6 @@ namespace GDTIMDotNet
 
         protected override void OnMultiTap(object sender, MultiTapArgs e)
         {
-            GDLogger.Log(this,"Multi tap");
             if (e.Fingers == 2)
             {
                 RightClick();
@@ -100,14 +107,14 @@ namespace GDTIMDotNet
 
         protected override void OnSingleTouch(object sender, SingleTouchArgs e)
         {
-            _cumulativeScroll = Vector2.Zero;
             LongPress(false, _longPressedButton);
+            ResetState();
         }
 
         protected override void OnPinch(object sender, PinchArgs e)
         {
-            if (IsMultiLongPressed) return;
-            GDLogger.Log(this, "Pinch");
+            if (!StateIsDefault && _state != MouseState.Zooming) return;
+            HandleZoom(e.Relative);
         }
 
         protected override void OnMultiDrag(object sender, MultiDragArgs e)
@@ -117,46 +124,83 @@ namespace GDTIMDotNet
                 HandleDrag(e.Relative);
                 return;
             }
-            
-            Scroll(e.Relative);
+
+            if (StateIsDefault || _state == MouseState.Scrolling)
+                Scroll(e.Relative);
         }
+        
+        void ResetState()
+        {
+            if(_state == MouseState.Zooming)
+                _vncHandler.SendKey(ZoomModifierKey, false);
+            
+            _cumulativeScroll = Vector2.Zero;
+            _cumulativeMouseMovement = Vector2.Zero;
+            _cumulativeZoom = 0;
+            _state = MouseState.Default;
+        }
+        
         void RightClick()
         {
-            if (!_shouldSendVncCommands) return;
             _vncHandler.MouseButtonDown(MouseButton.Right);
             _vncHandler.MouseButtonUp(MouseButton.Right);
         }
 
         void MiddleClick()
         {
-            if (!_shouldSendVncCommands) return;
             _vncHandler.MouseButtonDown(MouseButton.Middle);
             _vncHandler.MouseButtonUp(MouseButton.Middle);
         }
+        
+        #region Stateful Interactions
         void Scroll(Vector2 relative)
         {
-            if (!_shouldSendVncCommands) return;
-            bool vertical = Mathf.Abs(relative.y) > Mathf.Abs(relative.x);
             Vector2 realSize = _interpreter.ControlRealSize;
+            Vector2 increment = relative / realSize;
+            int scrollX = GetIntegerInput(ref _cumulativeScroll.x, increment.x * ScrollSpeed);
+            int scrollY = GetIntegerInput(ref _cumulativeScroll.y, increment.y * ScrollSpeed);
+            var scrollAmt = new Vector2(scrollX, scrollY);
 
-            if(vertical)
-                _cumulativeScroll.y += relative.y / realSize.y * _scrollSpeed;
-            else
-                _cumulativeScroll.x += relative.x / realSize.x * _scrollSpeed;
-
-            var scrollAmount = new Vector2((int)_cumulativeScroll.x, (int)_cumulativeScroll.y);
-            _vncHandler.Scroll(scrollAmount);
-		
-            if (_cumulativeScroll.x > 1f || _cumulativeScroll.x < -1f)
-            {
-                _cumulativeScroll.x = 0f;
-            }
-            if (_cumulativeScroll.y > 1f || _cumulativeScroll.y < -1f)
-            {
-                _cumulativeScroll.y = 0f;
-            }
+            if (scrollAmt == Vector2.Zero) return;
+            
+            _state = MouseState.Scrolling;
+            _vncHandler.Scroll(scrollAmt);
         }
 
+        void HandleZoom(float relative)
+        {
+            Vector2 controlSize = _interpreter.ControlRealSize;
+            float maxDimension = Mathf.Max(controlSize.x, controlSize.y);
+            relative /= maxDimension;
+            int zoomAmount = GetIntegerInput(ref _cumulativeZoom, relative * ZoomSpeed);
+            if (zoomAmount == 0) return;
+
+            var zoomScroll = new Vector2(0, zoomAmount);
+            
+            if(_state != MouseState.Zooming)
+                _vncHandler.SendKey(ZoomModifierKey, true);
+            
+            _state = MouseState.Zooming;
+            _vncHandler.Scroll(zoomScroll);
+        }
+        
+        void LongPress(bool pressed, MouseButton button)
+        {
+            _longPressedButton = button;
+            if (pressed)
+            {
+                _state = MouseState.LongPress;
+                _vncHandler.MouseButtonDown(button);
+                Input.VibrateHandheld(50);
+            }
+            else if (_state == MouseState.LongPress)
+            {
+                _state = MouseState.Default;
+                _vncHandler.MouseButtonUp(button);
+            }
+        }
+        #endregion Stateful Interactions
+        
         void HandleDrag(Vector2 relative)
         {
             Vector2 trackpadSize = _interpreter.ControlRealSize;
@@ -169,8 +213,7 @@ namespace GDTIMDotNet
             float dragAccelerationT = dragDelta.LengthSquared();
             //float dragAccelerationT = dragDelta.Length();
 
-            float speed = _mouseSpeed * TimeAdjustment;
-            speed = _mouseAcceleration ? speed + _mouseSpeed * dragAccelerationT : speed;
+            float speed = _mouseAcceleration ? MouseSpeed + MouseSpeed * dragAccelerationT : MouseSpeed;
             Vector2 moveAmount = dragDelta * speed * minServerResolution;
 
             MoveMouse(moveAmount);
@@ -178,26 +221,25 @@ namespace GDTIMDotNet
 
         void MoveMouse(Vector2 moveAmount)
         {
-            if (!_shouldSendVncCommands) return;
-            _vncHandler.MoveMouse(moveAmount);
+            Vector2 calculatedMouseMove;
+            calculatedMouseMove.x = GetIntegerInput(ref _cumulativeMouseMovement.x, moveAmount.x);
+            calculatedMouseMove.y = GetIntegerInput(ref _cumulativeMouseMovement.y, moveAmount.y);
+            
+            if (calculatedMouseMove == Vector2.Zero) return;
+            
+            _vncHandler.MoveMouse(calculatedMouseMove);
         }
 
-        void LongPress(bool pressed, MouseButton button)
+        static int GetIntegerInput(ref float trackedInput, float increment)
         {
-            _longPressedButton = button;
-            if (_shouldSendVncCommands)
-            {
-                if (pressed)
-                {
-                    _vncHandler.MouseButtonDown(button);
-                    Input.VibrateHandheld(50);
-                }
-                else if (_longPressed)
-                    _vncHandler.MouseButtonUp(button);
-            }
-
-            _longPressed = pressed;
+            trackedInput += increment;
+            
+            var inputAmount = (int)trackedInput;
+            
+            if (trackedInput > 1 || trackedInput < -1)
+                trackedInput = 0;
+            
+            return inputAmount;
         }
-	
     }
 }

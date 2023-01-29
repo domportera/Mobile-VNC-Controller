@@ -7,6 +7,9 @@ using RemoteViewing.Vnc;
 
 namespace PCRemoteControl.VNC
 {
+    /// <summary>
+    /// Should be turned into an interface so this VNC library can be replaced
+    /// </summary>
     public class VncHandler : NodeExt
     {
         [Export] string _ip;
