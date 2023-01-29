@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
@@ -70,6 +71,22 @@ namespace PCRemoteControl.VNC
             }
         }
 
+        /// <summary>
+        /// Simulates keyboard input from text
+        /// Really nasty workaround for deficiencies in this VNC library and Godot
+        /// </summary>
+        /// <param name="text"></param>
+        public void SendText(string text)
+        {
+            List<KeySym> keys = text.ToKeySyms();
+
+            foreach (KeySym key in keys)
+            {
+                _client.SendKeyEvent(key, true);
+                _client.SendKeyEvent(key, false);
+            }
+        }
+
         public void SendKey(KeyList key, bool pressed)
         {
             bool gotKey = key.ToKeySym(out KeySym keySym);
@@ -77,14 +94,18 @@ namespace PCRemoteControl.VNC
             _client.SendKeyEvent(keySym, pressed);
         }
 
-        public void Paste(string text)
+        /// <summary>
+        /// Sending local clipboard does not work. great!
+        /// This app is in desperate need of an updated .NET version
+        /// </summary>
+        /// <param name="text"></param>
+        public async void Paste(string text)
         {
             _client.SendLocalClipboardChange(text);
             SendKey(KeyList.Control, true);
             SendKey(KeyList.V, true);
             SendKey(KeyList.Control, false);
             SendKey(KeyList.V, false);
-
             //revert clipboard to what user expects
             _client.SendLocalClipboardChange(OS.Clipboard);
         }

@@ -1,5 +1,6 @@
+using System;
+using System.Collections.Generic;
 using Godot;
-using Godot.Collections;
 using RemoteViewing.Vnc;
 
 namespace PCRemoteControl.VNC
@@ -138,6 +139,115 @@ namespace PCRemoteControl.VNC
         internal static bool ToKeySym(this KeyList key, out KeySym keySym)
         {
             return Keymap.TryGetValue(key, out keySym);
+        }
+
+        static bool _stringsInitialized = false;
+        static Dictionary<char, KeySym> _characterDict = new Dictionary<char, KeySym>()
+        {
+            //other characers
+            { ' ', KeySym.Space },
+            { '-', KeySym.Minus },
+            { '[', KeySym.BraceLeft },
+            { ']', KeySym.Bracketright },
+            { ';', KeySym.Semicolon },
+            { '\'', KeySym.Apostrophe },
+            { ',', KeySym.Comma },
+            { '.', KeySym.Period },
+            { '/', KeySym.Backslash },
+            { '\\', KeySym.Slash },
+            { '`', KeySym.Grave },
+
+            //keys requiring SHIFT key
+            { '~', KeySym.AsciiTilde },
+            { '!', KeySym.Exclamation },
+            { '@', KeySym.At },
+            { '#', KeySym.NumberSign },
+            { '$', KeySym.Dollar },
+            { '%', KeySym.Percent },
+            { '^', KeySym.AsciiCircum },
+            { '&', KeySym.Ampersand },
+            { '*', KeySym.Asterisk },
+            { '(', KeySym.ParenthesisLeft },
+            { ')', KeySym.ParenthesisRight },
+            { '_', KeySym.Underscore },
+            { '+', KeySym.Plus },
+            { '{', KeySym.BraceLeft },
+            { '}', KeySym.BraceRight },
+            { ':', KeySym.Colon },
+            { '\"', KeySym.Quote },
+            { '?', KeySym.Question },
+            { '<', KeySym.Less },
+            { '>', KeySym.Greater },
+            { '|', KeySym.Bar },
+            
+            //letters
+            { 'a', KeySym.a },
+            { 'b', KeySym.b },
+            { 'c', KeySym.c },
+            { 'd', KeySym.d },
+            { 'e', KeySym.e },
+            { 'f', KeySym.f },
+            { 'g', KeySym.g },
+            { 'h', KeySym.h },
+            { 'i', KeySym.i },
+            { 'j', KeySym.j },
+            { 'k', KeySym.k },
+            { 'l', KeySym.l },
+            { 'm', KeySym.m },
+            { 'n', KeySym.n },
+            { 'o', KeySym.o },
+            { 'p', KeySym.p },
+            { 'q', KeySym.q },
+            { 'r', KeySym.r },
+            { 's', KeySym.s },
+            { 't', KeySym.t },
+            { 'u', KeySym.u },
+            { 'v', KeySym.v },
+            { 'w', KeySym.w },
+            { 'x', KeySym.x },
+            { 'y', KeySym.y },
+            { 'z', KeySym.z },
+            
+            { 'A', KeySym.A },
+            { 'B', KeySym.B },
+            { 'C', KeySym.C },
+            { 'D', KeySym.D },
+            { 'E', KeySym.E },
+            { 'F', KeySym.F },
+            { 'G', KeySym.G },
+            { 'H', KeySym.H },
+            { 'I', KeySym.I },
+            { 'J', KeySym.J },
+            { 'K', KeySym.K },
+            { 'L', KeySym.L },
+            { 'M', KeySym.M },
+            { 'N', KeySym.N },
+            { 'O', KeySym.O },
+            { 'P', KeySym.P },
+            { 'Q', KeySym.Q },
+            { 'R', KeySym.R },
+            { 'S', KeySym.S },
+            { 'T', KeySym.T },
+            { 'U', KeySym.U },
+            { 'V', KeySym.V },
+            { 'W', KeySym.W },
+            { 'X', KeySym.X },
+            { 'Y', KeySym.Y },
+            { 'Z', KeySym.Z },
+        };
+
+        internal static List<KeySym> ToKeySyms(this string str)
+        {
+            var keys = new List<KeySym>();
+
+            foreach (char c in str)
+            {
+                bool success = _characterDict.TryGetValue(c, out KeySym key);
+                if(success)
+                    keys.Add(key);
+            }
+
+            return keys;
         }
 
         /// <summary>

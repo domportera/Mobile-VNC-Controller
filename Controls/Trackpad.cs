@@ -52,7 +52,6 @@ namespace GDTIMDotNet
         protected override void OnTwist(object sender, TwistArgs e)
         {
             if (!StateIsDefault) return;
-            GDLogger.Log(this,"Twist");
         }
 
         protected override void OnSingleLongPress(object sender, Vector2 e)

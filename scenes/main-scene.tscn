@@ -1,8 +1,12 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://VNC/VncHandler.cs" type="Script" id=1]
 [ext_resource path="res://GodotExtensions/Scenes/Log Handler.tscn" type="PackedScene" id=2]
 [ext_resource path="res://scenes/Trackpad.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Controls/Keyboard.cs" type="Script" id=4]
+
+[sub_resource type="Theme" id=1]
+VBoxContainer/constants/separation = 4
 
 [node name="Control" type="Control"]
 anchor_right = 1.0
@@ -18,11 +22,9 @@ _password = "passpass"
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 follow_viewport_enable = true
 
-[node name="Trackpad" parent="CanvasLayer" instance=ExtResource( 3 )]
-_mouseSpeed = 20.0
-_scrollSpeed = 100.0
-
 [node name="Log Handler" parent="CanvasLayer" instance=ExtResource( 2 )]
+
+[node name="Trackpad" parent="CanvasLayer" instance=ExtResource( 3 )]
 
 [node name="KeyboardToggleButton" type="Button" parent="CanvasLayer"]
 anchor_left = 0.743
@@ -33,12 +35,21 @@ margin_left = -0.440063
 margin_top = -0.52002
 margin_right = 0.47998
 margin_bottom = 0.440002
-action_mode = 0
 
-[node name="KeyboardInput" type="TextEdit" parent="CanvasLayer"]
-anchor_left = 1.0
-anchor_top = -0.14
-anchor_right = 1.328
+[node name="KeyboardInput" type="LineEdit" parent="CanvasLayer"]
+anchor_left = 1.739
+anchor_top = -0.188
+anchor_right = 2.739
+anchor_bottom = -0.088
+margin_left = -0.120117
+margin_top = -0.039978
+margin_right = -0.120117
+margin_bottom = -0.0399933
+rect_pivot_offset = Vector2( 2589, -1150.48 )
+theme = SubResource( 1 )
 context_menu_enabled = false
 shortcut_keys_enabled = false
 middle_mouse_paste_enabled = false
+script = ExtResource( 4 )
+_activationButtonPath = "../KeyboardToggleButton"
+_vncHandlerPath = "../../VncHandler"
