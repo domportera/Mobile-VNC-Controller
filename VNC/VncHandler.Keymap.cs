@@ -34,6 +34,8 @@ namespace PCRemoteControl.VNC
             { KeyList.Pagedown, KeySym.PageDown },
             { KeyList.Meta, KeySym.MetaLeft },
             { KeyList.Numlock, KeySym.Num_Lock },
+            { KeyList.Print, KeySym.Print },
+            { KeyList.Pause, KeySym.Pause },
 
             //other characers
             { KeyList.Space, KeySym.Space },

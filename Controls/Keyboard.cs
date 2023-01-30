@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
 using GodotExtensions;
 using PCRemoteControl.VNC;
+using RemoteViewing.Vnc;
 
-namespace GDTIMDotNet
+namespace PCRemoteControl.Controls
 {
     public class Keyboard : LineEdit
     {
