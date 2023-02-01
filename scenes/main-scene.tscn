@@ -9,10 +9,9 @@
 [sub_resource type="Theme" id=1]
 VBoxContainer/constants/separation = 4
 
-[node name="Control" type="Control"]
+[node name="Canvas Layer" type="Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-mouse_filter = 2
 
 [node name="VncHandler" type="Node" parent="."]
 script = ExtResource( 1 )
@@ -20,22 +19,20 @@ _ip = "192.168.8.171"
 _port = 5900
 _password = "passpass"
 
+[node name="Godot Console" parent="." instance=ExtResource( 2 )]
+
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 follow_viewport_enable = true
-
-[node name="Log Handler" parent="CanvasLayer" instance=ExtResource( 2 )]
 
 [node name="Trackpad" parent="CanvasLayer" instance=ExtResource( 3 )]
 
 [node name="KeyboardToggleButton" type="Button" parent="CanvasLayer"]
 anchor_left = 0.743
-anchor_top = 0.306
-anchor_right = 0.994
-anchor_bottom = 0.393
+anchor_top = 0.901
+anchor_right = 1.0
+anchor_bottom = 1.0
 margin_left = -0.440063
-margin_top = -0.52002
-margin_right = 0.47998
-margin_bottom = 0.440002
+margin_top = 0.0799561
 
 [node name="KeyboardInput" type="LineEdit" parent="CanvasLayer"]
 anchor_left = 1.739
@@ -51,17 +48,24 @@ theme = SubResource( 1 )
 context_menu_enabled = false
 shortcut_keys_enabled = false
 middle_mouse_paste_enabled = false
+caret_blink = true
+caret_blink_speed = 0.5
 script = ExtResource( 4 )
 _activationButtonPath = "../KeyboardToggleButton"
 _vncHandlerPath = "../../VncHandler"
 
-[node name="GridContainer" type="GridContainer" parent="CanvasLayer"]
-anchor_top = 0.291
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer"]
+anchor_top = 0.081
 anchor_right = 1.0
-anchor_bottom = 0.43
-margin_top = -3.0
-margin_bottom = -3.0
+anchor_bottom = 0.4
+margin_top = -0.520004
+margin_right = -3.0
+margin_bottom = 5.0
+
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/ScrollContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-columns = 6
+columns = 4
 script = ExtResource( 5 )

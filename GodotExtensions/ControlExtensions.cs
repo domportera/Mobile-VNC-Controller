@@ -4,9 +4,9 @@ namespace GodotExtensions
 {
     public static class ControlExtensions 
     {
-        public static Vector2 GetRectSize(this Control control)
+        public static Vector2 RealRectSize(this Control control)
         {
-            return control.GetRectSize() * control.RectScale;
+            return control.RectSize * control.RectScale;
         }
         public static Vector2 RealPixelSize(this Control control)
         {
@@ -21,6 +21,14 @@ namespace GodotExtensions
                 control.MarginTop + control.MarginBottom);
         
             return resolution * anchorSize + marginSize;
+        }
+        
+        public static void MaximizeAnchors(this Control control)
+        {
+            control.AnchorLeft = 0;
+            control.AnchorRight = 1;
+            control.AnchorTop = 0;
+            control.AnchorBottom = 1;
         }
     }
 }

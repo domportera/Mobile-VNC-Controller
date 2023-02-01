@@ -7,10 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using GodotExtensions;
 
-public class GDConsoleBridge : NodeExt
+public class GDConsoleBridge : VSplitContainer
 {
 	[Export] int _maxLogs = 1000;
-	[Export] float _height = 0.3f;
 	readonly Queue<Log> _logs = new Queue<Log>();
 	VBoxContainer _logVBox;
 	ScrollContainer _scrollContainer;
@@ -32,13 +31,10 @@ public class GDConsoleBridge : NodeExt
 		Logger.ErrorEvent += HandleError;
 		Logger.ExceptionEvent += HandleException;
 
-		var canvasLayer = GetNode("CanvasLayer") as CanvasLayer;
-		var vSplit = canvasLayer.GetNode("VSplitContainer") as VSplitContainer;
-		_panel = vSplit.GetNode("Panel") as Panel;
-		_scrollContainer = _panel.GetNode("ScrollContainer") as ScrollContainer;
-		_logVBox = _scrollContainer.GetNode("VBoxContainer") as VBoxContainer;
+		_panel = GetNode<Panel>("Panel");
+		_scrollContainer = _panel.GetNode<ScrollContainer>("ScrollContainer");
+		_logVBox = _scrollContainer.GetNode<VBoxContainer>("VBoxContainer");
 		
-		vSplit.AnchorBottom = _height;
 		EditorDescription = "A bridge between the native c# console and the Godot console, homogenizing their output";
 
 		_logVBox.Connect("resized", this, ScrollToBottom);
@@ -47,19 +43,45 @@ public class GDConsoleBridge : NodeExt
 		
 	}
 
+	bool _canToggleMouseFilter = true;
+	const int DragItemHeight = 12;
+	public override void _Input(InputEvent @event)
+	{
+		switch (@event)
+		{
+			case InputEventMouseButton buttonPress:
+				_canToggleMouseFilter = !buttonPress.Pressed;
+				break;
+			case InputEventMouseMotion motion:
+				if (_canToggleMouseFilter)
+				{
+					MouseFilter = motion.Position.y > _panel.RectSize.y + DragItemHeight
+						? MouseFilterEnum.Ignore
+						: MouseFilterEnum.Stop;
+				}
+				break;
+		}
+		
+		base._Input(@event);
+	}
+
 	void HandleLog(object sender, LogEventArgs a)
 	{
 		GD.Print(a.Log);
 		AddLog(LogType.Log, a.Log);
 	}
+	
 	void HandleError(object sender, LogEventArgs a)
 	{
 		GD.PrintErr(a.Log);
+		GD.PushError(a.Log);
 		AddLog(LogType.Error, a.Log);
 	}
+	
 	void HandleException(object sender, ExceptionEventArgs a)
 	{
 		GD.PrintErr(a.Log);
+		GD.PushError(a.Log);
 		AddLog(LogType.Exception, a.Log);
 	}
 

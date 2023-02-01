@@ -11,8 +11,16 @@ namespace PCRemoteControl.Controls
         static readonly Dictionary<KeyList, string> AlternateKeyNames = new Dictionary<KeyList, string>
         {
             {KeyList.SuperL, "Super"},
-            {KeyList.SuperR, "Super(R)"}
+            {KeyList.SuperR, "Super(R)"},
+            {KeyList.Control, "Ctrl"}
         };
+
+        static string GetName(this KeyList key)
+        {
+            bool hasKey = AlternateKeyNames.TryGetValue(key, out string newName);
+            string name = hasKey ? newName : key.ToString();
+            return name;
+        }
         
         // todo: custom button class that accepts GuiConstrainedGestureInterpreter for multitouch
         internal static readonly List<KeyCommand> ExtraKeys = new List<KeyCommand>()
@@ -88,13 +96,10 @@ namespace PCRemoteControl.Controls
                 Interaction = KeyInteractionMode.Press;
                 Keys = keys;
 
-                Name = keys[0].ToString();
+                Name = keys[0].GetName();
                 for(int i = 1; i < keys.Length; i++)
                 {
-                    KeyList key = keys[i];
-                    bool hasKey = AlternateKeyNames.TryGetValue(key, out string newName);
-                    string name = hasKey ? newName : key.ToString();
-                    Name += $" + {name}";
+                    Name += $" {keys[i].GetName()}";
                 }
             }
 

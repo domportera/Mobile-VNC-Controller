@@ -6,9 +6,9 @@ using static PCRemoteControl.Controls.SystemKeyDefinitions;
 
 namespace PCRemoteControl.Controls
 {
-    public partial class SystemKeys : GridContainer
+    public class SystemKeys : GridContainer
     {
-        [Export] string _vncHandlerRelativePath = "../../VncHandler";
+        [Export] string _vncHandlerRelativePath = "../../../VncHandler";
         VncHandler _vncHandler;
         
         public override void _Ready()
@@ -16,18 +16,22 @@ namespace PCRemoteControl.Controls
             _vncHandler = GetNode<VncHandler>(_vncHandlerRelativePath);
             foreach (KeyCommand command in ExtraKeys)
             {
-                Button button = new Button();
-                button.Text = command.Name;
-                button.SizeFlagsHorizontal = (int)SizeFlags.ExpandFill;
-                button.SizeFlagsVertical = (int)SizeFlags.ExpandFill;
-
-                if (command.Interaction == KeyInteractionMode.Press)
-                    button.Connect("pressed", this, "ExecuteButton", new Godot.Collections.Array{command.Name});
-                
-                AddChild(button);
+                var button = InstantiateKeyCommandButton(command);
+                AddChild(button.Control);
             }
         }
 
+        MultiLineButton InstantiateKeyCommandButton(KeyCommand command)
+        {
+            var button = new MultiLineButton(command.Name, true);
+
+            if (command.Interaction == KeyInteractionMode.Press)
+                button.Button.Connect("pressed", this, "ExecuteButton", new Godot.Collections.Array { command.Name });
+            
+            return button;
+        }
+
+        // ReSharper disable once UnusedMember.Local
         void ExecuteButton(string commandName)
         {
             GDLogger.Log(this, $"Button {commandName} pressed!");
