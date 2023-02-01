@@ -33,6 +33,8 @@ namespace PCRemoteControl.VNC
             { KeyList.Pageup, KeySym.PageUp },
             { KeyList.Pagedown, KeySym.PageDown },
             { KeyList.Meta, KeySym.MetaLeft },
+            { KeyList.SuperL, KeySym.SuperLeft },
+            { KeyList.SuperR, KeySym.SuperRight },
             { KeyList.Numlock, KeySym.Num_Lock },
             { KeyList.Print, KeySym.Print },
             { KeyList.Pause, KeySym.Pause },
