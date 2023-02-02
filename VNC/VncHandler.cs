@@ -77,6 +77,9 @@ namespace PCRemoteControl.VNC
 
         void TryConnect(string ip, int port, VncClientConnectOptions options)
         {
+            if(_client.IsConnected)
+                _client.Close();
+            
             try
             {
                 _connecting = true;
