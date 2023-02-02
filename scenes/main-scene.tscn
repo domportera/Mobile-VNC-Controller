@@ -1,23 +1,33 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://VNC/VncHandler.cs" type="Script" id=1]
 [ext_resource path="res://GodotExtensions/Scenes/Log Handler.tscn" type="PackedScene" id=2]
 [ext_resource path="res://scenes/Trackpad.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Controls/Keyboard.cs" type="Script" id=4]
 [ext_resource path="res://Controls/SystemKeys.cs" type="Script" id=5]
+[ext_resource path="res://VNC/VncAuthHelper.cs" type="Script" id=6]
+[ext_resource path="res://icon.png" type="Texture" id=7]
 
 [sub_resource type="Theme" id=1]
 VBoxContainer/constants/separation = 4
 
-[node name="Canvas Layer" type="Panel"]
+[node name="Root" type="Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 
 [node name="VncHandler" type="Node" parent="."]
 script = ExtResource( 1 )
-_ip = "192.168.8.171"
+_ip = "127.0.0.1"
 _port = 5900
 _password = "passpass"
+_pathToVncAuthHelper = NodePath("AuthHelper")
+_pathToConnectButton = NodePath("../CanvasLayer/Top Bar/Connect Button")
+
+[node name="AuthHelper" type="Node" parent="VncHandler"]
+script = ExtResource( 6 )
+_pathToIpField = NodePath("../../CanvasLayer/Top Bar/IP Field")
+_pathToPasswordField = NodePath("../../CanvasLayer/Top Bar/Password Field")
+_pathToPortField = NodePath("../../CanvasLayer/Top Bar/Port Field")
 
 [node name="Godot Console" parent="." instance=ExtResource( 2 )]
 
@@ -63,9 +73,54 @@ margin_right = -3.0
 margin_bottom = 5.0
 
 [node name="GridContainer" type="GridContainer" parent="CanvasLayer/ScrollContainer"]
-anchor_right = 1.0
-anchor_bottom = 1.0
+margin_right = 1077.0
+margin_bottom = 618.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 4
 script = ExtResource( 5 )
+
+[node name="Top Bar" type="HBoxContainer" parent="CanvasLayer"]
+anchor_right = 1.0
+anchor_bottom = 0.051
+margin_right = -2.0
+margin_bottom = -0.920006
+
+[node name="IP Field" type="LineEdit" parent="CanvasLayer/Top Bar"]
+margin_right = 342.0
+margin_bottom = 97.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.8
+placeholder_text = "Address"
+
+[node name="Port Field" type="SpinBox" parent="CanvasLayer/Top Bar"]
+margin_left = 346.0
+margin_right = 537.0
+margin_bottom = 97.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+min_value = 1025.0
+max_value = 65535.0
+value = 5900.0
+rounded = true
+prefix = "Port:"
+
+[node name="Password Field" type="LineEdit" parent="CanvasLayer/Top Bar"]
+margin_left = 541.0
+margin_right = 883.0
+margin_bottom = 97.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.8
+secret = true
+placeholder_text = "Password"
+
+[node name="Connect Button" type="Button" parent="CanvasLayer/Top Bar"]
+margin_left = 887.0
+margin_right = 1078.0
+margin_bottom = 97.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Connect"
+icon = ExtResource( 7 )

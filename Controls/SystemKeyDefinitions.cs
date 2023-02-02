@@ -67,8 +67,10 @@ namespace PCRemoteControl.Controls
             new KeyCommand(KeyList.SuperL, KeyList.D),
             new KeyCommand(KeyList.Alt, KeyList.Space),
             new KeyCommand(KeyList.Alt, KeyList.Enter),
-            new KeyCommand(KeyList.Control, KeyList.Shift, KeyList.Escape),
             new KeyCommand(KeyList.Control, KeyList.Alt, KeyList.Delete),
+            new KeyCommand("Task Manager", KeyList.Control, KeyList.Shift, KeyList.Escape),
+            new KeyCommand("Copy", KeyList.Control, KeyList.C),
+            new KeyCommand("Paste", KeyList.Control, KeyList.V),
         };
 
         internal static readonly Dictionary<string, KeyCommand> KeyDict = 
@@ -84,11 +86,11 @@ namespace PCRemoteControl.Controls
             public KeyInteractionMode Interaction;
             bool _toggleState;
 
-            internal KeyCommand(KeyList key, KeyInteractionMode interaction)
+            internal KeyCommand(KeyList key, KeyInteractionMode interaction, string name = "")
             {
                 Keys = new []{ key };
                 Interaction = interaction;
-                Name = key.ToString();
+                Name = name == string.Empty ? key.ToString() : name;
             }
 
             internal KeyCommand(params KeyList[] keys)
@@ -101,6 +103,13 @@ namespace PCRemoteControl.Controls
                 {
                     Name += $" {keys[i].GetName()}";
                 }
+            }
+
+            internal KeyCommand(string name, params KeyList[] keys)
+            {
+                Interaction = KeyInteractionMode.Press;
+                Keys = keys;
+                Name = name;
             }
 
             internal void Execute(VncHandler vncHandler)

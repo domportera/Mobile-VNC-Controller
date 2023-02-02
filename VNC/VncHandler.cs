@@ -16,6 +16,9 @@ namespace PCRemoteControl.VNC
         [Export] string _ip;
         [Export] int _port;
         [Export] string _password;
+        [Export] NodePath _pathToVncAuthHelper;
+        [Export] NodePath _pathToConnectButton;
+        
         public event EventHandler OnConnected;
         public event EventHandler OnDisconnected;
         Vector2 _mousePosition = Vector2.Zero;
@@ -25,11 +28,18 @@ namespace PCRemoteControl.VNC
         public Vector2 Resolution => _serverResolution;
         CancellationTokenSource _clipboardCts;
         const int ClipboardCheckIntervalMs = 500;
+        Button _connectButton;
+        bool _connecting = false;
+
+        VncAuthHelper _authHelper;
 
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
         {
-            InitializeClient(_ip, _password, _port);
+            _authHelper = GetNode<VncAuthHelper>(_pathToVncAuthHelper);
+            _connectButton = GetNode<Button>(_pathToConnectButton);
+            _connectButton.Connect("pressed", this, Connect);
+            InitializeClient();
         }
 
         public override void _Notification(int what)
@@ -38,16 +48,9 @@ namespace PCRemoteControl.VNC
                 _clipboardCts?.Cancel();
         }
 
-        private void InitializeClient(string ip, string password, int port)
+        private void InitializeClient()
         {
-            var options = new VncClientConnectOptions()
-            {
-                Password = password.ToCharArray(),
-                OnDemandMode = false
-            };
-
             _client = new VncClient();
-
             _client.Connected += OnConnected;
             _client.Connected += ClientOnConnected;
             _client.ConnectionFailed += ClientOnConnectionFailed;
@@ -56,18 +59,36 @@ namespace PCRemoteControl.VNC
             _client.RemoteClipboardChanged += ClientOnRemoteClipboardChanged;
             _client.MaxUpdateRate = 0.000001f;
 
-            TryConnect(ip, port, options);
+        }
+
+        void Connect()
+        {
+            if (_client.IsConnected || _connecting) return;
+            
+            VncAuthHelper.AuthInfo authInfo = _authHelper.GetAuthInfo();
+            var options = new VncClientConnectOptions()
+            {
+                Password = authInfo.Password.ToCharArray(),
+                OnDemandMode = false
+            };
+            
+            TryConnect(authInfo.Ip, authInfo.Port, options);
         }
 
         void TryConnect(string ip, int port, VncClientConnectOptions options)
         {
             try
             {
+                _connecting = true;
                 _client.Connect(ip, port, options);
             }
             catch (Exception e)
             {
                 LogException($"Error connecting to server at {ip}:{port.ToString()}", e);
+            }
+            finally
+            {
+                _connecting = false;
             }
         }
 
@@ -78,6 +99,7 @@ namespace PCRemoteControl.VNC
         /// <param name="text"></param>
         public void SendText(string text)
         {
+            if (!_client.IsConnected) return;
             List<KeySym> keys = text.ToKeySyms();
 
             foreach (KeySym key in keys)
@@ -89,6 +111,7 @@ namespace PCRemoteControl.VNC
 
         public void SendKey(KeyList key, bool pressed)
         {
+            if (!_client.IsConnected) return;
             bool gotKey = key.ToKeySym(out KeySym keySym);
             if (!gotKey) return;
             _client.SendKeyEvent(keySym, pressed);
@@ -101,6 +124,7 @@ namespace PCRemoteControl.VNC
         /// <param name="text"></param>
         public async void Paste(string text)
         {
+            if (!_client.IsConnected) return;
             _client.SendLocalClipboardChange(text);
             SendKey(KeyList.Control, true);
             SendKey(KeyList.V, true);
@@ -186,6 +210,7 @@ namespace PCRemoteControl.VNC
 
         void UpdateMouse()
         {
+            if (!_client.IsConnected) return;
             _client.SendPointerEvent((int)_mousePosition.x, (int)_mousePosition.y, _currentPressedButtons);
         }
 

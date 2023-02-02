@@ -100,8 +100,6 @@ InputManager="*res://GDTIMv2_1_2/InputManager.gd"
 
 window/size/width=1080
 window/size/height=1920
-window/size/test_width=360
-window/size/test_height=640
 window/handheld/orientation="portrait"
 
 [editor_plugins]
