@@ -27,6 +27,11 @@ o = in progress
 - [ ] proper font scaling and multi-resolution support
 - [ ] improved system key layout
 - [ ] an options menu
+- [ ] oled theme
+- [ ] landscape support
+- [ ] minimalist layout
+- [ ] gamepad layout 
+- [ ] button icons
 
 ## Library Development
 - [o] genericization of tools and libraries developed for this for use in other projects
@@ -36,6 +41,20 @@ o = in progress
     - [ ] general .NET and Godot .NET libraries
         - [ ] fuse with DomsUnityHelper and make many functions platform-agnostic
     - [ ] Android wireless debugging .bat script
+- [ ] push touch UI developments upstream 
+
+ ## Technical To-dos
+- [ ] framerate limit option
+- [ ] upgrade to more capable VNC library (requires Godot 4 once it supports .NET android compilation)
+- [ ] upgrade to Godot 4
+- [ ] refactor with .NET Core goodness
+
+## Unlikely Ideas
+- [ ] Rustdesk support
+- [ ] HID emulation
+- [ ] Bluetooth support
+- [ ] stream zoomed in VNC video feed under trackpad
+- [ ] full traditional video support
 
 ## Build Instructions
 Standard Godot-for-android build procedure applies, with only a couple of permissions checked:
