@@ -49,21 +49,33 @@ public class GDConsoleBridge : VSplitContainer
 	{
 		switch (@event)
 		{
+			case InputEventScreenTouch screenTouch:
+				ChangeMouseFilterBasedOnPosition(screenTouch.Position);
+				break;
+			case InputEventScreenDrag drag:
+				ChangeMouseFilterBasedOnPosition(drag.Position);
+				break;
 			case InputEventMouseButton buttonPress:
 				_canToggleMouseFilter = !buttonPress.Pressed;
 				break;
 			case InputEventMouseMotion motion:
 				if (_canToggleMouseFilter)
 				{
-					MouseFilter = motion.Position.y > _panel.RectSize.y + DragItemHeight
-						? MouseFilterEnum.Ignore
-						: MouseFilterEnum.Stop;
+					ChangeMouseFilterBasedOnPosition(motion.Position);
 				}
 				break;
 		}
 		
 		base._Input(@event);
+		
+		void ChangeMouseFilterBasedOnPosition(Vector2 position)
+		{
+			MouseFilter = position.y > _panel.RectSize.y + DragItemHeight
+				? MouseFilterEnum.Ignore
+				: MouseFilterEnum.Stop;
+		}
 	}
+
 
 	void HandleLog(object sender, LogEventArgs a)
 	{
