@@ -8,7 +8,7 @@ namespace PCRemoteControl.Controls
 {
     public class SystemKeys : GridContainer
     {
-        [Export] string _vncHandlerRelativePath = "../../../VncHandler";
+        [Export] NodePath _vncHandlerRelativePath = "../../../VncHandler";
         VncHandler _vncHandler;
         
         public override void _Ready()

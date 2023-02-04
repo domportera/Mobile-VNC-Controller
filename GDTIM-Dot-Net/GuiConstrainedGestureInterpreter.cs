@@ -3,6 +3,7 @@ using Godot;
 using GodotExtensions;
 using System;
 using GDTIMDotNet;
+using Microsoft.Extensions.Logging;
 
 namespace GDTIMDotNet
 {
@@ -11,8 +12,8 @@ namespace GDTIMDotNet
 		[Export] string _controlPathRelative = "Panel";
 
 		Control _control;
+		Control _parentControl;
 		public Vector2 ControlRealSize => _control.RealPixelSize();
-		Rect2 ControlRect => _control.GetRect();
 		int _touchCount;
 		bool _shouldProcessEvents;
 
@@ -20,6 +21,7 @@ namespace GDTIMDotNet
 		{
 			base._Ready();
 			_control = GetNode(_controlPathRelative) as Control;
+			_parentControl = _control.GetParentControl();
 		}
 
 		public override void _Process(float delta)
@@ -112,6 +114,11 @@ namespace GDTIMDotNet
 			base.OnTwist(position, relative, fingers);
 		}
 
-		bool IsInsideControl(Vector2 position) => ControlRect.HasPoint(position);
+		bool IsInsideControl(Vector2 position)
+		{
+			Rect2 controlRect = _control.GetRect();
+			Rect2 relevantRect = new Rect2(controlRect.Position + _parentControl.RectPosition, controlRect.Size);
+			return relevantRect.HasPoint(position);
+		}
 	}
 }

@@ -12,8 +12,8 @@ namespace PCRemoteControl.Controls
     {
         // raw text entry like this can use the clipboard from the TextEdit contents to auto-paste
         // using VncHandler.Paste(string)
-        [Export] string _activationButtonPath = "../KeyboardButton";
-        [Export] string _vncHandlerPath;
+        [Export] NodePath _activationButtonPath = "../KeyboardButton";
+        [Export] NodePath _vncHandlerPath;
         [Export] float _textEditHeight = 0.07f;
         [Export] bool _hideOnSubmit = true;
         VncHandler _vncHandler;

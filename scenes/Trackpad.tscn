@@ -4,7 +4,11 @@
 [ext_resource path="res://GDTIM-Dot-Net/GDTIMToDotNet.gd" type="Script" id=3]
 [ext_resource path="res://Controls/Trackpad.cs" type="Script" id=4]
 
-[node name="Trackpad" type="Node"]
+[node name="Trackpad" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 script = ExtResource( 4 )
 _gestureInterpreterRelativePath = "Interpreter"
 
@@ -13,8 +17,7 @@ script = ExtResource( 2 )
 _controlPathRelative = "../GesturePanel"
 
 [node name="GesturePanel" type="Panel" parent="."]
-anchor_top = 0.4
 anchor_right = 1.0
-anchor_bottom = 0.9
+anchor_bottom = 1.0
 script = ExtResource( 3 )
 dot_net_interpreter_path_relative = "../Interpreter"

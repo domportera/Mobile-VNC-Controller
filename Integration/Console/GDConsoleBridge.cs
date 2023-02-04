@@ -7,13 +7,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using GodotExtensions;
 
-public class GDConsoleBridge : VSplitContainer
+public class GDConsoleBridge : Node
 {
 	[Export] int _maxLogs = 1000;
+	[Export] NodePath _buttonPath;
+	[Export] bool _showInGameConsole = true;
+	
 	readonly Queue<Log> _logs = new Queue<Log>();
 	VBoxContainer _logVBox;
+	VSplitDropDown _vSplitContainer;
 	ScrollContainer _scrollContainer;
-	Panel _panel;
+	Button _button;
 	
 	const string ColorOverrideName = "font_color";
 
@@ -30,53 +34,39 @@ public class GDConsoleBridge : VSplitContainer
 		Logger.LogEvent += HandleLog;
 		Logger.ErrorEvent += HandleError;
 		Logger.ExceptionEvent += HandleException;
+		EditorDescription = "A bridge between the native c# console and the Godot console, homogenizing their output." +
+		                    "Also contains a log console in-game.";
 
-		_panel = GetNode<Panel>("Panel");
-		_scrollContainer = _panel.GetNode<ScrollContainer>("ScrollContainer");
+		//should probably just split into 2 classes but that's a task for another day
+		if (!_showInGameConsole)
+		{
+			if (_vSplitContainer != null)
+			{
+				_vSplitContainer.Collapsed = true;
+				_vSplitContainer.DraggerVisibility = SplitContainer.DraggerVisibilityEnum.HiddenCollapsed;
+			}
+
+			return;
+		}
+		
+		_vSplitContainer = FindNode("VSplitContainer") as VSplitDropDown;
+
+		_scrollContainer = FindNode("ScrollContainer") as ScrollContainer;
 		_logVBox = _scrollContainer.GetNode<VBoxContainer>("VBoxContainer");
 		
-		EditorDescription = "A bridge between the native c# console and the Godot console, homogenizing their output";
 
 		_logVBox.Connect("resized", this, ScrollToBottom);
 		_scrollContainer.Connect("scroll_started", this, DisallowAutoScroll);
 		_scrollContainer.Connect("scroll_ended", this, AllowAutoScrollIfAtBottom);
-		
-	}
 
-	bool _canToggleMouseFilter = true;
-	const int DragItemHeight = 12;
-	public override void _Input(InputEvent @event)
-	{
-		switch (@event)
+		_button = GetNode<Button>(_buttonPath);
+
+		if (_button != null)
 		{
-			case InputEventScreenTouch screenTouch:
-				ChangeMouseFilterBasedOnPosition(screenTouch.Position);
-				break;
-			case InputEventScreenDrag drag:
-				ChangeMouseFilterBasedOnPosition(drag.Position);
-				break;
-			case InputEventMouseButton buttonPress:
-				_canToggleMouseFilter = !buttonPress.Pressed;
-				break;
-			case InputEventMouseMotion motion:
-				if (_canToggleMouseFilter)
-				{
-					ChangeMouseFilterBasedOnPosition(motion.Position);
-				}
-				break;
-		}
-		
-		base._Input(@event);
-		
-		void ChangeMouseFilterBasedOnPosition(Vector2 position)
-		{
-			MouseFilter = position.y > _panel.RectSize.y + DragItemHeight
-				? MouseFilterEnum.Ignore
-				: MouseFilterEnum.Stop;
+			_button.Connect("pressed", this, _vSplitContainer.ToggleWithButton);
 		}
 	}
-
-
+	
 	void HandleLog(object sender, LogEventArgs a)
 	{
 		GD.Print(a.Log);

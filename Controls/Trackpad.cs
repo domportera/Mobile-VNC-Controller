@@ -6,7 +6,7 @@ namespace GDTIMDotNet
 {
     public class Trackpad : GestureConsumer<GuiConstrainedGestureInterpreter>
     {
-        [Export] string _vncHandlerPathRelative = "../../VncHandler";
+        [Export] NodePath _vncHandlerPath;
         [Export] bool _mouseAcceleration = true;
         
         GuiConstrainedGestureInterpreter _interpreter;
@@ -40,7 +40,7 @@ namespace GDTIMDotNet
                              $"while we were expecting {nameof(GuiConstrainedGestureInterpreter)}");
             }
             
-            _vncHandler = GetNode(_vncHandlerPathRelative) as VncHandler;
+            _vncHandler = GetNode(_vncHandlerPath) as VncHandler;
         }
         
         public override void _Process(float delta)
