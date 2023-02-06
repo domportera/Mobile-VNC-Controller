@@ -13,11 +13,8 @@ namespace PCRemoteControl.VNC
     /// </summary>
     public class VncHandler : NodeExt
     {
-        [Export] string _ip;
-        [Export] int _port;
-        [Export] string _password;
-        [Export] NodePath _pathToVncAuthHelper;
-        [Export] NodePath _pathToConnectButton;
+        [Export] NodePath _pathToVncAuthHelper = "../VncAuthHelper";
+        [Export] NodePath _pathToConnectButton = "../ConnectButton";
         
         public event EventHandler OnConnected;
         public event EventHandler OnDisconnected;
@@ -28,7 +25,7 @@ namespace PCRemoteControl.VNC
         public Vector2 Resolution => _serverResolution;
         CancellationTokenSource _clipboardCts;
         const int ClipboardCheckIntervalMs = 500;
-        Button _connectButton;
+        GuiTouchButton _connectButton;
         bool _connecting = false;
 
         VncAuthHelper _authHelper;
@@ -37,8 +34,8 @@ namespace PCRemoteControl.VNC
         public override void _Ready()
         {
             _authHelper = GetNode<VncAuthHelper>(_pathToVncAuthHelper);
-            _connectButton = GetNode<Button>(_pathToConnectButton);
-            _connectButton.Connect("pressed", this, Connect);
+            _connectButton = GetNode<GuiTouchButton>(_pathToConnectButton);
+            _connectButton.Connect("pressed_up", this, Connect);
             InitializeClient();
         }
 
@@ -125,7 +122,7 @@ namespace PCRemoteControl.VNC
         /// This app is in desperate need of an updated .NET version
         /// </summary>
         /// <param name="text"></param>
-        public async void Paste(string text)
+        public void Paste(string text)
         {
             if (!_client.IsConnected) return;
             _client.SendLocalClipboardChange(text);

@@ -5,8 +5,14 @@ namespace GodotExtensions
 {
     public static class SignalHelper
     {
-        public delegate void DelegateParameterless();
-        public static Godot.Error Connect(this Object obj, string signalName, Object owner, DelegateParameterless method)
+        public delegate void SignalFunction();
+        public delegate void SignalFunction<in T>(T parameter);
+        public delegate void SignalFunction<in T1, in T2>(T1 param1, T2 param2);
+        public delegate void SignalFunction<in T1, in T2, in T3>(T1 param1, T2 param2, T3 param3);
+        public delegate void SignalFunction<in T1, in T2, in T3, in T4>(T1 param1, T2 param2, T3 param3, T4 param4);
+        public delegate void SignalFunction<in T1, in T2, in T3, in T4, in T5>(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5);
+        
+        public static Godot.Error Connect(this Object obj, string signalName, Object owner, SignalFunction method)
         {
             Error error = obj.Connect(signalName, owner, method.Method.Name);
             if(error != Error.Ok)
@@ -14,7 +20,7 @@ namespace GodotExtensions
             return error;
         }
         
-        public static Godot.Error Connect(this Object obj, string signalName, ObjectExt owner, DelegateParameterless method)
+        public static Godot.Error Connect(this Object obj, string signalName, ObjectExt owner, SignalFunction method)
         {
             Error error = obj.Connect(signalName, owner, method.Method.Name);
             if(error != Error.Ok)
@@ -22,7 +28,7 @@ namespace GodotExtensions
             return error;
         }
         
-        public static Godot.Error Connect(this Object obj, string signalName, NodeExt owner, DelegateParameterless method)
+        public static Godot.Error Connect(this Object obj, string signalName, NodeExt owner, SignalFunction method)
         {
             Error error = obj.Connect(signalName, owner, method.Method.Name);
             if(error != Error.Ok)

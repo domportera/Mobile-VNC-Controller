@@ -4,12 +4,13 @@ using PCRemoteControl.VNC;
 
 namespace GDTIMDotNet
 {
-    public class Trackpad : GestureConsumer<GuiConstrainedGestureInterpreter>
+    public class Trackpad : Control, IGestureConsumer
     {
-        [Export] NodePath _vncHandlerPath;
+        [Export] NodePath _vncHandlerPath = string.Empty;
         [Export] bool _mouseAcceleration = true;
+
+        Vector2 RealSize => this.RealPixelSize();
         
-        GuiConstrainedGestureInterpreter _interpreter;
         VncHandler _vncHandler;
         MouseButton _longPressedButton = MouseButton.Left;
         bool IsMultiLongPressed => _state == MouseState.LongPress && _longPressedButton != MouseButton.Left;
@@ -30,16 +31,8 @@ namespace GDTIMDotNet
         Vector2 _cumulativeMouseMovement;
         float _cumulativeZoom;
         
-        protected override void OnReady(GuiConstrainedGestureInterpreter interpreter)
+        public override void _Ready()
         {
-            _interpreter = interpreter;
-
-            if (_interpreter is null)
-            {
-                GDLogger.Log(this,$"Interpreter received is not the expected type. Interpreter is {interpreter.GetType()}," +
-                             $"while we were expecting {nameof(GuiConstrainedGestureInterpreter)}");
-            }
-            
             _vncHandler = GetNode(_vncHandlerPath) as VncHandler;
         }
         
@@ -49,33 +42,33 @@ namespace GDTIMDotNet
             _deltaTime = delta;
         }
 
-        protected override void OnTwist(object sender, TwistArgs e)
+        public void OnTwist(object sender, TwistArgs e)
         {
             if (!StateIsDefault) return;
         }
 
-        protected override void OnSingleLongPress(object sender, Vector2 e)
+        public void OnSingleLongPress(object sender, SingleTapArgs e)
         {
             LongPress(true, MouseButton.Left);
         }
 
-        protected override void OnSingleDrag(object sender, SingleDragArgs e)
+        public void OnSingleDrag(object sender, SingleDragArgs e)
         {
             HandleDrag(e.Relative);
         }
 
-        protected override void OnSingleTap(object sender, Vector2 e)
+        public void OnSingleTap(object sender, SingleTapArgs e)
         {
             _vncHandler.MouseButtonDown(MouseButton.Left);
             _vncHandler.MouseButtonUp(MouseButton.Left);
         }
         
-        protected override void OnSingleSwipe(object sender, SingleDragArgs e)
+        public void OnSingleSwipe(object sender, SingleDragArgs e)
         {
             GDLogger.Log(this,"Single Swipe");
         }
 
-        protected override void OnMultiLongPress(object sender, MultiTapArgs e)
+        public void OnMultiLongPress(object sender, MultiTapArgs e)
         {
             if (e.Fingers > 3) return;
             
@@ -83,7 +76,7 @@ namespace GDTIMDotNet
             LongPress(true, longPressButton);
         }
 
-        protected override void OnMultiSwipe(object sender, MultiDragArgs e)
+        public void OnMultiSwipe(object sender, MultiDragArgs e)
         {
             if (IsMultiLongPressed) return;
             if (e.Fingers != 2)
@@ -92,7 +85,7 @@ namespace GDTIMDotNet
             Scroll(e.Relative);
         }
 
-        protected override void OnMultiTap(object sender, MultiTapArgs e)
+        public void OnMultiTap(object sender, MultiTapArgs e)
         {
             if (e.Fingers == 2)
             {
@@ -104,19 +97,19 @@ namespace GDTIMDotNet
             }
         }
 
-        protected override void OnSingleTouch(object sender, SingleTouchArgs e)
+        public void OnSingleTouch(object sender, SingleTouchArgs e)
         {
             LongPress(false, _longPressedButton);
             ResetState();
         }
 
-        protected override void OnPinch(object sender, PinchArgs e)
+        public void OnPinch(object sender, PinchArgs e)
         {
             if (!StateIsDefault && _state != MouseState.Zooming) return;
             HandleZoom(e.Relative);
         }
 
-        protected override void OnMultiDrag(object sender, MultiDragArgs e)
+        public void OnMultiDrag(object sender, MultiDragArgs e)
         {
             if (IsMultiLongPressed)
             {
@@ -154,7 +147,7 @@ namespace GDTIMDotNet
         #region Stateful Interactions
         void Scroll(Vector2 relative)
         {
-            Vector2 realSize = _interpreter.ControlRealSize;
+            Vector2 realSize = RealSize;
             Vector2 increment = relative / realSize;
             int scrollX = GetIntegerInput(ref _cumulativeScroll.x, increment.x * ScrollSpeed);
             int scrollY = GetIntegerInput(ref _cumulativeScroll.y, increment.y * ScrollSpeed);
@@ -168,7 +161,7 @@ namespace GDTIMDotNet
 
         void HandleZoom(float relative)
         {
-            Vector2 controlSize = _interpreter.ControlRealSize;
+            Vector2 controlSize = RealSize;
             float maxDimension = Mathf.Max(controlSize.x, controlSize.y);
             relative /= maxDimension;
             int zoomAmount = GetIntegerInput(ref _cumulativeZoom, relative * ZoomSpeed);
@@ -200,9 +193,10 @@ namespace GDTIMDotNet
         }
         #endregion Stateful Interactions
         
+        //todo : should continue to move mouse up/left/etc if drag is held on the side after running out of room on the trackpad
         void HandleDrag(Vector2 relative)
         {
-            Vector2 trackpadSize = _interpreter.ControlRealSize;
+            Vector2 trackpadSize = RealSize;
             float minTrackpadDimension = Mathf.Min(trackpadSize.x, trackpadSize.y);
 
             Vector2 serverResolution = _vncHandler.Resolution;

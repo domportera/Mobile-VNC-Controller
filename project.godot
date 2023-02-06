@@ -95,6 +95,8 @@ config/icon="res://icon.png"
 [autoload]
 
 InputManager="*res://GDTIMv2_1_2/InputManager.gd"
+GdtimtoDotNet="*res://GDTIM-Dot-Net/GDTIMToDotNet.gd"
+GdtimForwarder="*res://GDTIM-Dot-Net/GDTIMForwarder.cs"
 
 [display]
 
@@ -117,11 +119,19 @@ common/drop_mouse_on_gui_input_disabled=true
 [input_devices]
 
 pointing/emulate_touch_from_mouse=true
+pointing/emulate_mouse_from_touch=false
 
 [mono]
 
 runtime/unhandled_exception_policy=1
 project/assembly_name="PCRemoteControl"
+
+[network]
+
+limits/debugger_stdout/max_chars_per_second=999999999
+limits/debugger_stdout/max_messages_per_frame=999
+limits/debugger_stdout/max_errors_per_second=999
+limits/debugger_stdout/max_warnings_per_second=999
 
 [physics]
 

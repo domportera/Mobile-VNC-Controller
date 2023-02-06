@@ -1,9 +1,6 @@
 extends Control
 
-export var dot_net_interpreter_path_relative = "../MyCSharpInterpreter"
-onready var dot_net_interpreter = get_node(dot_net_interpreter_path_relative)
-
-enum EVENT_MODE { input,unhandled }
+enum EVENT_MODE { input, unhandled }
 export(EVENT_MODE) var event_mode = EVENT_MODE.input
 
 func _input(event : InputEvent):
@@ -16,30 +13,30 @@ func _unhandled_input(event : InputEvent):
 
 func _handle_input(event : InputEvent):
 	if event is InputEventMultiScreenDrag:
-		dot_net_interpreter.OnMultiDrag(event.position, event.relative, event.fingers)
+		GdtimForwarder.OnMultiDrag(event.position, event.relative, event.fingers)
 	elif event is InputEventMultiScreenSwipe:
-		dot_net_interpreter.OnMultiSwipe(event.position, event.relative, event.fingers)
+		GdtimForwarder.OnMultiSwipe(event.position, event.relative, event.fingers)
 	elif event is InputEventMultiScreenTap:
-		dot_net_interpreter.OnMultiTap(event.position, event.fingers)
+		GdtimForwarder.OnMultiTap(event.position, event.fingers)
 	elif event is InputEventMultiScreenLongPress:
-		dot_net_interpreter.OnMultiLongPress(event.position, event.fingers)
+		GdtimForwarder.OnMultiLongPress(event.position, event.fingers)
 	elif event is InputEventSingleScreenDrag:
-		dot_net_interpreter.OnSingleDrag(event.position, event.relative)
+		GdtimForwarder.OnSingleDrag(event.position, event.relative)
 	elif event is InputEventScreenPinch:
-		dot_net_interpreter.OnPinch(event.position, event.relative, event.distance, event.fingers)
+		GdtimForwarder.OnPinch(event.position, event.relative, event.distance, event.fingers)
 	elif event is InputEventScreenTwist:
-		dot_net_interpreter.OnTwist(event.position, event.relative, event.fingers)
+		GdtimForwarder.OnTwist(event.position, event.relative, event.fingers)
 	elif event is InputEventSingleScreenTap:
-		dot_net_interpreter.OnSingleTap(event.position)
+		GdtimForwarder.OnSingleTap(event.position)
 	elif event is InputEventSingleScreenLongPress:
-		dot_net_interpreter.OnSingleLongPress(event.position)
+		GdtimForwarder.OnSingleLongPress(event.position)
 	elif event is InputEventSingleScreenTouch:
-		dot_net_interpreter.OnSingleTouch(event.position, event.pressed, event.cancelled)
+		GdtimForwarder.OnSingleTouch(event.position, event.pressed, event.cancelled)
 	elif event is InputEventSingleScreenSwipe:
-		dot_net_interpreter.OnSingleSwipe(event.position, event.relative)
+		GdtimForwarder.OnSingleSwipe(event.position, event.relative)
 	elif event is RawGesture:
 		pass
-	
+
 		
 	# if event is RawGesture:
 	# 	label3.text = "State now:\n" + event.as_text()

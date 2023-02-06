@@ -12,8 +12,8 @@ namespace PCRemoteControl.Controls
     {
         // raw text entry like this can use the clipboard from the TextEdit contents to auto-paste
         // using VncHandler.Paste(string)
-        [Export] NodePath _activationButtonPath = "../KeyboardButton";
-        [Export] NodePath _vncHandlerPath;
+        [Export] NodePath _activationButtonPath = string.Empty;
+        [Export] NodePath _vncHandlerPath = string.Empty;
         [Export] float _textEditHeight = 0.07f;
         [Export] bool _hideOnSubmit = true;
         VncHandler _vncHandler;
@@ -37,6 +37,8 @@ namespace PCRemoteControl.Controls
             return;
             // this logic is skipped while Godot does not know how to properly handle virtual keyboards.
             // in the meantime, typing will utilize the clipboard. ¯\_(ツ)_/¯
+            // JK the current VNC library's clipboard doesn't work either ¯\_(ツ)_/¯
+            // todo: re-enable for hardware keyboards if it's possible to detect errant virtual key presses vs actual hardware key presses
             base._Input(@event);
             if (!(@event is InputEventKey key)) return;
             
@@ -64,7 +66,7 @@ namespace PCRemoteControl.Controls
 
             _keyboardOpen = true;
             OS.ShowVirtualKeyboard();
-            Task.Run(OpenTextEditWithKeyboard);
+            Task.Run((Action)OpenTextEditWithKeyboard);
         }
 
         async void OpenTextEditWithKeyboard()

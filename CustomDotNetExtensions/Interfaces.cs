@@ -35,14 +35,14 @@ namespace CustomDotNetExtensions
 
         public static string GenerateName(this IIdentified sender)
         {
-            return $"{sender.GetType()} ({sender.ID})";
+            return $"{sender.GetType().Name} ({sender.ID.ToString()})";
         }
 
         //despite the reference count, this is called when an IIdentifiedNamed is passed as
         //an argument into methods accepting IIdentified parameters
         public static string GenerateName(this IIdentifiedNamed sender)
         {
-            return $"{sender.GetType()} \"{sender.Name}\" ({sender.ID})";
+            return $"{sender.GetType().Name} \"{sender.Name}\" ({sender.ID.ToString()})";
         }
     }
 }

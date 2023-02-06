@@ -37,12 +37,12 @@ namespace GodotExtensions
         
         static string GenerateHeader(Object obj)
         {
-            return $"{obj.GetType()} {obj.GetInstanceId().ToString()}";
+            return $"{obj.GetType().Name} {obj.GetInstanceId().ToString()}";
         }
 
         static string GenerateHeader(Node node)
         {
-            return $"{node.GetType()} \"{node.Name}\" ({node.GetInstanceId().ToString()})";
+            return $"{node.GetType().Name} \"{node.Name}\" ({node.GetInstanceId().ToString()})";
         }
     }
 }

@@ -2,7 +2,7 @@ using Godot;
 
 namespace GodotExtensions
 {
-    public class VSplitDropDown : VSplitContainer
+    public class VSplitPullDown : VSplitContainer
     {
         [Export] float _defaultHeight = 0.3f;
         
@@ -17,7 +17,12 @@ namespace GodotExtensions
             base._Ready();
             if (GetChildCount() > 2)
             {
-                GD.PrintErr($"{nameof(VSplitDropDown)} should only contain two child elements - " +
+                GD.PrintErr($"{nameof(VSplitPullDown)} should only contain two child elements - " +
+                            $"your drop down contents and a transparent mouse-pass-through control.");
+            }
+            else if (GetChildCount() < 2)
+            {
+                GD.PrintErr($"{nameof(VSplitPullDown)} should contain two child elements - " +
                             $"your drop down contents and a transparent mouse-pass-through control.");
             }
 

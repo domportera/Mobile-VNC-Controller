@@ -6,7 +6,7 @@ using PCRemoteControl.VNC;
 
 namespace PCRemoteControl.Controls
 {
-    public static class SystemKeyDefinitions
+    public static partial class SystemKeyDefinitions
     {
         static readonly Dictionary<KeyList, string> AlternateKeyNames = new Dictionary<KeyList, string>
         {
@@ -15,10 +15,14 @@ namespace PCRemoteControl.Controls
             {KeyList.Control, "Ctrl"}
         };
 
-        static string GetName(this KeyList key)
+        static readonly Dictionary<KeyList, string> KeyListNames = Enum.GetValues(typeof(KeyList))
+            .Cast<KeyList>()
+            .ToDictionary(t => t, t => t.ToString());
+
+        internal static string GetName(this KeyList key)
         {
             bool hasKey = AlternateKeyNames.TryGetValue(key, out string newName);
-            string name = hasKey ? newName : key.ToString();
+            string name = hasKey ? newName : key.AsString();
             return name;
         }
         
@@ -75,62 +79,7 @@ namespace PCRemoteControl.Controls
 
         internal static readonly Dictionary<string, KeyCommand> KeyDict = 
             ExtraKeys.ToDictionary(x => x.Name, x => x);
-        
-        internal enum KeyInteractionMode {Toggle, Press, Hold}
-        
-        [Serializable]
-        internal class KeyCommand
-        {
-            public string Name;
-            public KeyList[] Keys;
-            public KeyInteractionMode Interaction;
-            bool _toggleState;
 
-            internal KeyCommand(KeyList key, KeyInteractionMode interaction, string name = "")
-            {
-                Keys = new []{ key };
-                Interaction = interaction;
-                Name = name == string.Empty ? key.ToString() : name;
-            }
-
-            internal KeyCommand(params KeyList[] keys)
-            {
-                Interaction = KeyInteractionMode.Press;
-                Keys = keys;
-
-                Name = keys[0].GetName();
-                for(int i = 1; i < keys.Length; i++)
-                {
-                    Name += $" {keys[i].GetName()}";
-                }
-            }
-
-            internal KeyCommand(string name, params KeyList[] keys)
-            {
-                Interaction = KeyInteractionMode.Press;
-                Keys = keys;
-                Name = name;
-            }
-
-            internal void Execute(VncHandler vncHandler)
-            {
-                switch (Interaction)
-                {
-                    case KeyInteractionMode.Toggle:
-                        _toggleState = !_toggleState;
-                        foreach(var key in Keys)
-                            vncHandler.SendKey(key, _toggleState);
-                        break;
-                    case KeyInteractionMode.Press:
-                        foreach(var key in Keys)
-                            vncHandler.SendKey(key, true);
-                        foreach(var key in Keys)
-                            vncHandler.SendKey(key, false);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
+        public static string AsString(this KeyList key) => KeyListNames[key];
     }
 }

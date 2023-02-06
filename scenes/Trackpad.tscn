@@ -1,23 +1,10 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://GDTIM-Dot-Net/GuiConstrainedGestureInterpreter.cs" type="Script" id=2]
-[ext_resource path="res://GDTIM-Dot-Net/GDTIMToDotNet.gd" type="Script" id=3]
 [ext_resource path="res://Controls/Trackpad.cs" type="Script" id=4]
 
-[node name="Trackpad" type="Control"]
+[node name="Trackpad" type="Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource( 4 )
-_gestureInterpreterRelativePath = "Interpreter"
-
-[node name="Interpreter" type="Node" parent="."]
-script = ExtResource( 2 )
-_controlPathRelative = "../GesturePanel"
-
-[node name="GesturePanel" type="Panel" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-script = ExtResource( 3 )
-dot_net_interpreter_path_relative = "../Interpreter"

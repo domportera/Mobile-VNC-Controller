@@ -10,14 +10,18 @@ using GodotExtensions;
 public class GDConsoleBridge : Node
 {
 	[Export] int _maxLogs = 1000;
-	[Export] NodePath _buttonPath;
+	[Export] NodePath _buttonPath = null;
+	[Export] NodePath _vSplitPath = null;
+	[Export] NodePath _scrollContainerPath = null;
+	[Export] NodePath _vBoxPath = null;
 	[Export] bool _showInGameConsole = true;
+	[Export] bool _autoScroll = true;
 	
 	readonly Queue<Log> _logs = new Queue<Log>();
 	VBoxContainer _logVBox;
-	VSplitDropDown _vSplitContainer;
+	VSplitPullDown _vSplitPullDown;
 	ScrollContainer _scrollContainer;
-	Button _button;
+	IButtonUpDown _buttonUpDown;
 	
 	const string ColorOverrideName = "font_color";
 
@@ -36,34 +40,34 @@ public class GDConsoleBridge : Node
 		Logger.ExceptionEvent += HandleException;
 		EditorDescription = "A bridge between the native c# console and the Godot console, homogenizing their output." +
 		                    "Also contains a log console in-game.";
-
+		
+		_vSplitPullDown = FindNode(_vSplitPath) as VSplitPullDown;
+		
 		//should probably just split into 2 classes but that's a task for another day
 		if (!_showInGameConsole)
 		{
-			if (_vSplitContainer != null)
+			if (_vSplitPullDown != null)
 			{
-				_vSplitContainer.Collapsed = true;
-				_vSplitContainer.DraggerVisibility = SplitContainer.DraggerVisibilityEnum.HiddenCollapsed;
+				_vSplitPullDown.Collapsed = true;
+				_vSplitPullDown.DraggerVisibility = SplitContainer.DraggerVisibilityEnum.HiddenCollapsed;
 			}
 
 			return;
 		}
-		
-		_vSplitContainer = FindNode("VSplitContainer") as VSplitDropDown;
 
-		_scrollContainer = FindNode("ScrollContainer") as ScrollContainer;
-		_logVBox = _scrollContainer.GetNode<VBoxContainer>("VBoxContainer");
-		
+		_scrollContainer = GetNode<ScrollContainer>(_scrollContainerPath);
+		_scrollContainer.FollowFocus = _autoScroll;
 
-		_logVBox.Connect("resized", this, ScrollToBottom);
-		_scrollContainer.Connect("scroll_started", this, DisallowAutoScroll);
-		_scrollContainer.Connect("scroll_ended", this, AllowAutoScrollIfAtBottom);
+		_logVBox = GetNode<VBoxContainer>(_vBoxPath);
 
-		_button = GetNode<Button>(_buttonPath);
+		//_scrollContainer.Connect("scroll_started", this, DisallowAutoScroll);
+		//_scrollContainer.Connect("scroll_ended", this, AllowAutoScrollIfAtBottom);
 
-		if (_button != null)
+		_buttonUpDown = GetNode<IButtonUpDown>(_buttonPath);
+
+		if (_buttonUpDown != null)
 		{
-			_button.Connect("pressed", this, _vSplitContainer.ToggleWithButton);
+			_buttonUpDown.PressUp += (_, __) =>  _vSplitPullDown.ToggleWithButton();  
 		}
 	}
 	
@@ -95,7 +99,12 @@ public class GDConsoleBridge : Node
 		logItem.Label.Text = log;
 		logItem.Label.AddColorOverride(ColorOverrideName, _logColors[type]);
 		_logs.Enqueue(logItem);
-		
+
+		if (_autoScroll)
+		{
+			logItem.Label.CallDeferred("grab_focus");
+		}
+
 		Log GetNextLogItem()
 		{
 			Log nextLogItem;
@@ -120,26 +129,12 @@ public class GDConsoleBridge : Node
 		}
 	}
 
-	bool _allowAutoScroll = true;
 	async void AllowAutoScrollIfAtBottom()
 	{
 		await Task.Delay(100); // needs at least one frame of delay for scroll container to be updated by engine
 		if (_scrollContainer.ScrollVertical >= (int)_scrollContainer.GetVScrollbar().MaxValue)
-			_allowAutoScroll = true;
+			_scrollContainer.ScrollVertical = int.MaxValue;
 	}
-
-	void DisallowAutoScroll()
-	{
-		_allowAutoScroll = false;
-	}
-
-	async void ScrollToBottom()
-	{
-		if (!_allowAutoScroll) return;
-		await Task.Delay(100); // needs at least one frame of delay for scroll container to be updated by engine
-		_scrollContainer.ScrollVertical = (int)_scrollContainer.GetVScrollbar().MaxValue;
-	}
-	
 	enum LogType {Log, Error, Exception}
 	class Log
 	{

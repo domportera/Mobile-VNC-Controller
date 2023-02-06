@@ -33,5 +33,11 @@ namespace GodotExtensions
             control.AnchorTop = 0;
             control.AnchorBottom = 1;
         }
+
+        public static bool PointIsInside(this Control control, Vector2 position)
+        {
+            Rect2 relevantRect = new Rect2(control.RectGlobalPosition, control.RealRectSize());
+            return relevantRect.HasPoint(position);
+        }
     }
 }

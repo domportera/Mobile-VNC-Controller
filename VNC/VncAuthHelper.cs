@@ -5,9 +5,9 @@ namespace PCRemoteControl.VNC
 {
     public class VncAuthHelper : NodeExt
     {
-        [Export] NodePath _pathToIpField;
-        [Export] NodePath _pathToPasswordField;
-        [Export] NodePath _pathToPortField;
+        [Export] NodePath _pathToIpField = "../IP Field";
+        [Export] NodePath _pathToPasswordField = "../Password Field";
+        [Export] NodePath _pathToPortField = "../Port Field";
         LineEdit _ipField;
         SpinBox _portField;
         LineEdit _passwordField;

@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://Integration/Console/GDConsoleBridge.cs" type="Script" id=1]
-[ext_resource path="res://GodotExtensions/VSplitDropDown.cs" type="Script" id=2]
+[ext_resource path="res://GodotExtensions/Console/GDConsoleBridge.cs" type="Script" id=1]
+[ext_resource path="res://GodotExtensions/UI/VSplitPullDown.cs" type="Script" id=2]
 
 [sub_resource type="Theme" id=3]
 
@@ -10,10 +10,13 @@ bg_color = Color( 0, 0, 0, 1 )
 
 [sub_resource type="StyleBoxEmpty" id=2]
 
-[node name="Godot Logger" type="CanvasLayer"]
+[node name="Godot Console" type="CanvasLayer"]
 layer = 128
 follow_viewport_enable = true
 script = ExtResource( 1 )
+_vSplitPath = NodePath("VSplitContainer")
+_scrollContainerPath = NodePath("VSplitContainer/Panel/ScrollContainer")
+_vBoxPath = NodePath("VSplitContainer/Panel/ScrollContainer/VBoxContainer")
 
 [node name="VSplitContainer" type="VSplitContainer" parent="."]
 anchor_right = 1.0

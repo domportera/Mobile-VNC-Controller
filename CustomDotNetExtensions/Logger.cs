@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomDotNetExtensions
 {
@@ -12,21 +8,21 @@ namespace CustomDotNetExtensions
         public static event EventHandler<LogEventArgs> ErrorEvent;
         public static event EventHandler<ExceptionEventArgs> ExceptionEvent;
 
-        const string HEADER_SEPARATOR = " | ";
+        const string HeaderSeparator = " | ";
 
         public static void Log(object sender, string log, bool useDotNetConsole)
         {
-            Log(sender, sender.GetType().ToString(), log, useDotNetConsole);
+            Log(sender, sender.GetType().Name, log, useDotNetConsole);
         }
 
         public static void Error(object sender, string log, bool useDotNetConsole)
         {
-            Error(sender, sender.GetType().ToString(), log, useDotNetConsole);
+            Error(sender, sender.GetType().Name, log, useDotNetConsole);
         }
 
         public static void Exception(object sender, string log, Exception e, bool useDotNetConsole)
         {
-            Exception(sender, sender.GetType().ToString(), log, e, useDotNetConsole);
+            Exception(sender, sender.GetType().Name, log, e, useDotNetConsole);
         }
 
         public static void Log(IIdentified sender, string log, bool useDotNetConsole)
@@ -53,7 +49,7 @@ namespace CustomDotNetExtensions
 
         public static void Log(object sender, string header, string devLog, bool useDotNetConsole)
         {
-            string log = $"{header}{HEADER_SEPARATOR}{devLog}";
+            string log = $"{header}{HeaderSeparator}{devLog}";
             
             if(useDotNetConsole)
                 Console.WriteLine(log);
@@ -63,7 +59,7 @@ namespace CustomDotNetExtensions
 
         public static void Error(object sender, string header, string devLog, bool useDotNetConsole)
         {
-            string log = $"{header}{HEADER_SEPARATOR}{devLog}";
+            string log = $"{header}{HeaderSeparator}{devLog}";
             
             if(useDotNetConsole)
                 Console.Error.WriteLine(log);
@@ -73,7 +69,7 @@ namespace CustomDotNetExtensions
 
         public static void Exception(object sender, string header, string devLog, Exception e, bool useDotNetConsole)
         {
-            string log = $"{header}{HEADER_SEPARATOR}Exception! {devLog} || {e}\n{e.StackTrace}";
+            string log = $"{header}{HeaderSeparator}Exception! {devLog} || {e}\n{e.StackTrace}";
             
             if(useDotNetConsole)
                 Console.Error.WriteLine(log);
@@ -84,14 +80,14 @@ namespace CustomDotNetExtensions
 
     public class LogEventArgs : EventArgs
     {
-        public string Log { get; private set; }
+        public string Log { get; }
 
-        public LogEventArgs(string log) { this.Log = log; }
+        public LogEventArgs(string log) { Log = log; }
     }
 
     public class ExceptionEventArgs : LogEventArgs
     {
-        public Type ExceptionType;
+        public Type ExceptionType { get; }
         public ExceptionEventArgs(string log, Exception e) : base(log)
         {
             ExceptionType = e.GetType();

@@ -3,6 +3,16 @@ using Godot;
 
 namespace GDTIMDotNet
 {
+	public class SingleTapArgs : EventArgs
+	{
+		public readonly Vector2 Position;
+
+		public SingleTapArgs(Vector2 position)
+		{
+			Position = position;
+		}
+	}
+	
 	public class SingleTouchArgs : EventArgs
 	{
 		public readonly Vector2 Position;

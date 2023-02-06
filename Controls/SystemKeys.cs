@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CustomDotNetExtensions;
 using Godot;
 using GodotExtensions;
 using PCRemoteControl.VNC;
@@ -9,6 +10,7 @@ namespace PCRemoteControl.Controls
     public class SystemKeys : GridContainer
     {
         [Export] NodePath _vncHandlerRelativePath = "../../../VncHandler";
+        [Export] bool _padButtons = true;
         VncHandler _vncHandler;
         
         public override void _Ready()
@@ -17,26 +19,25 @@ namespace PCRemoteControl.Controls
             foreach (KeyCommand command in ExtraKeys)
             {
                 var button = InstantiateKeyCommandButton(command);
-                AddChild(button.Control);
+                AddChild(button.Label);
             }
         }
 
-        MultiLineButton InstantiateKeyCommandButton(KeyCommand command)
+        MultiLineTouchableButton InstantiateKeyCommandButton(KeyCommand command)
         {
-            var button = new MultiLineButton(command.Name, true);
-
-            if (command.Interaction == KeyInteractionMode.Press)
-                button.Button.Connect("pressed", this, "ExecuteButton", new Godot.Collections.Array { command.Name });
+            var button = new MultiLineTouchableButton(command.Name, _padButtons);
+            command.AttachButton(button.ButtonUpDown, ExecuteKeys);
             
             return button;
         }
 
-        // ReSharper disable once UnusedMember.Local
-        void ExecuteButton(string commandName)
+        void ExecuteKeys(KeyList[] keys, bool pressed)
         {
-            GDLogger.Log(this, $"Button {commandName} pressed!");
-            KeyCommand command = KeyDict[commandName];
-            command.Execute(_vncHandler);
+            foreach (KeyList key in keys)
+            {
+                _vncHandler.SendKey(key, pressed);
+                GDLogger.Log(this, $"Button {key.AsString()} pressed {(pressed ? "down" : "up")}!\n");
+            }
         }
     }
 }

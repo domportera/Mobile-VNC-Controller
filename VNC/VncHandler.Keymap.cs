@@ -145,8 +145,7 @@ namespace PCRemoteControl.VNC
             return Keymap.TryGetValue(key, out keySym);
         }
 
-        static bool _stringsInitialized = false;
-        static Dictionary<char, KeySym> _characterDict = new Dictionary<char, KeySym>()
+        static readonly Dictionary<char, KeySym> CharacterDict = new Dictionary<char, KeySym>()
         {
             //other characers
             { ' ', KeySym.Space },
@@ -246,7 +245,7 @@ namespace PCRemoteControl.VNC
 
             foreach (char c in str)
             {
-                bool success = _characterDict.TryGetValue(c, out KeySym key);
+                bool success = CharacterDict.TryGetValue(c, out KeySym key);
                 if(success)
                     keys.Add(key);
             }
