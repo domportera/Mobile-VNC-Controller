@@ -4,7 +4,14 @@ using GDTIMDotNet;
 
 public class GDTIMForwarder : Node
 {
-    // todo: needs some kind of claiming system that roughly follows godot's input idioms
+    // todo: TouchArgs classes are sent
+    // OnSingleTouch (when pressed is true) is passed into the input system via 
+    // SingleTouchArgs (inherits GDTIMTouch or whatever), where receivers of this
+    // input event can claim it.
+    // This class retains a reference to that class's claim list (or uses a callback for OnListAdd or whatever
+    // that is then used to send all gesture events to only claimed objects
+    // until OnSingleTouch (when pressed is false), where it alerts the claimants
+    // that their gesture is over and clears its list of objects
     
     static readonly List<IGestureInterpreter> GestureInterpreters = new List<IGestureInterpreter>();
     

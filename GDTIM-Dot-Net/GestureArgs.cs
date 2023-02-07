@@ -1,21 +1,38 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 
-namespace GDTIMDotNet
+namespace Godot
 {
-	public class SingleTapArgs : EventArgs
+	public class GDTIMTouchAction : InputEventAction
 	{
-		public readonly Vector2 Position;
+		internal List<Godot.Node> NodesTouched = new List<Godot.Node>();
 
+		public GDTIMTouchAction(Vector2 position)
+		{
+			Position = position;
+		}
+
+		public Vector2 Position { get; }
+	}
+	
+	public abstract class GDTIMGestureArgs : InputEventAction
+	{
+		public Vector2 Position { get; protected set; }
+		
+		public new virtual bool Pressed { get; }
+	}
+	
+	public class SingleTapArgs : GDTIMGestureArgs
+	{
 		public SingleTapArgs(Vector2 position)
 		{
 			Position = position;
 		}
 	}
 	
-	public class SingleTouchArgs : EventArgs
+	public class SingleTouchArgs : GDTIMGestureArgs
 	{
-		public readonly Vector2 Position;
 		public readonly bool Pressed;
 		public readonly bool Cancelled;
 		
@@ -25,6 +42,7 @@ namespace GDTIMDotNet
 			Pressed = pressed;
 			Cancelled = cancelled;
 		}
+		
 	}
 	
 	public class PinchArgs : EventArgs
