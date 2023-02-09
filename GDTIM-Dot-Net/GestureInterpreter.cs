@@ -7,69 +7,77 @@ namespace GDTIMDotNet
 {
     public class GestureInterpreter : Node, IGestureInterpreter
     {
-        public event EventHandler<SingleTouchArgs> SingleTouch;
-        public event EventHandler<SingleTapArgs> SingleTap;
-        public event EventHandler<SingleDragArgs> SingleDrag;
-        public event EventHandler<SingleTapArgs> SingleLongPress;
-        public event EventHandler<SingleDragArgs> SingleSwipe;
-        public event EventHandler<MultiDragArgs> MultiDrag;
-        public event EventHandler<MultiDragArgs> MultiSwipe;
-        public event EventHandler<MultiTapArgs> MultiTap;
-        public event EventHandler<MultiTapArgs> MultiLongPress;
-        public event EventHandler<PinchArgs> Pinch;
-        public event EventHandler<TwistArgs> Twist;
+        public bool ConsumeMultiTouchOnSingleTouch { get; set; }
+        public event EventHandler<TouchBegin> TouchBegin;
+        public event EventHandler<TouchEnd> TouchEnd;
+        public event EventHandler<SingleTap> SingleTap;
+        public event EventHandler<SingleDrag> SingleDrag;
+        public event EventHandler<SingleTap> SingleLongPress;
+        public event EventHandler<SingleDrag> SingleSwipe;
+        public event EventHandler<MultiDrag> MultiDrag;
+        public event EventHandler<MultiDrag> MultiSwipe;
+        public event EventHandler<MultiTap> MultiTap;
+        public event EventHandler<MultiTap> MultiLongPress;
+        public event EventHandler<Pinch> Pinch;
+        public event EventHandler<Twist> Twist;
 
-        public virtual void OnSingleTouch(SingleTouchArgs args)
+        public virtual void OnTouchBegin(TouchBegin args)
         {
-            SingleTouch?.Invoke(this, args);
+            args.AcceptGestures(this, ConsumeMultiTouchOnSingleTouch);
+            TouchBegin?.Invoke(this, args);
         }
 
-        public virtual void OnSingleDrag(SingleDragArgs args)
+        public void OnTouchEnd(TouchEnd args)
+        {
+            TouchEnd?.Invoke(this, args);
+        }
+
+        public virtual void OnSingleDrag(SingleDrag args)
         {
             SingleDrag?.Invoke(this, args);
         }
 
-        public virtual void OnSingleLongPress(SingleTapArgs args)
+        public virtual void OnSingleLongPress(SingleTap args)
         {
             SingleLongPress?.Invoke(this, args);
         }
 
-        public virtual void OnSingleSwipe(SingleDragArgs args)
+        public virtual void OnSingleSwipe(SingleDrag args)
         {
             SingleSwipe?.Invoke(this, args);
         }
 
-        public virtual void OnSingleTap(SingleTapArgs args)
+        public virtual void OnSingleTap(SingleTap args)
         {
             SingleTap?.Invoke(this, args);
         }
 
-        public virtual void OnTwist(TwistArgs args)
+        public virtual void OnTwist(Twist args)
         {
             Twist?.Invoke(this, args);
         }
 
-        public virtual void OnMultiDrag(MultiDragArgs args)
+        public virtual void OnMultiDrag(MultiDrag args)
         {
             MultiDrag?.Invoke(this, args);
         }
 
-        public virtual void OnMultiLongPress(MultiTapArgs args)
+        public virtual void OnMultiLongPress(MultiTap args)
         {
             MultiLongPress?.Invoke(this, args);
         }
 
-        public virtual void OnMultiSwipe(MultiDragArgs args)
+        public virtual void OnMultiSwipe(MultiDrag args)
         {
             MultiSwipe?.Invoke(this, args);
         }
 
-        public virtual void OnMultiTap(MultiTapArgs args)
+        public virtual void OnMultiTap(MultiTap args)
         {
             MultiTap?.Invoke(this, args);
         }
 
-        public virtual void OnPinch(PinchArgs args)
+        public virtual void OnPinch(Pinch args)
         {
             Pinch?.Invoke(this, args);
         }
@@ -79,7 +87,7 @@ namespace GDTIMDotNet
             MultiDrag += consumer.OnMultiDrag;
             MultiSwipe += consumer.OnMultiSwipe;
             Pinch += consumer.OnPinch;
-            SingleTouch += consumer.OnSingleTouch;
+            TouchBegin += consumer.OnSingleTouch;
             MultiTap += consumer.OnMultiTap;
             SingleTap += consumer.OnSingleTap;
             SingleDrag += consumer.OnSingleDrag;
@@ -87,6 +95,11 @@ namespace GDTIMDotNet
             MultiLongPress += consumer.OnMultiLongPress;
             Twist += consumer.OnTwist;
             SingleSwipe += consumer.OnSingleSwipe;
+        }
+
+        public void EndTouch(TouchEnd args)
+        {
+            throw new NotImplementedException();
         }
     }
 }

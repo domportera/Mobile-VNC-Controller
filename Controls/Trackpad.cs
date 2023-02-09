@@ -42,33 +42,33 @@ namespace GDTIMDotNet
             _deltaTime = delta;
         }
 
-        public void OnTwist(object sender, TwistArgs e)
+        public void OnTwist(object sender, Twist e)
         {
             if (!StateIsDefault) return;
         }
 
-        public void OnSingleLongPress(object sender, SingleTapArgs e)
+        public void OnSingleLongPress(object sender, SingleTap e)
         {
             LongPress(true, MouseButton.Left);
         }
 
-        public void OnSingleDrag(object sender, SingleDragArgs e)
+        public void OnSingleDrag(object sender, SingleDrag e)
         {
             HandleDrag(e.Relative);
         }
 
-        public void OnSingleTap(object sender, SingleTapArgs e)
+        public void OnSingleTap(object sender, SingleTap e)
         {
             _vncHandler.MouseButtonDown(MouseButton.Left);
             _vncHandler.MouseButtonUp(MouseButton.Left);
         }
         
-        public void OnSingleSwipe(object sender, SingleDragArgs e)
+        public void OnSingleSwipe(object sender, SingleDrag e)
         {
             GDLogger.Log(this,"Single Swipe");
         }
 
-        public void OnMultiLongPress(object sender, MultiTapArgs e)
+        public void OnMultiLongPress(object sender, MultiTap e)
         {
             if (e.Fingers > 3) return;
             
@@ -76,7 +76,7 @@ namespace GDTIMDotNet
             LongPress(true, longPressButton);
         }
 
-        public void OnMultiSwipe(object sender, MultiDragArgs e)
+        public void OnMultiSwipe(object sender, MultiDrag e)
         {
             if (IsMultiLongPressed) return;
             if (e.Fingers != 2)
@@ -85,7 +85,7 @@ namespace GDTIMDotNet
             Scroll(e.Relative);
         }
 
-        public void OnMultiTap(object sender, MultiTapArgs e)
+        public void OnMultiTap(object sender, MultiTap e)
         {
             if (e.Fingers == 2)
             {
@@ -97,19 +97,19 @@ namespace GDTIMDotNet
             }
         }
 
-        public void OnSingleTouch(object sender, SingleTouchArgs e)
+        public void OnSingleTouch(object sender, TouchBegin e)
         {
             LongPress(false, _longPressedButton);
             ResetState();
         }
 
-        public void OnPinch(object sender, PinchArgs e)
+        public void OnPinch(object sender, Pinch e)
         {
             if (!StateIsDefault && _state != MouseState.Zooming) return;
             HandleZoom(e.Relative);
         }
 
-        public void OnMultiDrag(object sender, MultiDragArgs e)
+        public void OnMultiDrag(object sender, MultiDrag e)
         {
             if (IsMultiLongPressed)
             {

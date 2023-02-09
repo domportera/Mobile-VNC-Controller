@@ -1,106 +1,127 @@
 using System;
 using System.Collections.Generic;
+using GDTIMDotNet;
 using Godot;
 
 namespace Godot
 {
-	public class GDTIMTouchAction : InputEventAction
+	public abstract class GDTIMTouchAction : InputEventAction
 	{
-		internal List<Godot.Node> NodesTouched = new List<Godot.Node>();
+		internal List<IGestureInterpreter> NodesTouched = new List<IGestureInterpreter>();
+		internal List<IGestureInterpreter> NodesConsumingMultiTouch = new List<IGestureInterpreter>();
+		public readonly Vector2 Position;
 
 		public GDTIMTouchAction(Vector2 position)
 		{
 			Position = position;
 		}
 
-		public Vector2 Position { get; }
+		// todo : InputEventActions probably don't prevent propagation with OnGui etc.
+		// therefore, in implementing IGestureInterpreters, they need to determine this themselves with
+		// MouseFilter, etc
+		public void AcceptGestures(IGestureInterpreter node, bool subscribeToMultiTouch, bool preventPropagation)
+		{
+			NodesTouched.Add(node);
+			
+			if(subscribeToMultiTouch)
+				NodesConsumingMultiTouch.Add(node);
+		}
 	}
 	
+	public class TouchBegin : GDTIMTouchAction
+	{
+		public TouchBegin(Vector2 position) : base(position){}
+	}
+	
+	public class TouchEnd : GDTIMTouchAction
+	{
+		public readonly bool Cancelled;
+		
+		public TouchEnd(Vector2 position, bool cancelled) : base(position)
+		{
+			Cancelled = cancelled;
+		}
+	}
 	public abstract class GDTIMGestureArgs : InputEventAction
 	{
 		public Vector2 Position { get; protected set; }
-		
-		public new virtual bool Pressed { get; }
-	}
-	
-	public class SingleTapArgs : GDTIMGestureArgs
-	{
-		public SingleTapArgs(Vector2 position)
-		{
-			Position = position;
-		}
-	}
-	
-	public class SingleTouchArgs : GDTIMGestureArgs
-	{
-		public readonly bool Pressed;
-		public readonly bool Cancelled;
-		
-		public SingleTouchArgs(Vector2 position, bool pressed, bool cancelled)
-		{
-			Position = position;
-			Pressed = pressed;
-			Cancelled = cancelled;
-		}
-		
-	}
-	
-	public class PinchArgs : EventArgs
-	{
-		public readonly Vector2 Position;
-		public readonly float Relative, Distance;
-		public readonly int Fingers;
 
-		public PinchArgs(Vector2 position, float relative, float distance, int fingers)
+		public GDTIMGestureArgs(Vector2 position)
 		{
 			Position = position;
+		}
+	}
+	
+	public class SingleTap : GDTIMGestureArgs
+	{
+		public SingleTap(Vector2 position) : base(position) { }
+	}
+	
+
+	public class SingleDrag : GDTIMGestureArgs
+	{
+		public readonly Vector2 Relative;
+		
+		public SingleDrag(Vector2 position, Vector2 relative): base(position)
+		{
+			Relative = relative;
+		}
+	}
+
+	public abstract class MultiTouch : InputEventAction
+	{
+		public readonly int Fingers;
+		public readonly Vector2 Position;
+		internal HashSet<IGestureInterpreter> NodesTouched;
+
+		public MultiTouch(HashSet<IGestureInterpreter> touchers, int fingers, Vector2 position)
+		{
+			NodesTouched = touchers;
+			Fingers = fingers;
+			Position = position;
+		}
+
+		public void AcceptGestures(IGestureInterpreter interpreter)
+		{
+			NodesTouched.Add(interpreter);
+		}
+	}
+	
+	public class Pinch : MultiTouch
+	{
+		public readonly float Relative, Distance;
+
+		public Pinch(HashSet<IGestureInterpreter> touchers, Vector2 position,
+			float relative, float distance, int fingers) : base(touchers, fingers, position)
+		{
 			Relative = relative;
 			Distance = distance;
-			Fingers = fingers;
 		}
 	}
 
-	public class TwistArgs : EventArgs
+	public class Twist : MultiTouch
 	{
-		public readonly Vector2 Position;
 		public readonly float Relative;
-		public readonly int Fingers;
 
-		public TwistArgs(Vector2 position, float relative, int fingers)
+		public Twist(HashSet<IGestureInterpreter> touchers, Vector2 position, float relative, int fingers) :
+			base(touchers, fingers, position)
 		{
-			Position = position;
 			Relative = relative;
-			Fingers = fingers;
 		}
 	}
 	
-	public class MultiTapArgs : EventArgs
+	public class MultiTap : MultiTouch
 	{
-		public readonly Vector2 Position;
-		public readonly int Fingers;
-
-		public MultiTapArgs(Vector2 position, int fingers)
-		{
-			Position = position;
-			Fingers = fingers;
-		}
+		public MultiTap(HashSet<IGestureInterpreter> touchers, int fingers, Vector2 position):
+			base(touchers, fingers, position){}
 	}
-	public class MultiDragArgs : SingleDragArgs
+	
+	public class MultiDrag : MultiTouch
 	{
-		public readonly int Fingers;
-		public MultiDragArgs(Vector2 position, Vector2 relative, int fingers) : base (position, relative)
+		public readonly Vector2 Relative;
+		public MultiDrag(HashSet<IGestureInterpreter> touchers, Vector2 position, Vector2 relative, int fingers) 
+			: base (touchers, fingers, position)
 		{
-			Fingers = fingers;
-		}
-	}
-
-	public class SingleDragArgs : EventArgs
-	{
-		public readonly Vector2 Position, Relative;
-		
-		public SingleDragArgs(Vector2 position, Vector2 relative)
-		{
-			Position = position;
 			Relative = relative;
 		}
 	}

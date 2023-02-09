@@ -25,10 +25,10 @@ namespace GodotExtensions
         {
             base.ToggleMode = true;
             var interpreter = new ControlGestureInterpreter(this);
-            interpreter.SingleTouch += InterpreterOnSingleTouch;
+            interpreter.TouchBegin += InterpreterOnSingleTouch;
         }
 
-        void InterpreterOnSingleTouch(object sender, SingleTouchArgs e)
+        void InterpreterOnSingleTouch(object sender, TouchBegin e)
         {
             Pressed = e.Pressed;
             string signalUpDown;
@@ -52,6 +52,5 @@ namespace GodotExtensions
             if(e.Pressed == actionModePressed)
                 EmitSignal("pressed");
         }
-
     }
 }

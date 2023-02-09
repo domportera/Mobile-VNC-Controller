@@ -5,39 +5,41 @@ namespace GDTIMDotNet
 {
     public interface IGestureInterpreter
     {
-        event EventHandler<SingleTouchArgs> SingleTouch;
-        event EventHandler<SingleTapArgs> SingleTap;
-        event EventHandler<SingleDragArgs> SingleDrag;
-        event EventHandler<SingleTapArgs> SingleLongPress;
-        event EventHandler<SingleDragArgs> SingleSwipe;
-        event EventHandler<MultiDragArgs> MultiDrag;
-        event EventHandler<MultiDragArgs> MultiSwipe;
-        event EventHandler<MultiTapArgs> MultiTap;
-        event EventHandler<MultiTapArgs> MultiLongPress;
-        event EventHandler<PinchArgs> Pinch;
-        event EventHandler<TwistArgs> Twist;
+        event EventHandler<TouchBegin> TouchBegin;
+        event EventHandler<TouchEnd> TouchEnd;
+        event EventHandler<SingleTap> SingleTap;
+        event EventHandler<SingleDrag> SingleDrag;
+        event EventHandler<SingleTap> SingleLongPress;
+        event EventHandler<SingleDrag> SingleSwipe;
+        event EventHandler<MultiDrag> MultiDrag;
+        event EventHandler<MultiDrag> MultiSwipe;
+        event EventHandler<MultiTap> MultiTap;
+        event EventHandler<MultiTap> MultiLongPress;
+        event EventHandler<Pinch> Pinch;
+        event EventHandler<Twist> Twist;
 
-        void OnSingleTouch(SingleTouchArgs args);
+        void OnTouchBegin(TouchBegin args);
+        void OnTouchEnd(TouchEnd args);
 
-        void OnSingleDrag(SingleDragArgs args);
+        void OnSingleDrag(SingleDrag args);
         
-        void OnSingleTap(SingleTapArgs args);
+        void OnSingleTap(SingleTap args);
 
-        void OnSingleLongPress(SingleTapArgs args);
+        void OnSingleLongPress(SingleTap args);
 
-        void OnSingleSwipe(SingleDragArgs args);
+        void OnSingleSwipe(SingleDrag args);
 
-        void OnTwist(TwistArgs args);
+        void OnTwist(Twist args);
 
-        void OnMultiDrag(MultiDragArgs args);
+        void OnMultiDrag(MultiDrag args);
 
-        void OnMultiLongPress(MultiTapArgs args);
+        void OnMultiLongPress(MultiTap args);
 
-        void OnMultiSwipe(MultiDragArgs args);
+        void OnMultiSwipe(MultiDrag args);
 
-        void OnMultiTap(MultiTapArgs args);
+        void OnMultiTap(MultiTap args);
 
-        void OnPinch(PinchArgs args);
+        void OnPinch(Pinch args);
 
         void SubscribeToGestures(IGestureConsumer consumer);
     }

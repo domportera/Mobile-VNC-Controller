@@ -11,17 +11,18 @@ namespace GDTIMDotNet
 		int _touchCount;
 		bool _shouldProcessEvents;
 
-		public event EventHandler<SingleTouchArgs> SingleTouch;
-		public event EventHandler<SingleTapArgs> SingleTap;
-		public event EventHandler<SingleDragArgs> SingleDrag;
-		public event EventHandler<SingleTapArgs> SingleLongPress;
-		public event EventHandler<SingleDragArgs> SingleSwipe;
-		public event EventHandler<MultiDragArgs> MultiDrag;
-		public event EventHandler<MultiDragArgs> MultiSwipe;
-		public event EventHandler<MultiTapArgs> MultiTap;
-		public event EventHandler<MultiTapArgs> MultiLongPress;
-		public event EventHandler<PinchArgs> Pinch;
-		public event EventHandler<TwistArgs> Twist;
+		public event EventHandler<TouchBegin> TouchBegin;
+		public event EventHandler<TouchEnd> TouchEnd;
+		public event EventHandler<SingleTap> SingleTap;
+		public event EventHandler<SingleDrag> SingleDrag;
+		public event EventHandler<SingleTap> SingleLongPress;
+		public event EventHandler<SingleDrag> SingleSwipe;
+		public event EventHandler<MultiDrag> MultiDrag;
+		public event EventHandler<MultiDrag> MultiSwipe;
+		public event EventHandler<MultiTap> MultiTap;
+		public event EventHandler<MultiTap> MultiLongPress;
+		public event EventHandler<Pinch> Pinch;
+		public event EventHandler<Twist> Twist;
 
 		public ControlGestureInterpreter()
 		{
@@ -35,8 +36,6 @@ namespace GDTIMDotNet
 
 		public override void _Ready()
 		{
-			GDTIMForwarder.Register(this);
-			
 			if(_control != this)
 				_control.AddChild(this);
 		}
@@ -48,7 +47,7 @@ namespace GDTIMDotNet
 				_shouldProcessEvents = false;
 		}
 		
-		public virtual void OnSingleTouch(SingleTouchArgs args)
+		public virtual void OnTouchBegin(TouchBegin args)
 		{
 			if (args.Pressed)
 			{
@@ -56,75 +55,82 @@ namespace GDTIMDotNet
 				if (_shouldProcessEvents)
 				{
 					_touchCount++;
-					SingleTouch?.Invoke(this, args);
+					TouchBegin?.Invoke(this, args);
 				}
 
 				return;
 			}
 
+		
+
+			TouchBegin?.Invoke(this, args);
+		}
+
+		public void OnTouchEnd(TouchEnd args)
+		{	
 			_touchCount--;
 			if (!_shouldProcessEvents)
 				return;
-
-			SingleTouch?.Invoke(this, args);
+			
+			TouchEnd?.Invoke(this, args);
 		}
 
-		public virtual void OnSingleTap(SingleTapArgs args)
+		public virtual void OnSingleTap(SingleTap args)
 		{
 			if (!_shouldProcessEvents) return;
 			SingleTap?.Invoke(this, args);
 		}
 
-		public virtual void OnSingleDrag(SingleDragArgs args)
+		public virtual void OnSingleDrag(SingleDrag args)
 		{
 			if (!_shouldProcessEvents) return;
 			SingleDrag?.Invoke(this, args);
 		}
 
-		public virtual void OnSingleLongPress(SingleTapArgs args)
+		public virtual void OnSingleLongPress(SingleTap args)
 		{
 			if (!_shouldProcessEvents) return;
 			SingleLongPress?.Invoke(this, args);
 		}
 		
-		public virtual void OnSingleSwipe(SingleDragArgs args)
+		public virtual void OnSingleSwipe(SingleDrag args)
 		{
 			if (!_shouldProcessEvents) return;
 			SingleSwipe?.Invoke(this, args);
 		}
 
-		public virtual void OnMultiDrag(MultiDragArgs args)
+		public virtual void OnMultiDrag(MultiDrag args)
 		{
 			if (!_shouldProcessEvents) return;
 			MultiDrag?.Invoke(this, args);
 		}
 
-		public virtual void OnMultiLongPress(MultiTapArgs args)
+		public virtual void OnMultiLongPress(MultiTap args)
 		{
 			if (!_shouldProcessEvents) return;
 			MultiLongPress?.Invoke(this, args);
 		}
 
-		public virtual void OnMultiSwipe(MultiDragArgs args)
+		public virtual void OnMultiSwipe(MultiDrag args)
 		{
 			if (!_shouldProcessEvents) return;
 			MultiSwipe?.Invoke(this, args);
 		}
 		
-		public virtual void OnMultiTap(MultiTapArgs args)
+		public virtual void OnMultiTap(MultiTap args)
 		{
 			if (!_shouldProcessEvents) return;
 			MultiTap?.Invoke(this, args);
 		}
 
 
-		public virtual void OnPinch(PinchArgs args)
+		public virtual void OnPinch(Pinch args)
 		{
 			if (!_shouldProcessEvents) return;
 			Pinch?.Invoke(this, args);
 		}
 
-		public virtual void OnTwist(TwistArgs args)
+		public virtual void OnTwist(Twist args)
 		{
 			if (!_shouldProcessEvents) return;
 			Twist?.Invoke(this, args);
@@ -135,7 +141,7 @@ namespace GDTIMDotNet
 			MultiDrag += consumer.OnMultiDrag;
 			MultiSwipe += consumer.OnMultiSwipe;
 			Pinch += consumer.OnPinch;
-			SingleTouch += consumer.OnSingleTouch;
+			TouchBegin += consumer.OnSingleTouch;
 			MultiTap += consumer.OnMultiTap;
 			SingleTap += consumer.OnSingleTap;
 			SingleDrag += consumer.OnSingleDrag;
@@ -143,6 +149,11 @@ namespace GDTIMDotNet
 			MultiLongPress += consumer.OnMultiLongPress;
 			Twist += consumer.OnTwist;
 			SingleSwipe += consumer.OnSingleSwipe;
+		}
+
+		public void EndTouch(TouchEnd args)
+		{
+			throw new NotImplementedException();
 		}
 
 		//todo: needs to be updated for GUI sorting. can this be done with a raycast? should listeners worry about this instead?
