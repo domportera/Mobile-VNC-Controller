@@ -7,7 +7,8 @@ namespace GDTIMDotNet
 {
     public class GestureInterpreter : Node, IGestureInterpreter
     {
-        public bool ConsumeMultiTouchOnSingleTouch { get; set; }
+        [Export] bool _consumeMultiTouchOnSingleTouch = false;
+        [Export] bool _preventPropagation = true;
         public event EventHandler<TouchBegin> TouchBegin;
         public event EventHandler<TouchEnd> TouchEnd;
         public event EventHandler<SingleTap> SingleTap;
@@ -23,7 +24,7 @@ namespace GDTIMDotNet
 
         public virtual void OnTouchBegin(TouchBegin args)
         {
-            args.AcceptGestures(this, ConsumeMultiTouchOnSingleTouch);
+            args.AcceptGestures(this, _consumeMultiTouchOnSingleTouch, _preventPropagation);
             TouchBegin?.Invoke(this, args);
         }
 
