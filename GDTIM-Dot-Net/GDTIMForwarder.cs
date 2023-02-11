@@ -4,14 +4,13 @@ using GDTIMDotNet;
 
 public class GDTIMForwarder : Node, IGestureReceiver
 {
-    // this currently does not support multiple concurrent gestures. this class
-    // should probably be made un-static and be used each time the base
+    // this currently does not support multiple concurrent gestures. GDTIM might not either?
+    // this class should probably be used each time the base
     // system tracks an individual gesture
     // this may require fat finger width set? it might double up "single drag events"? 
     
     List<IGestureInterpreter> _singleInterpreters = new List<IGestureInterpreter>();
-    List<IGestureInterpreter> _singleInterpretersConsumingMultiTouch = new List<IGestureInterpreter>();
-    HashSet<IGestureInterpreter> _multiInterpreters;
+    readonly HashSet<IGestureInterpreter> _multiInterpreters = new HashSet<IGestureInterpreter>();
 
     // if true, single interpreters that choose to consume multiTouch
     // will claim them all as their own.
@@ -45,7 +44,7 @@ public class GDTIMForwarder : Node, IGestureReceiver
         else
         {
             EndSingleTouch(position, cancelled: false);
-            _singleInterpretersConsumingMultiTouch.Clear();
+            _multiInterpreters.Clear();
             _checkedForMultiInterpreters = false;
         }
     }
@@ -54,7 +53,11 @@ public class GDTIMForwarder : Node, IGestureReceiver
         var args = new TouchBegin(position);
         Input.ParseInputEvent(args);
         _singleInterpreters = args.NodesTouched;
-        _singleInterpretersConsumingMultiTouch = args.NodesConsumingMultiTouch;
+        
+        foreach (IGestureInterpreter interpreter in args.NodesConsumingMultiTouch)
+        {
+            _multiInterpreters.Add(interpreter);
+        }
 
         foreach (IGestureInterpreter interpreter in _singleInterpreters)
         {
@@ -74,11 +77,11 @@ public class GDTIMForwarder : Node, IGestureReceiver
         _singleInterpreters.Clear();
     }
 
-    void PropagateMultiTouch(MultiTouch args)
+    void BeginMultiTouch(MultiTouch args)
     {
         if (_checkedForMultiInterpreters) 
             return;
-        if (_exclusiveMultiTouch && _singleInterpretersConsumingMultiTouch.Count > 0) 
+        if (_exclusiveMultiTouch && _multiInterpreters.Count > 0) 
             return;
         
         Input.ParseInputEvent(args);
@@ -118,19 +121,14 @@ public class GDTIMForwarder : Node, IGestureReceiver
     
     #endregion Single Touch
 
-    // todo: if _multiInterpreters count is 0 (cleared on touch up ??), then we raise
-    // an InputEventAction to gather the touchers.
-    // then we call the functions of _multiInterpreters + _singleInterpretersConsumingMultiTouch
-    // if _multiInterpreters count is not 0 or we already checked, then just call on _singleInterpretersConsuming
-    // if none of the above, don't bother calling anything until next TouchBegin maybe?
+
+    #region Multi Touch
     public virtual void OnTwist(Vector2 position, float relative, int fingers)
     {
         var args = new Twist(_multiInterpreters, position, relative, fingers);
 
-        PropagateMultiTouch(args);
+        BeginMultiTouch(args);
         
-        foreach(IGestureInterpreter g in _singleInterpretersConsumingMultiTouch)
-            g.OnTwist(args);
         foreach (IGestureInterpreter g in _multiInterpreters)
             g.OnTwist(args);
     }
@@ -139,10 +137,8 @@ public class GDTIMForwarder : Node, IGestureReceiver
     {
         var args = new MultiDrag(_multiInterpreters, position, relative, fingers);
         
-        PropagateMultiTouch(args);
+        BeginMultiTouch(args);
         
-        foreach(IGestureInterpreter g in _singleInterpretersConsumingMultiTouch)
-            g.OnMultiDrag(args);
         foreach (IGestureInterpreter g in _multiInterpreters)
             g.OnMultiDrag(args);
     }
@@ -151,10 +147,8 @@ public class GDTIMForwarder : Node, IGestureReceiver
     {
         var args = new MultiTap(_multiInterpreters, position, fingers);
         
-        PropagateMultiTouch(args);
+        BeginMultiTouch(args);
         
-        foreach(var g in _singleInterpretersConsumingMultiTouch)
-            g.OnMultiLongPress(args);
         foreach (IGestureInterpreter g in _multiInterpreters)
             g.OnMultiLongPress(args);
     }
@@ -163,10 +157,8 @@ public class GDTIMForwarder : Node, IGestureReceiver
     {
         var args = new MultiDrag(_multiInterpreters, position, relative, fingers);
         
-        PropagateMultiTouch(args);
+        BeginMultiTouch(args);
         
-        foreach(IGestureInterpreter g in _singleInterpretersConsumingMultiTouch)
-            g.OnMultiSwipe(args);
         foreach (IGestureInterpreter g in _multiInterpreters)
             g.OnMultiSwipe(args);
     }
@@ -175,10 +167,8 @@ public class GDTIMForwarder : Node, IGestureReceiver
     {
         var args = new MultiTap(_multiInterpreters, position, fingers);
         
-        PropagateMultiTouch(args);
+        BeginMultiTouch(args);
         
-        foreach(IGestureInterpreter g in _singleInterpretersConsumingMultiTouch)
-            g.OnMultiTap(args);
         foreach (IGestureInterpreter g in _multiInterpreters)
             g.OnMultiTap(args);
     }
@@ -187,12 +177,10 @@ public class GDTIMForwarder : Node, IGestureReceiver
     {
         var args = new Pinch(_multiInterpreters, position, relative, distance, fingers);
         
-        PropagateMultiTouch(args);
+        BeginMultiTouch(args);
         
-        foreach (IGestureInterpreter g in _singleInterpretersConsumingMultiTouch)
-            g.OnPinch(args);
         foreach (IGestureInterpreter g in _multiInterpreters)
             g.OnPinch(args);
     }
-    
+    #endregion Multi Touch
 }

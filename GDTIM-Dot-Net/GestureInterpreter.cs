@@ -1,14 +1,13 @@
 ﻿using System;
-using GDTIMDotNet;
 using Godot;
-using GodotExtensions;
 
 namespace GDTIMDotNet
 {
     public class GestureInterpreter : Node, IGestureInterpreter
     {
         [Export] bool _consumeMultiTouchOnSingleTouch = false;
-        [Export] bool _preventPropagation = true;
+        [Export] bool _preventPropagation = false;
+        [Export] GestureInputMode _inputMode = GestureInputMode.UnhandledInput;
         public event EventHandler<TouchBegin> TouchBegin;
         public event EventHandler<TouchEnd> TouchEnd;
         public event EventHandler<SingleTap> SingleTap;
@@ -22,9 +21,43 @@ namespace GDTIMDotNet
         public event EventHandler<Pinch> Pinch;
         public event EventHandler<Twist> Twist;
 
+        enum GestureInputMode {Input, UnhandledInput}
+
+        public override void _Input(InputEvent @event)
+        {
+            base._Input(@event);
+
+            if (_inputMode != GestureInputMode.Input)
+                return;
+            
+            AcceptGestures(@event);
+        }
+        
+        public override void _UnhandledInput(InputEvent @event)
+        {
+            base._UnhandledInput(@event);
+            
+            if (_inputMode != GestureInputMode.UnhandledInput)
+                return;
+            
+            AcceptGestures(@event);
+        }
+
+        void AcceptGestures(InputEvent @event)
+        {
+            switch (@event)
+            {
+                case TouchBegin touchBegin:
+                    touchBegin.AcceptGestures(this, _consumeMultiTouchOnSingleTouch, _preventPropagation);
+                    return;
+                case MultiTouch multiTouchBegin:
+                    multiTouchBegin.AcceptGestures(this);
+                    break;
+            }
+        }
+
         public virtual void OnTouchBegin(TouchBegin args)
         {
-            args.AcceptGestures(this, _consumeMultiTouchOnSingleTouch, _preventPropagation);
             TouchBegin?.Invoke(this, args);
         }
 
@@ -37,7 +70,7 @@ namespace GDTIMDotNet
         {
             SingleDrag?.Invoke(this, args);
         }
-
+        
         public virtual void OnSingleLongPress(SingleTap args)
         {
             SingleLongPress?.Invoke(this, args);
@@ -96,11 +129,6 @@ namespace GDTIMDotNet
             MultiLongPress += consumer.OnMultiLongPress;
             Twist += consumer.OnTwist;
             SingleSwipe += consumer.OnSingleSwipe;
-        }
-
-        public void EndTouch(TouchEnd args)
-        {
-            throw new NotImplementedException();
         }
     }
 }
