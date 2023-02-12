@@ -6,8 +6,8 @@ using Godot;
 /// </summary>
 public interface IGestureReceiver
 {
-    void OnSingleTouch(Vector2 position, bool pressed, bool cancelled);
-
+    void OnSingleTouch(Vector2 position, bool pressed, bool cancelled, object rawGesture);
+   
     void OnSingleDrag(Vector2 position, Vector2 relative);
 
     void OnSingleLongPress(Vector2 position);

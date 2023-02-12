@@ -11,7 +11,7 @@ func _unhandled_input(event : InputEvent):
 	if event_mode == EVENT_MODE.unhandled:
 		_handle_input(event)
 
-func _handle_input(event : InputEvent):
+func _handle_input(event : InputEvent):	
 	if event is InputEventMultiScreenDrag:
 		GdtimForwarder.OnMultiDrag(event.position, event.relative, event.fingers)
 	elif event is InputEventMultiScreenSwipe:
@@ -31,7 +31,7 @@ func _handle_input(event : InputEvent):
 	elif event is InputEventSingleScreenLongPress:
 		GdtimForwarder.OnSingleLongPress(event.position)
 	elif event is InputEventSingleScreenTouch:
-		GdtimForwarder.OnSingleTouch(event.position, event.pressed, event.cancelled)
+		GdtimForwarder.OnSingleTouch(event.position, event.pressed, event.cancelled, event.raw_gesture)
 	elif event is InputEventSingleScreenSwipe:
 		GdtimForwarder.OnSingleSwipe(event.position, event.relative)
 	elif event is RawGesture:

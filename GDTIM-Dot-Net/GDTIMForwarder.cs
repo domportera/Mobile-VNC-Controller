@@ -24,8 +24,10 @@ public class GDTIMForwarder : Node, IGestureReceiver
     //state variable
     bool _checkedForMultiInterpreters = false;
     
-    public virtual void OnSingleTouch(Vector2 position, bool pressed, bool cancelled)
+    public virtual void OnSingleTouch(Vector2 position, bool pressed, bool cancelled, object rawGesture)
     {
+        RawGesture gesture = new RawGesture(rawGesture);
+        GD.Print(gesture);
         if (cancelled)
         {
             if (_cancelSingleTouchOnMultiTouch)
