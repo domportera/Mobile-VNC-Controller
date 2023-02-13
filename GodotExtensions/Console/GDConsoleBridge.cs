@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using GodotExtensions;
+using GodotExtensions.GDScript_Extension_Methods;
 
 public class GDConsoleBridge : Node
 {
@@ -15,6 +16,7 @@ public class GDConsoleBridge : Node
 	[Export] NodePath _scrollContainerPath = null;
 	[Export] NodePath _vBoxPath = null;
 	[Export] bool _showInGameConsole = true;
+	[Export] bool _openByDefault = false;
 	[Export] bool _autoScroll = true;
 	
 	readonly Queue<Log> _logs = new Queue<Log>();
@@ -69,6 +71,12 @@ public class GDConsoleBridge : Node
 		{
 			_buttonUpDown.PressUp += (_, __) =>  _vSplitPullDown.ToggleWithButton();  
 		}
+		
+		if(_vSplitPullDown != null && _openByDefault)
+			_vSplitPullDown.ToggleWithButton();
+
+		GetViewport().Connect("gui_focus_changed", this, "OnFocusChanged");
+		_scrollContainer.Connect("scroll_ended", this, "RefocusPrevious");
 	}
 	
 	void HandleLog(object sender, LogEventArgs a)
@@ -91,18 +99,35 @@ public class GDConsoleBridge : Node
 		AddLog(LogType.Exception, a.Log);
 	}
 
-	void AddLog(LogType type, string log)
+	Control _previouslyFocused;
+	void OnFocusChanged(Control control)
+	{
+		if (control is Log) return;
+		_previouslyFocused = control;
+	}
+
+	void RefocusPrevious()
+	{
+		if (_previouslyFocused == null) return;
+		Control.FocusModeEnum focus = _previouslyFocused.FocusMode;
+		_previouslyFocused.FocusMode = Control.FocusModeEnum.All;
+		_previouslyFocused.CallDeferred("grab_focus");
+		_previouslyFocused.FocusMode = focus;
+	}
+
+	async void AddLog(LogType type, string log)
 	{
 		Log logItem = GetNextLogItem();
 		logItem.Type = type;
 		logItem.Text = log;
-		logItem.Label.Text = log;
-		logItem.Label.AddColorOverride(ColorOverrideName, _logColors[type]);
+		logItem.Text = log;
+		logItem.AddColorOverride(ColorOverrideName, _logColors[type]);
 		_logs.Enqueue(logItem);
 
 		if (_autoScroll)
 		{
-			logItem.Label.CallDeferred("grab_focus");
+			await Task.Delay(100); // need to wait for instantiation to complete?
+			logItem.CallDeferred("grab_focus");
 		}
 
 		Log GetNextLogItem()
@@ -111,18 +136,18 @@ public class GDConsoleBridge : Node
 			if (_logs.Count == _maxLogs)
 			{
 				nextLogItem = _logs.Dequeue();
-				nextLogItem.Label.RemoveColorOverride(ColorOverrideName);
+				nextLogItem.RemoveColorOverride(ColorOverrideName);
 
 				int childCount = _logVBox.GetChildCount();
-				_logVBox.MoveChild(nextLogItem.Label, childCount);
+				_logVBox.MoveChild(nextLogItem, childCount);
 			}
 			else
 			{
 				nextLogItem = new Log();
-				var label = new Label();
-				label.AnchorRight = 1;
-				nextLogItem.Label = label;
-				_logVBox.AddChild(label);
+				nextLogItem.AnchorRight = 1;
+				nextLogItem.FocusMode = Control.FocusModeEnum.All;
+
+				_logVBox.AddChild(nextLogItem);
 			}
 
 			return nextLogItem;
@@ -136,10 +161,8 @@ public class GDConsoleBridge : Node
 			_scrollContainer.ScrollVertical = int.MaxValue;
 	}
 	enum LogType {Log, Error, Exception}
-	class Log
+	class Log : Label
 	{
 		public LogType Type;
-		public string Text;
-		public Label Label;
 	}
 }

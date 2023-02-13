@@ -7,9 +7,6 @@ namespace GDTIMDotNet
 	public class ControlGestureInterpreter : Control, IGestureInterpreter
 	{
 		Control _control;
-		public Vector2 ControlRealSize => _control.RealPixelSize();
-		int _touchCount;
-		bool _shouldProcessEvents;
 
 		public event EventHandler<TouchBegin> TouchBegin;
 		public event EventHandler<TouchEnd> TouchEnd;
@@ -24,115 +21,127 @@ namespace GDTIMDotNet
 		public event EventHandler<Pinch> Pinch;
 		public event EventHandler<Twist> Twist;
 
-		public ControlGestureInterpreter()
+		readonly bool _controlIsThis;
+
+		protected ControlGestureInterpreter()
 		{
 			_control = this;
+			_controlIsThis = true;
 		}
 
 		public ControlGestureInterpreter(Control control)
 		{
 			_control = control;
+			_controlIsThis = control == this; //always false?
 		}
 
 		public override void _Ready()
 		{
-			if(_control != this)
+			if(!_controlIsThis)
 				_control.AddChild(this);
 		}
 
-		public override void _Process(float delta)
+		public override void _GuiInput(InputEvent @event)
 		{
-			base._Process(delta);
-			if (_touchCount == 0)
-				_shouldProcessEvents = false;
+			base._GuiInput(@event);
+			if (!_controlIsThis) return;
+
+			InterpretTouchActions(@event, true);
+		}
+
+		public override void _UnhandledInput(InputEvent @event)
+		{
+			base._UnhandledInput(@event);
+			if (_controlIsThis) return;
+			
+			InterpretTouchActions(@event, false);
+		}
+
+		void InterpretTouchActions(InputEvent @event, bool controlIsSelf)
+		{
+			GDLogger.Log(this, $"Action {@event.GetType()}");
+			if (!(@event is GDTIMTouchAction action)) return;
+
+			GDLogger.Log(this, $"GOT TOUCH ACTION {action.GetType()}");
+			bool myTouch = true;
+			if (!controlIsSelf)
+			{
+				myTouch = _control.HasPoint(action.Position);
+			}
+			
+			if(!myTouch) return;
+				
+			switch (@event)
+			{
+				case TouchBegin begin:
+					begin.AcceptGestures(this, false, false);
+					break;
+			}
+			
+			if(_control.MouseFilter == MouseFilterEnum.Stop)
+				AcceptEvent();
+
+			GDTIMForwarder.AcceptTouch(this);
 		}
 		
 		public virtual void OnTouchBegin(TouchBegin args)
 		{
-			if (args.Pressed)
-			{
-				_shouldProcessEvents = IsInsideControl(args.Position);
-				if (_shouldProcessEvents)
-				{
-					_touchCount++;
-					TouchBegin?.Invoke(this, args);
-				}
-
-				return;
-			}
-
-		
-
 			TouchBegin?.Invoke(this, args);
 		}
 
 		public void OnTouchEnd(TouchEnd args)
 		{	
-			_touchCount--;
-			if (!_shouldProcessEvents)
-				return;
-			
 			TouchEnd?.Invoke(this, args);
 		}
 
 		public virtual void OnSingleTap(SingleTap args)
 		{
-			if (!_shouldProcessEvents) return;
 			SingleTap?.Invoke(this, args);
 		}
 
 		public virtual void OnSingleDrag(SingleDrag args)
 		{
-			if (!_shouldProcessEvents) return;
 			SingleDrag?.Invoke(this, args);
 		}
 
 		public virtual void OnSingleLongPress(SingleTap args)
 		{
-			if (!_shouldProcessEvents) return;
 			SingleLongPress?.Invoke(this, args);
 		}
 		
 		public virtual void OnSingleSwipe(SingleDrag args)
 		{
-			if (!_shouldProcessEvents) return;
 			SingleSwipe?.Invoke(this, args);
 		}
 
 		public virtual void OnMultiDrag(MultiDrag args)
 		{
-			if (!_shouldProcessEvents) return;
 			MultiDrag?.Invoke(this, args);
 		}
 
 		public virtual void OnMultiLongPress(MultiTap args)
 		{
-			if (!_shouldProcessEvents) return;
 			MultiLongPress?.Invoke(this, args);
 		}
 
 		public virtual void OnMultiSwipe(MultiDrag args)
 		{
-			if (!_shouldProcessEvents) return;
 			MultiSwipe?.Invoke(this, args);
 		}
 		
 		public virtual void OnMultiTap(MultiTap args)
 		{
-			if (!_shouldProcessEvents) return;
 			MultiTap?.Invoke(this, args);
 		}
 
 
 		public virtual void OnPinch(Pinch args)
 		{
-			if (!_shouldProcessEvents) return;
 			Pinch?.Invoke(this, args);
 		}
 
 		public virtual void OnTwist(Twist args)
 		{
-			if (!_shouldProcessEvents) return;
 			Twist?.Invoke(this, args);
 		}
 		
@@ -149,18 +158,6 @@ namespace GDTIMDotNet
 			MultiLongPress += consumer.OnMultiLongPress;
 			Twist += consumer.OnTwist;
 			SingleSwipe += consumer.OnSingleSwipe;
-		}
-
-		public void EndTouch(TouchEnd args)
-		{
-			throw new NotImplementedException();
-		}
-
-		//todo: needs to be updated for GUI sorting. can this be done with a raycast? should listeners worry about this instead?
-		bool IsInsideControl(Vector2 position)
-		{
-			Rect2 relevantRect = new Rect2(_control.RectGlobalPosition, _control.RealRectSize());
-			return _control.HasPoint(position);
 		}
 	}
 }

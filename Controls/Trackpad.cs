@@ -4,7 +4,7 @@ using PCRemoteControl.VNC;
 
 namespace GDTIMDotNet
 {
-    public class Trackpad : Control, IGestureConsumer
+    public class Trackpad : ControlGestureInterpreter, IGestureConsumer
     {
         [Export] NodePath _vncHandlerPath = string.Empty;
         [Export] bool _mouseAcceleration = true;
@@ -33,6 +33,8 @@ namespace GDTIMDotNet
         
         public override void _Ready()
         {
+            base._Ready();
+            SubscribeToGestures(this);
             _vncHandler = GetNode(_vncHandlerPath) as VncHandler;
         }
         
@@ -42,9 +44,11 @@ namespace GDTIMDotNet
             _deltaTime = delta;
         }
 
-        public void OnTwist(object sender, Twist e)
+        public void OnSingleTouch(object sender, TouchBegin e)
         {
-            if (!StateIsDefault) return;
+            GDLogger.Log(this, $"Touch began at : {e.Position.ToString("f2")}");
+            LongPress(false, _longPressedButton);
+            ResetState();
         }
 
         public void OnSingleLongPress(object sender, SingleTap e)
@@ -97,10 +101,9 @@ namespace GDTIMDotNet
             }
         }
 
-        public void OnSingleTouch(object sender, TouchBegin e)
+        public void OnTwist(object sender, Twist e)
         {
-            LongPress(false, _longPressedButton);
-            ResetState();
+            if (!StateIsDefault) return;
         }
 
         public void OnPinch(object sender, Pinch e)

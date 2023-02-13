@@ -9,8 +9,8 @@ public class GDTIMForwarder : Node, IGestureReceiver
     // system tracks an individual gesture
     // this may require fat finger width set? it might double up "single drag events"? 
     
-    List<IGestureInterpreter> _singleInterpreters = new List<IGestureInterpreter>();
-    readonly HashSet<IGestureInterpreter> _multiInterpreters = new HashSet<IGestureInterpreter>();
+    static List<IGestureInterpreter> _singleInterpreters = new List<IGestureInterpreter>();
+    static readonly HashSet<IGestureInterpreter> _multiInterpreters = new HashSet<IGestureInterpreter>();
 
     // if true, single interpreters that choose to consume multiTouch
     // will claim them all as their own.
@@ -24,10 +24,27 @@ public class GDTIMForwarder : Node, IGestureReceiver
     //state variable
     bool _checkedForMultiInterpreters = false;
     
+
+    // since Godot wont send custom InputEventActions as-is, we need to change our approach
+    // by using a standard named InputEventAction where the listener needs to call this static
+    // method to subscribe.
+    // we will need to track what the last event sent was (so they likely need a common base class,
+    // which will be easier now that they don't need to be InputEventActions per se)
+    // so we know what to subscribe the listener to.
+    // optional overload for forcing subscription? maybe their game has a character named Swipe Man
+    // who does nothing but eat swipes
+    public static void AcceptTouch(IGestureInterpreter interpreter, bool subscribeToMultiTouch)
+    {
+        _singleInterpreters.Add(interpreter);
+        if (subscribeToMultiTouch)
+            _multiInterpreters.Add(interpreter);
+    }
+    
     public virtual void OnSingleTouch(Vector2 position, bool pressed, bool cancelled, object rawGesture)
     {
         RawGesture gesture = new RawGesture(rawGesture);
-        GD.Print(gesture);
+        gesture.PrintTouchData();
+        
         if (cancelled)
         {
             if (_cancelSingleTouchOnMultiTouch)
@@ -54,7 +71,6 @@ public class GDTIMForwarder : Node, IGestureReceiver
     {
         var args = new TouchBegin(position);
         Input.ParseInputEvent(args);
-        _singleInterpreters = args.NodesTouched;
         
         foreach (IGestureInterpreter interpreter in args.NodesConsumingMultiTouch)
         {

@@ -29,7 +29,8 @@ namespace GodotExtensions
         }
 
         void InterpreterOnSingleTouch(object sender, TouchBegin e)
-        {
+        { 
+            GDLogger.Log(this, $"This!!!!");
             Pressed = e.Pressed;
             string signalUpDown;
             EventHandler pressEvent;

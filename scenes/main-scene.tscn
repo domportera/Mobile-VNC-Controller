@@ -29,6 +29,7 @@ _pathToPortField = NodePath("../../CanvasLayer/VBoxContainer/Top Bar/Port Field"
 
 [node name="Godot Console" parent="." instance=ExtResource( 2 )]
 _buttonPath = NodePath("../CanvasLayer/VBoxContainer/Bottom Bar/ConsoleToggleButton")
+_openByDefault = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 follow_viewport_enable = true

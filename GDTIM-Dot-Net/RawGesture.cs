@@ -10,13 +10,13 @@ public class RawGesture
 {
     public class Event: IGodotConversionBase
     {
-        public float time {get; private set;}
-        public int index {get; private set; }
+        public float Time {get; private set;}
+        public int Index {get; private set; }
         
         public virtual void SetValuesFromObject(Object obj)
         {
-            time = obj.GetFloat("time");
-            index = obj.GetInt("index");
+            Time = obj.GetFloat("time");
+            Index = obj.GetInt("index");
         }
         
         protected static Vector2 GetVec2(Object obj, string name)
@@ -26,54 +26,54 @@ public class RawGesture
 
         public override string ToString()
         {
-            return $"({nameof(Event)}) Time: {time.ToString("f2")}, Index: {index.ToString()}\n";
+            return $"({nameof(Event)}) {nameof(Time)}: {Time.ToString("f2")}, {nameof(Index)}: {Index.ToString()}\n";
         }
     }
 
     public class Touch : Event
     {
-        public Vector2 position {get; private set;}
-        public bool pressed {get; private set;}
+        public Vector2 Position {get; private set;}
+        public bool Pressed {get; private set;}
         
         public override void SetValuesFromObject(Object obj)
         {
             base.SetValuesFromObject(obj);
-            position = obj.GetVec2("position");
-            pressed = obj.GetBool("pressed");
+            Position = obj.GetVec2("position");
+            Pressed = obj.GetBool("pressed");
         }
 
         public override string ToString()
         {
-            return $"({nameof(Touch)}) nameof{position.ToString("f2")}: {position.ToString("f2")}\n" +
-                   $"Pressed: {pressed.ToString()}\n" + base.ToString();
+            return $"({nameof(Touch)}) {nameof(Position)}: {Position.ToString("f2")}\n" +
+                   $"{nameof(Pressed)}: {Pressed.ToString()}\n" + base.ToString();
         }
     }
 
     public class Drag : Event
     {
-        Vector2 position  = Vector2.Zero;
-        Vector2 relative  = Vector2.Zero;
-        Vector2 speed     = Vector2.Zero;
+        public Vector2 Position {get; private set; }
+        public Vector2 Relative {get; private set; }
+        public Vector2 Speed    {get; private set; }
 
         public override void SetValuesFromObject(Object obj)
         {
             base.SetValuesFromObject(obj);
-            position = obj.GetVec2("position");
-            relative = obj.GetVec2("relative");
-            speed = obj.GetVec2("speed");
+            Position = obj.GetVec2("position");
+            Relative = obj.GetVec2("relative");
+            Speed = obj.GetVec2("speed");
         }
         
         public override string ToString()
         {
-            return $"({nameof(Touch)}) {nameof(position)}: {position.ToString("f2")}\n" +
-                   $"{nameof(relative)}: {relative.ToString("f2")}\n" +
-                   $"{nameof(speed)}: {speed.ToString("f2")}\n" + base.ToString();
+            return $"({nameof(Touch)}) {nameof(Position)}: {Position.ToString("f2")}\n" +
+                   $"{nameof(Relative)}: {Relative.ToString("f2")}\n" +
+                   $"{nameof(Speed)}: {Speed.ToString("f2")}\n" + base.ToString();
         }
     }
 
-    Dictionary<int, Touch> presses; // Dictionary # Touch
-    Dictionary<int, Touch> releases;// Dictionary # Touch
-    Dictionary<int, Drag> drags;    // Dictionary # Drag
+    public Dictionary<int, Touch> Presses {get;} // Dictionary # Touch
+    public Dictionary<int, Touch> Releases {get;}// Dictionary # Touch
+    public Dictionary<int, Drag> Drags {get;}    // Dictionary # Drag
    // Dictionary<int, string> history; //Dictionary # Array of events
 
     public int ActiveTouches { get; }
@@ -93,9 +93,9 @@ public class RawGesture
         var gddrags = (Godot.Collections.Dictionary)rawGesture.Get("drags");
         //var gdhistory = (Godot.Collections.Dictionary)rawGesture.Get("history");
 
-        presses = gdpresses.ToDictionary<int, Touch>();
-        releases = gdreleases.ToDictionary<int, Touch>();
-        drags = gddrags.ToDictionary<int, Drag>();
+        Presses = gdpresses.ToDictionary<int, Touch>();
+        Releases = gdreleases.ToDictionary<int, Touch>();
+        Drags = gddrags.ToDictionary<int, Drag>();
     }
 
     public override string ToString()
@@ -104,9 +104,35 @@ public class RawGesture
                $"active_touches: {ActiveTouches.ToString()}\n" +
                $"start_time: {StartTime.ToString("f3")}\n" +
                $"elapsed_time: {ElapsedTime.ToString("f3")}\n" +
-               $"presses: {presses.Count.ToString()}\n" +
-               $"releases: {releases.Count.ToString()}\n" +
-               $"drags: {drags.Count.ToString()}";// +
+               $"presses: {Presses.Count.ToString()}\n" +
+               $"releases: {Releases.Count.ToString()}\n" +
+               $"drags: {Drags.Count.ToString()}";// +
              // $"history: {history.Count.ToString()}\n";
+    }
+
+    public void PrintTouchData()
+    {
+        string log = this.ToString() + "\n \n";
+
+        foreach (var p in Presses)
+        {
+            log += $"Press {p.Key.ToString()}: {p.Value}\n";
+        }
+
+        log += "\n";
+        
+        foreach (var p in Releases)
+        {
+            log += $"Release {p.Key.ToString()}: {p.Value}\n";
+        }
+        
+        log += "\n";
+        
+        foreach (var p in Drags)
+        {
+            log += $"Drags {p.Key.ToString()}: {p.Value}";
+        }
+        
+        GDLogger.Log(this, log);
     }
 }

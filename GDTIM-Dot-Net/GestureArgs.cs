@@ -2,20 +2,21 @@ using System;
 using System.Collections.Generic;
 using GDTIMDotNet;
 using Godot;
+using GodotExtensions;
 
 namespace Godot
 {
 	// todo: rename
 	public abstract class GDTIMTouchAction : InputEventAction
 	{
-		internal List<IGestureInterpreter> NodesTouched = new List<IGestureInterpreter>();
-		internal List<IGestureInterpreter> NodesConsumingMultiTouch = new List<IGestureInterpreter>();
 		public readonly Vector2 Position;
 		public bool PreventPropagation { get; private set; }
 
 		public GDTIMTouchAction(Vector2 position)
 		{
 			Position = position;
+			Action = GetType().Name;
+			Pressed = true;
 		}
 
 		// todo: interrogate need for PreventPropagation - does "consuming" these events in typical godot 
@@ -25,10 +26,7 @@ namespace Godot
 			if (PreventPropagation)
 				return;
 			
-			NodesTouched.Add(node);
-			
-			if(subscribeToMultiTouch)
-				NodesConsumingMultiTouch.Add(node);
+			GDLogger.Log(this, $"Accepted!");
 
 			PreventPropagation = preventPropagation;
 		}
@@ -36,7 +34,9 @@ namespace Godot
 	
 	public class TouchBegin : GDTIMTouchAction
 	{
-		public TouchBegin(Vector2 position) : base(position){}
+		public TouchBegin(Vector2 position) : base(position)
+		{
+		}
 	}
 	
 	public class TouchEnd : GDTIMTouchAction
@@ -46,6 +46,7 @@ namespace Godot
 		public TouchEnd(Vector2 position, bool cancelled) : base(position)
 		{
 			Cancelled = cancelled;
+			Pressed = false;
 		}
 	}
 	public abstract class SingleGesture : InputEventAction
@@ -78,18 +79,13 @@ namespace Godot
 	{
 		public readonly int Fingers;
 		public readonly Vector2 Position;
-		internal HashSet<IGestureInterpreter> NodesTouched;
 
-		public MultiTouch(HashSet<IGestureInterpreter> touchers, Vector2 position, int fingers)
+		public MultiTouch(Vector2 position, int fingers)
 		{
-			NodesTouched = touchers;
 			Fingers = fingers;
 			Position = position;
-		}
-
-		public void AcceptGestures(IGestureInterpreter interpreter)
-		{
-			NodesTouched.Add(interpreter);
+			Action = GetType().Name;
+			Pressed = true;
 		}
 	}
 	
@@ -97,8 +93,7 @@ namespace Godot
 	{
 		public readonly float Relative, Distance;
 
-		public Pinch(HashSet<IGestureInterpreter> touchers, Vector2 position,
-			float relative, float distance, int fingers) : base(touchers, position, fingers)
+		public Pinch(Vector2 position, float relative, float distance, int fingers) : base(position, fingers)
 		{
 			Relative = relative;
 			Distance = distance;
@@ -109,8 +104,7 @@ namespace Godot
 	{
 		public readonly float Relative;
 
-		public Twist(HashSet<IGestureInterpreter> touchers, Vector2 position, float relative, int fingers) :
-			base(touchers, position, fingers)
+		public Twist(Vector2 position, float relative, int fingers) : base(position, fingers)
 		{
 			Relative = relative;
 		}
@@ -118,15 +112,13 @@ namespace Godot
 	
 	public class MultiTap : MultiTouch
 	{
-		public MultiTap(HashSet<IGestureInterpreter> touchers, Vector2 position, int fingers):
-			base(touchers, position, fingers){}
+		public MultiTap(Vector2 position, int fingers) : base(position, fingers){}
 	}
 	
 	public class MultiDrag : MultiTouch
 	{
 		public readonly Vector2 Relative;
-		public MultiDrag(HashSet<IGestureInterpreter> touchers, Vector2 position, Vector2 relative, int fingers) 
-			: base (touchers, position, fingers)
+		public MultiDrag(Vector2 position, Vector2 relative, int fingers) : base (position, fingers)
 		{
 			Relative = relative;
 		}
