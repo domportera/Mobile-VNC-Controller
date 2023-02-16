@@ -16,15 +16,15 @@ public interface IGestureReceiver
 
     void OnSingleTap(Vector2 position, object rawGesture);
 
-    void OnTwist(Vector2 position, float relative, object rawGesture);
+    void OnTwist(Vector2 position, float relative, int fingers, object rawGesture);
 
-    void OnMultiDrag(Vector2 position, Vector2 relative, object rawGesture);
+    void OnMultiDrag(Vector2 position, Vector2 relative, int fingers, object rawGesture);
 
-    void OnMultiLongPress(Vector2 position, object rawGesture);
+    void OnMultiLongPress(Vector2 position, int fingers, object rawGesture);
 
-    void OnMultiSwipe(Vector2 position, Vector2 relative, object rawGesture);
+    void OnMultiSwipe(Vector2 position, Vector2 relative, int fingers, object rawGesture);
 
-    void OnMultiTap(Vector2 position, object rawGesture);
+    void OnMultiTap(Vector2 position, int fingers, object rawGesture);
 
-    void OnPinch(Vector2 position, float relative, float distance, object rawGesture);
+    void OnPinch(Vector2 position, float relative, float distance, int fingers, object rawGesture);
 }
