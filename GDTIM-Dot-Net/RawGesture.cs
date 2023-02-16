@@ -80,9 +80,9 @@ public class RawGesture
     public float StartTime { get; }
     public float ElapsedTime { get; }
 
-    public RawGesture(object rawGestureObj)
+    public RawGesture(object rawGestureObj, bool clearReleasesFromPresses = true)
     {
-        Godot.Object rawGesture = (Godot.Object)rawGestureObj;
+        var rawGesture = (Godot.Object)rawGestureObj;
         
         ActiveTouches = (int)rawGesture.Get("active_touches");
         StartTime = (float)rawGesture.Get("start_time");
@@ -96,6 +96,9 @@ public class RawGesture
         Presses = gdpresses.ToDictionary<int, Touch>();
         Releases = gdreleases.ToDictionary<int, Touch>();
         Drags = gddrags.ToDictionary<int, Drag>();
+        
+        if(clearReleasesFromPresses)
+            RemoveReleasesFromPresses();
     }
 
     public override string ToString()
@@ -134,5 +137,17 @@ public class RawGesture
         }
         
         GDLogger.Log(this, log);
+    }
+
+    /// <summary>
+    /// Currently, Touch Input Manager still contains the Presses after they have been released
+    /// So I just remove it manually here for now
+    /// </summary>
+    void RemoveReleasesFromPresses()
+    {
+        foreach (var kvp in Releases)
+        {
+            Presses.Remove(kvp.Key);
+        }
     }
 }

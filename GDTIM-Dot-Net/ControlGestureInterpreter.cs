@@ -6,8 +6,6 @@ namespace GDTIMDotNet
 {
 	public class ControlGestureInterpreter : Control, IGestureInterpreter
 	{
-		Control _control;
-
 		public event EventHandler<TouchBegin> TouchBegin;
 		public event EventHandler<TouchEnd> TouchEnd;
 		public event EventHandler<SingleTap> SingleTap;
@@ -22,6 +20,7 @@ namespace GDTIMDotNet
 		public event EventHandler<Twist> Twist;
 
 		readonly bool _controlIsThis;
+		readonly Control _control;
 
 		protected ControlGestureInterpreter()
 		{
@@ -41,47 +40,30 @@ namespace GDTIMDotNet
 				_control.AddChild(this);
 		}
 
-		public override void _GuiInput(InputEvent @event)
+		public override void _Input(InputEvent input)
 		{
-			base._GuiInput(@event);
+			InterpretTouchActions(input);
+		}
+
+		public override void _GuiInput(InputEvent input)
+		{
 			if (!_controlIsThis) return;
-
-			InterpretTouchActions(@event, true);
+			InterpretTouchActions(input);
 		}
 
-		public override void _UnhandledInput(InputEvent @event)
+		public override void _UnhandledInput(InputEvent input)
 		{
-			base._UnhandledInput(@event);
-			if (_controlIsThis) return;
-			
-			InterpretTouchActions(@event, false);
+			InterpretTouchActions(input);
 		}
 
-		void InterpretTouchActions(InputEvent @event, bool controlIsSelf)
+		void InterpretTouchActions(InputEvent input)
 		{
-			GDLogger.Log(this, $"Action {@event.GetType()}");
-			if (!(@event is GDTIMTouchAction action)) return;
-
-			GDLogger.Log(this, $"GOT TOUCH ACTION {action.GetType()}");
-			bool myTouch = true;
-			if (!controlIsSelf)
-			{
-				myTouch = _control.HasPoint(action.Position);
-			}
+			if (!(input is GDTIMTouchAction action)) return;
 			
-			if(!myTouch) return;
-				
-			switch (@event)
+			if (action is TouchBegin begin)
 			{
-				case TouchBegin begin:
-					begin.AcceptGestures(this, false, false);
-					break;
+				begin.AcceptGesturesControl(this, true, false);
 			}
-			
-			if(_control.MouseFilter == MouseFilterEnum.Stop)
-				AcceptEvent();
-
-			GDTIMForwarder.AcceptTouch(this);
 		}
 		
 		public virtual void OnTouchBegin(TouchBegin args)

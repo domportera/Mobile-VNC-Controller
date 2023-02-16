@@ -4,123 +4,187 @@ using GDTIMDotNet;
 using Godot;
 using GodotExtensions;
 
-namespace Godot
+// todo: rename
+public abstract class GDTIMTouchAction : InputEventAction
 {
-	// todo: rename
-	public abstract class GDTIMTouchAction : InputEventAction
-	{
-		public readonly Vector2 Position;
-		public bool PreventPropagation { get; private set; }
+	public readonly Vector2 Position;
+	public readonly int Index;
 
-		public GDTIMTouchAction(Vector2 position)
-		{
-			Position = position;
-			Action = GetType().Name;
-			Pressed = true;
-		}
-
-		// todo: interrogate need for PreventPropagation - does "consuming" these events in typical godot 
-		// fashion achieve this?
-		public void AcceptGestures(IGestureInterpreter node, bool subscribeToMultiTouch, bool preventPropagation)
-		{
-			if (PreventPropagation)
-				return;
-			
-			GDLogger.Log(this, $"Accepted!");
-
-			PreventPropagation = preventPropagation;
-		}
-	}
-	
-	public class TouchBegin : GDTIMTouchAction
+	public GDTIMTouchAction(Vector2 position, int index)
 	{
-		public TouchBegin(Vector2 position) : base(position)
-		{
-		}
-	}
-	
-	public class TouchEnd : GDTIMTouchAction
-	{
-		public readonly bool Cancelled;
+		Position = position;
+		Action = GetType().Name;
+		Pressed = true;
+		Index = index;
 		
-		public TouchEnd(Vector2 position, bool cancelled) : base(position)
+		if (!InputMap.HasAction(Action))
 		{
-			Cancelled = cancelled;
-			Pressed = false;
+			InputMap.AddAction(Action);
+			GD.Print(this, $"ADDED: {Action}");
 		}
 	}
-	public abstract class SingleGesture : InputEventAction
-	{
-		public Vector2 Position { get; }
 
-		public SingleGesture(Vector2 position)
+}
+
+public class TouchBegin : GDTIMTouchAction
+{
+	bool _preventPropagation = false;
+
+	internal event EventHandler<TouchBeginEventArgs> Accepted;
+	internal class TouchBeginEventArgs : EventArgs
+	{
+		public readonly IGestureInterpreter Interpreter;
+		public readonly int Index;
+		public readonly bool SubscribeToMultiTouch;
+
+		public TouchBeginEventArgs(IGestureInterpreter interpreter, int index, bool subscribeToMultiTouch)
 		{
-			Position = position;
+			Interpreter = interpreter;
+			Index = index;
+			SubscribeToMultiTouch = subscribeToMultiTouch;
+		}
+	}
+
+	public TouchBegin(Vector2 position, int index) : base(position, index) { }
+	
+	public void AcceptGesturesControl<T>(T control, bool subscribeToMultiTouch, bool disregardMouseFilter)
+		where T : Control, IGestureInterpreter
+	{
+		if (!disregardMouseFilter)
+		{
+			switch (control.MouseFilter)
+			{
+				case Control.MouseFilterEnum.Ignore:
+					return;
+				case Control.MouseFilterEnum.Stop:
+					AcceptNode(control, subscribeToMultiTouch);
+					control.AcceptEvent();
+					break;
+				case Control.MouseFilterEnum.Pass:
+					AcceptNode(control, subscribeToMultiTouch);
+					break;
+				default:
+					throw new NotImplementedException();
+			}
+		}
+		else
+		{
+			AcceptNode(control, subscribeToMultiTouch);
 		}
 	}
 	
-	public class SingleTap : SingleGesture
-	{
-		public SingleTap(Vector2 position) : base(position) { }
-	}
-	
 
-	public class SingleDrag : SingleGesture
+	public void AcceptGesturesNode<T>(T node, bool subscribeToMultiTouch, bool preventPropagation)
+		where T : Node, IGestureInterpreter
 	{
-		public readonly Vector2 Relative;
+		if (_preventPropagation) return;
+		_preventPropagation = preventPropagation;
 		
-		public SingleDrag(Vector2 position, Vector2 relative): base(position)
-		{
-			Relative = relative;
-		}
+		AcceptNode(node, subscribeToMultiTouch);
 	}
 
-	public class MultiTouch : InputEventAction
+	void AcceptNode<T>(T node, bool subscribeToMultiTouch) where T : Node, IGestureInterpreter
 	{
-		public readonly int Fingers;
-		public readonly Vector2 Position;
-
-		public MultiTouch(Vector2 position, int fingers)
-		{
-			Fingers = fingers;
-			Position = position;
-			Action = GetType().Name;
-			Pressed = true;
-		}
+		var args = new TouchBeginEventArgs(node, Index, subscribeToMultiTouch);
+		Accepted?.Invoke(this, args);
 	}
+}
+
+public class TouchEnd : GDTIMTouchAction
+{
+	/// <summary>
+	/// If the touch has been "cancelled", it means that it has been moved into a multi-finger gesture
+	/// </summary>
+	public readonly bool Cancelled;
 	
-	public class Pinch : MultiTouch
+	public TouchEnd(Vector2 position, int index, bool cancelled) : base(position, index)
 	{
-		public readonly float Relative, Distance;
-
-		public Pinch(Vector2 position, float relative, float distance, int fingers) : base(position, fingers)
-		{
-			Relative = relative;
-			Distance = distance;
-		}
+		Cancelled = cancelled;
+		Pressed = false;
 	}
+}
+public abstract class SingleGesture : InputEventAction
+{
+	public Vector2 Position { get; }
 
-	public class Twist : MultiTouch
+	public SingleGesture(Vector2 position)
 	{
-		public readonly float Relative;
-
-		public Twist(Vector2 position, float relative, int fingers) : base(position, fingers)
-		{
-			Relative = relative;
-		}
+		Position = position;
 	}
+}
+
+public class SingleTap : SingleGesture
+{
+	public SingleTap(Vector2 position) : base(position) { }
+}
+
+
+public class SingleDrag : SingleGesture
+{
+	public readonly Vector2 Relative;
 	
-	public class MultiTap : MultiTouch
+	public SingleDrag(Vector2 position, Vector2 relative): base(position)
 	{
-		public MultiTap(Vector2 position, int fingers) : base(position, fingers){}
+		Relative = relative;
 	}
-	
-	public class MultiDrag : MultiTouch
+}
+
+public class MultiTouch : InputEventAction
+{
+	public readonly int Fingers;
+	public readonly Vector2 Position;
+	internal readonly HashSet<IGestureInterpreter> NodesTouched;
+
+	public MultiTouch(HashSet<IGestureInterpreter> touchers, Vector2 position, int fingers)
 	{
-		public readonly Vector2 Relative;
-		public MultiDrag(Vector2 position, Vector2 relative, int fingers) : base (position, fingers)
-		{
-			Relative = relative;
-		}
+		NodesTouched = touchers;
+		Fingers = fingers;
+		Position = position;
+		Action = GetType().Name;
+		Pressed = true;
+	}
+
+	public void AcceptGestures(IGestureInterpreter interpreter)
+	{
+		NodesTouched.Add(interpreter);
+	}
+}
+
+public class Pinch : MultiTouch
+{
+	public readonly float Relative, Distance;
+
+	public Pinch(HashSet<IGestureInterpreter> touchers, Vector2 position,
+		float relative, float distance, int fingers) : base(touchers, position, fingers)
+	{
+		Relative = relative;
+		Distance = distance;
+	}
+}
+
+public class Twist : MultiTouch
+{
+	public readonly float Relative;
+
+	public Twist(HashSet<IGestureInterpreter> touchers, Vector2 position, float relative, int fingers) :
+		base(touchers, position, fingers)
+	{
+		Relative = relative;
+	}
+}
+
+public class MultiTap : MultiTouch
+{
+	public MultiTap(HashSet<IGestureInterpreter> touchers, Vector2 position, int fingers):
+		base(touchers, position, fingers){}
+}
+
+public class MultiDrag : MultiTouch
+{
+	public readonly Vector2 Relative;
+	public MultiDrag(HashSet<IGestureInterpreter> touchers, Vector2 position, Vector2 relative, int fingers) 
+		: base (touchers, position, fingers)
+	{
+		Relative = relative;
 	}
 }

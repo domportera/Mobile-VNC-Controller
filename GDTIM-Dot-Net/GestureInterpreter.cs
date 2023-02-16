@@ -43,12 +43,12 @@ namespace GDTIMDotNet
             AcceptGestures(@event);
         }
 
-        void AcceptGestures(InputEvent @event)
+        void AcceptGestures(InputEvent input)
         {
-            switch (@event)
+            switch (input)
             {
                 case TouchBegin touchBegin:
-                    touchBegin.AcceptGestures(this, _consumeMultiTouchOnSingleTouch, _preventPropagation);
+                    touchBegin.AcceptGesturesNode(this, _consumeMultiTouchOnSingleTouch, _preventPropagation);
                     return;
                 case MultiTouch multiTouchBegin:
                     multiTouchBegin.AcceptGestures(this);
