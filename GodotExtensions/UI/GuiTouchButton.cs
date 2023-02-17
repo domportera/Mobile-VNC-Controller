@@ -24,7 +24,6 @@ namespace GodotExtensions
         public override void _Ready()
         {
             base.ToggleMode = true;
-            MouseFilter = MouseFilterEnum.Ignore;
             var interpreter = new ControlGestureInterpreter(this);
             interpreter.TouchBegin += OnTouchBegin;
             interpreter.TouchEnd += OnTouchEnd;
@@ -32,7 +31,7 @@ namespace GodotExtensions
 
         void OnTouchEnd(object sender, TouchEnd e)
         {
-            GDLogger.Log(this, $"BUTTON END");
+            
             Pressed = false;
             
             EmitSignal(nameof(pressed_up));
@@ -43,8 +42,9 @@ namespace GodotExtensions
         }
 
         void OnTouchBegin(object sender, TouchBegin e)
-        { 
-            GDLogger.Log(this, $"BUTTON START");
+        {
+            if (Disabled) return;
+            
             Pressed = true;
             
             EmitSignal(nameof(pressed_down));

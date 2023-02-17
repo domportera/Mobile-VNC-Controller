@@ -76,7 +76,6 @@ public class GDConsoleBridge : Node
 			_vSplitPullDown.ToggleWithButton();
 
 		GetViewport().Connect("gui_focus_changed", this, "OnFocusChanged");
-		_scrollContainer.Connect("scroll_ended", this, "RefocusPrevious");
 	}
 	
 	void HandleLog(object sender, LogEventArgs a)
@@ -99,58 +98,46 @@ public class GDConsoleBridge : Node
 		AddLog(LogType.Exception, a.Log);
 	}
 
-	Control _previouslyFocused;
-	void OnFocusChanged(Control control)
-	{
-		if (control is Log) return;
-		_previouslyFocused = control;
-	}
-
-	void RefocusPrevious()
-	{
-		if (_previouslyFocused == null) return;
-		Control.FocusModeEnum focus = _previouslyFocused.FocusMode;
-		_previouslyFocused.FocusMode = Control.FocusModeEnum.All;
-		_previouslyFocused.CallDeferred("grab_focus");
-		_previouslyFocused.FocusMode = focus;
-	}
-
+	int _logIndex = 0;
 	async void AddLog(LogType type, string log)
 	{
-		Log logItem = GetNextLogItem();
+		_ = GetNextLogItem(out Log logItem);
 		logItem.Type = type;
 		logItem.Text = log;
 		logItem.Text = log;
 		logItem.AddColorOverride(ColorOverrideName, _logColors[type]);
 		_logs.Enqueue(logItem);
 
-		if (_autoScroll)
+		bool shouldAutoScroll = _autoScroll && !_vSplitPullDown.Collapsed && _vSplitPullDown.SplitOffset > 0;
+		if (shouldAutoScroll)
 		{
-			await Task.Delay(100); // need to wait for instantiation to complete?
-			logItem.CallDeferred("grab_focus");
+			while (!logItem.Ready) // need to wait for instantiation to complete
+				await Task.Yield();
+
+			_scrollContainer.ScrollVertical = (int)_scrollContainer.GetVScrollbar().MaxValue;
 		}
 
-		Log GetNextLogItem()
+		bool GetNextLogItem(out Log nextLog)
 		{
-			Log nextLogItem;
 			if (_logs.Count == _maxLogs)
 			{
-				nextLogItem = _logs.Dequeue();
-				nextLogItem.RemoveColorOverride(ColorOverrideName);
+				nextLog = _logs.Dequeue();
+				nextLog.RemoveColorOverride(ColorOverrideName);
 
 				int childCount = _logVBox.GetChildCount();
-				_logVBox.MoveChild(nextLogItem, childCount);
+				_logVBox.MoveChild(nextLog, childCount);
+				return false;
 			}
 			else
 			{
-				nextLogItem = new Log();
-				nextLogItem.AnchorRight = 1;
-				nextLogItem.FocusMode = Control.FocusModeEnum.All;
+				nextLog = new Log();
+				nextLog.Name = $"Log {_logIndex++.ToString()}";
+				nextLog.AnchorRight = 1;
+				nextLog.FocusMode = Control.FocusModeEnum.All;
 
-				_logVBox.AddChild(nextLogItem);
+				_logVBox.AddChild(nextLog);
+				return true;
 			}
-
-			return nextLogItem;
 		}
 	}
 
@@ -164,5 +151,18 @@ public class GDConsoleBridge : Node
 	class Log : Label
 	{
 		public LogType Type;
+		public bool Focused;
+		public bool Ready { get; private set; }
+
+		public override void _Ready()
+		{
+			ReadyUp();
+		}
+
+		async void ReadyUp()
+		{
+			await Task.Delay(100);
+			Ready = true;
+		}
 	}
 }

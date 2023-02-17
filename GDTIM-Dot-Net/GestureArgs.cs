@@ -47,7 +47,7 @@ public class TouchBegin : GDTIMTouchAction
 
 	public TouchBegin(Vector2 position, int index) : base(position, index) { }
 	
-	public void AcceptGesturesControl<T>(T control, bool subscribeToMultiTouch, bool disregardMouseFilter)
+	public void AcceptGesturesControl<T>(T control, bool subscribeToMultiTouch, bool disregardMouseFilter, bool acceptFocus = true)
 		where T : Control, IGestureInterpreter
 	{
 		if (!disregardMouseFilter)
@@ -70,6 +70,14 @@ public class TouchBegin : GDTIMTouchAction
 		else
 		{
 			AcceptNode(control, subscribeToMultiTouch);
+		}
+
+		if (acceptFocus && control.FocusMode != Control.FocusModeEnum.None)
+		{
+			Control.FocusModeEnum focusMode = control.FocusMode;
+			control.FocusMode = Control.FocusModeEnum.All;
+			control.GrabFocus();
+			control.FocusMode = focusMode;
 		}
 	}
 	

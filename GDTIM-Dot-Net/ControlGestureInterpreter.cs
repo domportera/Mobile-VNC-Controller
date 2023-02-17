@@ -31,15 +31,25 @@ namespace GDTIMDotNet
 		public ControlGestureInterpreter(Control control, MouseFilterEnum mouseFilter = MouseFilterEnum.Stop)
 		{
 			_control = control;
-			if(GetParent() != control)
+			
+			if (GetParent() != control)
+			{
 				_control.AddChild(this);
+			}
 
 			// this interpreter will be taking over the mouse interactions
 			control.MouseFilter = MouseFilterEnum.Ignore;
 			MouseFilter = mouseFilter;
 
+			AnchorLeft = 0;
+			AnchorRight = 1;
+			AnchorTop = 0;
+			AnchorBottom = 1;
+			this.RectPosition = Vector2.Zero;
+			
 			// take their tooltip too
 			HintTooltip = control.HintTooltip;
+			control.HintTooltip = string.Empty;
 			
 			_controlIsThis = control == this; //always false?
 			Name = $"{_control.Name} (Touch)";
