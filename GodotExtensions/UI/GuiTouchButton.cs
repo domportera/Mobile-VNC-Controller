@@ -24,33 +24,33 @@ namespace GodotExtensions
         public override void _Ready()
         {
             base.ToggleMode = true;
+            MouseFilter = MouseFilterEnum.Ignore;
             var interpreter = new ControlGestureInterpreter(this);
-            interpreter.TouchBegin += InterpreterOnSingleTouch;
+            interpreter.TouchBegin += OnTouchBegin;
+            interpreter.TouchEnd += OnTouchEnd;
         }
 
-        void InterpreterOnSingleTouch(object sender, TouchBegin e)
-        { 
-            GDLogger.Log(this, $"This!!!!");
-            Pressed = e.Pressed;
-            string signalUpDown;
-            EventHandler pressEvent;
+        void OnTouchEnd(object sender, TouchEnd e)
+        {
+            GDLogger.Log(this, $"BUTTON END");
+            Pressed = false;
             
-            if (e.Pressed)
-            {
-                signalUpDown = nameof(pressed_down);
-                pressEvent = PressDown;
-            }
-            else
-            {
-                signalUpDown = nameof(pressed_up);
-                pressEvent = PressUp;
-            }
-            
-            EmitSignal(signalUpDown);
-            pressEvent?.Invoke(this, EventArgs.Empty);
+            EmitSignal(nameof(pressed_up));
+            PressUp?.Invoke(this, EventArgs.Empty);
 
-            bool actionModePressed = ActionMode == ActionModeEnum.Press;
-            if(e.Pressed == actionModePressed)
+            if(ActionMode == ActionModeEnum.Release)
+                EmitSignal("pressed");
+        }
+
+        void OnTouchBegin(object sender, TouchBegin e)
+        { 
+            GDLogger.Log(this, $"BUTTON START");
+            Pressed = true;
+            
+            EmitSignal(nameof(pressed_down));
+            PressDown?.Invoke(this, EventArgs.Empty);
+
+            if(ActionMode == ActionModeEnum.Press)
                 EmitSignal("pressed");
         }
     }

@@ -112,6 +112,15 @@ public class GDTIMForwarder : Node, IGestureReceiver
 
     public virtual void OnSingleDrag(Vector2 position, Vector2 relative, object rawGesture)
     {
+        var gesture = new RawGesture(rawGesture);
+        int index = gesture.GetDragIndex(position, relative);
+
+        if (index == RawGesture.InvalidIndex)
+        {
+            GDLogger.Log(this, $"Invalid drag index for gesture: {gesture}");
+            return;
+        }
+        
         var args = new SingleDrag(position, relative);
         foreach(var g in _singleInterpreters[index])
             g.OnSingleDrag(args);
@@ -119,6 +128,15 @@ public class GDTIMForwarder : Node, IGestureReceiver
 
     public virtual void OnSingleLongPress(Vector2 position, object rawGesture)
     {
+        var gesture = new RawGesture(rawGesture);
+        int index = gesture.GetTouchIndex(position, true);
+
+        if (index == RawGesture.InvalidIndex)
+        {
+            GDLogger.Log(this, $"Invalid long press index for gesture: {gesture}");
+            return;
+        }
+        
         var args = new SingleTap(position);
         foreach(var g in _singleInterpreters[index])
             g.OnSingleLongPress(args);
@@ -126,6 +144,15 @@ public class GDTIMForwarder : Node, IGestureReceiver
 
     public virtual void OnSingleSwipe(Vector2 position, Vector2 relative, object rawGesture)
     {
+        var gesture = new RawGesture(rawGesture);
+        int index = gesture.GetDragIndex(position, relative);
+
+        if (index == RawGesture.InvalidIndex)
+        {
+            GDLogger.Log(this, $"Invalid drag index for gesture: {gesture}");
+            return;
+        }
+        
         var args = new SingleDrag(position, relative);
         foreach(var g in _singleInterpreters[index])
             g.OnSingleSwipe(args);
@@ -133,6 +160,15 @@ public class GDTIMForwarder : Node, IGestureReceiver
 
     public virtual void OnSingleTap(Vector2 position, object rawGesture)
     {
+        var gesture = new RawGesture(rawGesture);
+        int index = gesture.GetTouchIndex(position, false);
+
+        if (index == RawGesture.InvalidIndex)
+        {
+            GDLogger.Log(this, $"Invalid tap index for gesture: {gesture}");
+            return;
+        }
+        
         var args = new SingleTap(position);
         foreach(var g in _singleInterpreters[index])
             g.OnSingleTap(args);

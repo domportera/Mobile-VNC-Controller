@@ -80,6 +80,7 @@ public class RawGesture
     public float StartTime { get; }
     public float ElapsedTime { get; }
 
+    // todo: can this be optimized by simply updating a single raw gesture object? i think that's how the gdscript works under the hood.
     public RawGesture(object rawGestureObj, bool clearReleasesFromPresses = true)
     {
         var rawGesture = (Godot.Object)rawGestureObj;
@@ -149,5 +150,30 @@ public class RawGesture
         {
             Presses.Remove(kvp.Key);
         }
+    }
+
+    public int GetDragIndex(Vector2 position, Vector2 relative)
+    {
+        foreach (var drag in Drags.Values)
+        {
+            if (drag.Relative == relative && drag.Position == position)
+                return drag.Index;
+        }
+
+        return InvalidIndex;
+    }
+
+    public const int InvalidIndex = -1;
+
+    public int GetTouchIndex(Vector2 position, bool presses)
+    {
+        var touches = presses ? Presses.Values : Releases.Values;
+        foreach (var touch in touches)
+        {
+            if (touch.Position == position)
+                return touch.Index;
+        }
+        
+        return InvalidIndex;
     }
 }

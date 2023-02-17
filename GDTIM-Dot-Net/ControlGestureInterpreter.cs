@@ -28,16 +28,21 @@ namespace GDTIMDotNet
 			_controlIsThis = true;
 		}
 
-		public ControlGestureInterpreter(Control control)
+		public ControlGestureInterpreter(Control control, MouseFilterEnum mouseFilter = MouseFilterEnum.Stop)
 		{
 			_control = control;
-			_controlIsThis = control == this; //always false?
-		}
-
-		public override void _Ready()
-		{
-			if(!_controlIsThis)
+			if(GetParent() != control)
 				_control.AddChild(this);
+
+			// this interpreter will be taking over the mouse interactions
+			control.MouseFilter = MouseFilterEnum.Ignore;
+			MouseFilter = mouseFilter;
+
+			// take their tooltip too
+			HintTooltip = control.HintTooltip;
+			
+			_controlIsThis = control == this; //always false?
+			Name = $"{_control.Name} (Touch)";
 		}
 
 		public override void _Input(InputEvent input)
@@ -62,7 +67,8 @@ namespace GDTIMDotNet
 			
 			if (action is TouchBegin begin)
 			{
-				begin.AcceptGesturesControl(this, true, false);
+				if(_control.GetGlobalRect().HasPoint(begin.Position))
+					begin.AcceptGesturesControl(this, true, false);
 			}
 		}
 		
