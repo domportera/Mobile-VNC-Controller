@@ -13,7 +13,7 @@ const DEBUG : bool = false
 
 const DRAG_STARTUP_TIME : float = 0.02
 
-const FINGER_SIZE : float = 1000.0
+const FINGER_SIZE : float = 10.0
 
 const MULTI_FINGER_RELEASE_THRESHOLD : float = 0.1
 
@@ -80,9 +80,13 @@ var raw_gesture : RawGesture = RawGesture.new() # Current raw_gesture
 var _mouse_event_press_position : Vector2
 var _mouse_event : int = Gesture.NONE
 
+class PressTimer : 
+	extends Timer
+	var index : int
+	
 
-var _drag_startup_timer : Timer = Timer.new()
-var _long_press_timer   : Timer = Timer.new()
+var _drag_startup_timer : PressTimer = PressTimer.new()
+var _long_press_timer   : PressTimer = PressTimer.new()
 
 var _single_touch_cancelled : bool = false
 var _single_drag_enabled    : bool = false 
@@ -165,22 +169,23 @@ func _handle_screen_touch(event : InputEventScreenTouch) -> void:
 	if event.pressed:
 		if raw_gesture.size() == 1: # First and only touch
 			_long_press_timer.start(LONG_PRESS_TIME_THRESHOLD)
+			_long_press_timer.index = index
 			_single_touch_cancelled = false
-			_emit("single_touch", InputEventSingleScreenTouch.new(raw_gesture))
+			_emit("single_touch", InputEventSingleScreenTouch.new(index, raw_gesture))
 		elif !_single_touch_cancelled :
 				_single_touch_cancelled = true
 				_cancel_single_drag()
-				_emit("single_touch", InputEventSingleScreenTouch.new(raw_gesture))
+				_emit("single_touch", InputEventSingleScreenTouch.new(index, raw_gesture))
 	else:
 		var fingers : int = raw_gesture.size() 
 		if index == 0:
-			_emit("single_touch", InputEventSingleScreenTouch.new(raw_gesture))
+			_emit("single_touch", InputEventSingleScreenTouch.new(index, raw_gesture))
 			if !_single_touch_cancelled:
 				var distance : float = (raw_gesture.releases[0].position - raw_gesture.presses[0].position).length()
 				if raw_gesture.elapsed_time < TAP_TIME_LIMIT and distance <= TAP_DISTANCE_LIMIT:
-					_emit("single_tap", InputEventSingleScreenTap.new(raw_gesture))
+					_emit("single_tap", InputEventSingleScreenTap.new(index, raw_gesture))
 				if raw_gesture.elapsed_time < SWIPE_TIME_LIMIT and distance > SWIPE_DISTANCE_THRESHOLD:
-					_emit("single_swipe", InputEventSingleScreenSwipe.new(raw_gesture))
+					_emit("single_swipe", InputEventSingleScreenSwipe.new(index, raw_gesture))
 		if raw_gesture.active_touches == 0: # last finger released
 			if _single_touch_cancelled:
 				var distance : float = (raw_gesture.centroid("releases","position") - raw_gesture.centroid("presses","position")).length()
@@ -209,9 +214,11 @@ func _handle_screen_drag(event : InputEventScreenDrag) -> void:
 			_emit("twist",InputEventScreenTwist.new(raw_gesture, event))
 	else:
 		if _single_drag_enabled:
-			_emit("single_drag", InputEventSingleScreenDrag.new(raw_gesture))
+			_emit("single_drag", InputEventSingleScreenDrag.new(event.index, raw_gesture))
 		else:
-			if _drag_startup_timer.is_stopped(): _drag_startup_timer.start(DRAG_STARTUP_TIME)
+			if _drag_startup_timer.is_stopped(): 
+				_drag_startup_timer.start(DRAG_STARTUP_TIME)
+				_drag_startup_timer.index = event.index
 
 func _handle_action(event : InputEvent) -> void:
 	if InputMap.has_action("single_touch") and (event.is_action_pressed("single_touch") or event.is_action_released("single_touch")):
@@ -259,7 +266,7 @@ func _handle_action(event : InputEvent) -> void:
 		if swipe_emulation_dir != Vector2.ZERO:
 			var swipe_event
 			if is_single_swipe:
-				swipe_event = InputEventSingleScreenSwipe.new()
+				swipe_event = InputEventSingleScreenSwipe.new(0)
 			else:
 				swipe_event = InputEventMultiScreenSwipe.new()
 				swipe_event.fingers = 2
@@ -320,7 +327,7 @@ func _on_long_press_timer_timeout() -> void:
 		if _single_touch_cancelled:
 			_emit("multi_long_press", InputEventMultiScreenLongPress.new(raw_gesture))
 		else:
-			_emit("single_long_press", InputEventSingleScreenLongPress.new(raw_gesture))
+			_emit("single_long_press", InputEventSingleScreenLongPress.new(_long_press_timer.index, raw_gesture))
 	
 
 func _end_gesture() -> void:

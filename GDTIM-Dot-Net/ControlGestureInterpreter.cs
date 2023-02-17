@@ -51,6 +51,7 @@ namespace GDTIMDotNet
 			HintTooltip = control.HintTooltip;
 			control.HintTooltip = string.Empty;
 			
+			
 			_controlIsThis = control == this; //always false?
 			Name = $"{_control.Name} (Touch)";
 		}

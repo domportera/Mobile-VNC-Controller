@@ -3,8 +3,10 @@ extends InputEventAction
 
 var position   : Vector2
 var raw_gesture : RawGesture
+var index : int
 
-func _init(_raw_gesture : RawGesture = null) -> void:
+func _init(_index: int, _raw_gesture : RawGesture = null) -> void:
+	index = _index
 	raw_gesture = _raw_gesture
 	if raw_gesture:
 		if !raw_gesture.presses.has(0):

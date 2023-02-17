@@ -6,15 +6,15 @@ using Godot;
 /// </summary>
 public interface IGestureReceiver
 {
-    void OnSingleTouch(Vector2 position, bool pressed, bool cancelled, object rawGesture);
+    void OnSingleTouch(Vector2 position, bool pressed, bool cancelled, int index, object rawGesture);
    
-    void OnSingleDrag(Vector2 position, Vector2 relative, object rawGesture);
+    void OnSingleDrag(Vector2 position, Vector2 relative, int index, object rawGesture);
 
-    void OnSingleLongPress(Vector2 position, object rawGesture);
+    void OnSingleLongPress(Vector2 position, int index, object rawGesture);
 
-    void OnSingleSwipe(Vector2 position, Vector2 relative, object rawGesture);
+    void OnSingleSwipe(Vector2 position, Vector2 relative, int index, object rawGesture);
 
-    void OnSingleTap(Vector2 position, object rawGesture);
+    void OnSingleTap(Vector2 position, int index, object rawGesture);
 
     void OnTwist(Vector2 position, float relative, int fingers, object rawGesture);
 

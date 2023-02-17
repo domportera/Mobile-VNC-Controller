@@ -60,11 +60,11 @@ namespace PCRemoteControl.Controls
         bool _keyboardOpen = false;
         void OnKeyboardButton()
         {
+            GDLogger.Log(this, $"Keyboard button pressed");
             GrabFocus();
-
             if (_keyboardOpen) return;
-
             _keyboardOpen = true;
+            
             OS.ShowVirtualKeyboard();
             Task.Run((Action)OpenTextEditWithKeyboard);
         }

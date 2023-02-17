@@ -50,7 +50,7 @@ namespace GDTIMDotNet
                 case TouchBegin touchBegin:
                     touchBegin.AcceptGesturesNode(this, _consumeMultiTouchOnSingleTouch, _preventPropagation);
                     return;
-                case MultiTouch multiTouchBegin:
+                case global::MultiTouch multiTouchBegin:
                     multiTouchBegin.AcceptGestures(this);
                     break;
             }

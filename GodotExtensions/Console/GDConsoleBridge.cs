@@ -74,8 +74,6 @@ public class GDConsoleBridge : Node
 		
 		if(_vSplitPullDown != null && _openByDefault)
 			_vSplitPullDown.ToggleWithButton();
-
-		GetViewport().Connect("gui_focus_changed", this, "OnFocusChanged");
 	}
 	
 	void HandleLog(object sender, LogEventArgs a)
@@ -101,9 +99,8 @@ public class GDConsoleBridge : Node
 	int _logIndex = 0;
 	async void AddLog(LogType type, string log)
 	{
-		_ = GetNextLogItem(out Log logItem);
+		Log logItem = GetNextLogItem();
 		logItem.Type = type;
-		logItem.Text = log;
 		logItem.Text = log;
 		logItem.AddColorOverride(ColorOverrideName, _logColors[type]);
 		_logs.Enqueue(logItem);
@@ -117,8 +114,9 @@ public class GDConsoleBridge : Node
 			_scrollContainer.ScrollVertical = (int)_scrollContainer.GetVScrollbar().MaxValue;
 		}
 
-		bool GetNextLogItem(out Log nextLog)
+		Log GetNextLogItem()
 		{
+			Log nextLog;
 			if (_logs.Count == _maxLogs)
 			{
 				nextLog = _logs.Dequeue();
@@ -126,7 +124,6 @@ public class GDConsoleBridge : Node
 
 				int childCount = _logVBox.GetChildCount();
 				_logVBox.MoveChild(nextLog, childCount);
-				return false;
 			}
 			else
 			{
@@ -136,8 +133,9 @@ public class GDConsoleBridge : Node
 				nextLog.FocusMode = Control.FocusModeEnum.All;
 
 				_logVBox.AddChild(nextLog);
-				return true;
 			}
+
+			return nextLog;
 		}
 	}
 

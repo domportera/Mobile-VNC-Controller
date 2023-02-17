@@ -19,21 +19,21 @@ func _handle_input(event : InputEvent):
 	elif event is InputEventMultiScreenTap:
 		GdtimForwarder.OnMultiTap(event.position, event.fingers, event.raw_gesture)
 	elif event is InputEventMultiScreenLongPress:
-		GdtimForwarder.OnMultiLongPress(event.position, event.fingers, event.raw_gesture)
+		GdtimForwarder.OnMultiLongPress(event.position, event.fingers, event.index, event.raw_gesture)
 	elif event is InputEventSingleScreenDrag:
-		GdtimForwarder.OnSingleDrag(event.position, event.relative, event.raw_gesture)
+		GdtimForwarder.OnSingleDrag(event.position, event.relative, event.index, event.raw_gesture)
 	elif event is InputEventScreenPinch:
 		GdtimForwarder.OnPinch(event.position, event.relative, event.distance, event.fingers, event.raw_gesture)
 	elif event is InputEventScreenTwist:
 		GdtimForwarder.OnTwist(event.position, event.relative, event.fingers, event.raw_gesture)
 	elif event is InputEventSingleScreenTap:
-		GdtimForwarder.OnSingleTap(event.position, event.raw_gesture)
+		GdtimForwarder.OnSingleTap(event.position, event.index, event.raw_gesture)
 	elif event is InputEventSingleScreenLongPress:
-		GdtimForwarder.OnSingleLongPress(event.position, event.raw_gesture)
+		GdtimForwarder.OnSingleLongPress(event.position, event.index, event.raw_gesture)
 	elif event is InputEventSingleScreenTouch:
-		GdtimForwarder.OnSingleTouch(event.position, event.pressed, event.cancelled, event.raw_gesture)
+		GdtimForwarder.OnSingleTouch(event.position, event.pressed, event.cancelled, event.index, event.raw_gesture)
 	elif event is InputEventSingleScreenSwipe:
-		GdtimForwarder.OnSingleSwipe(event.position, event.relative, event.raw_gesture)
+		GdtimForwarder.OnSingleSwipe(event.position, event.relative, event.index, event.raw_gesture)
 	elif event is RawGesture:
 		pass
 

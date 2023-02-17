@@ -27,7 +27,7 @@ public class GDTIMForwarder : Node, IGestureReceiver
     bool _checkedForMultiInterpreters = false;
 
     RawGesture _previousSingleTouchGesture;
-    public virtual void OnSingleTouch(Vector2 position, bool pressed, bool cancelled, object rawGesture)
+    public virtual void OnSingleTouch(Vector2 position, bool pressed, bool cancelled, int index, object rawGesture)
     {
         RawGesture gesture = new RawGesture(rawGesture);
        // gesture.PrintTouchData();
@@ -36,7 +36,6 @@ public class GDTIMForwarder : Node, IGestureReceiver
         {
             if (_cancelSingleTouchOnMultiTouch)
             {
-                int index = gesture.Releases.First().Key;
                 // maybe we want to raise a separate OnSingleChangedToMultiTouch event instead?
                 EndSingleTouch(position, true, index);
             }
@@ -46,15 +45,10 @@ public class GDTIMForwarder : Node, IGestureReceiver
         
         if (pressed)
         {
-            int newestIndex = _previousSingleTouchGesture is null 
-                ? gesture.Presses.First().Key 
-                : gesture.Presses.Keys.Except(_previousSingleTouchGesture.Presses.Keys).First();
-            
-            BeginSingleTouch(position, newestIndex);
+            BeginSingleTouch(position, index);
         }
         else
         {
-            int index = gesture.Releases.First().Key;
             EndSingleTouch(position, false, index);
             _multiInterpreters.Clear();
             _checkedForMultiInterpreters = false;
@@ -110,10 +104,9 @@ public class GDTIMForwarder : Node, IGestureReceiver
 
     #region Single Touch
 
-    public virtual void OnSingleDrag(Vector2 position, Vector2 relative, object rawGesture)
+    public virtual void OnSingleDrag(Vector2 position, Vector2 relative, int index, object rawGesture)
     {
         var gesture = new RawGesture(rawGesture);
-        int index = gesture.GetDragIndex(position, relative);
 
         if (index == RawGesture.InvalidIndex)
         {
@@ -126,49 +119,22 @@ public class GDTIMForwarder : Node, IGestureReceiver
             g.OnSingleDrag(args);
     }
 
-    public virtual void OnSingleLongPress(Vector2 position, object rawGesture)
+    public virtual void OnSingleLongPress(Vector2 position, int index, object rawGesture)
     {
-        var gesture = new RawGesture(rawGesture);
-        int index = gesture.GetTouchIndex(position, true);
-
-        if (index == RawGesture.InvalidIndex)
-        {
-            GDLogger.Log(this, $"Invalid long press index for gesture: {gesture}");
-            return;
-        }
-        
         var args = new SingleTap(position);
         foreach(var g in _singleInterpreters[index])
             g.OnSingleLongPress(args);
     }
 
-    public virtual void OnSingleSwipe(Vector2 position, Vector2 relative, object rawGesture)
+    public virtual void OnSingleSwipe(Vector2 position, Vector2 relative, int index, object rawGesture)
     {
-        var gesture = new RawGesture(rawGesture);
-        int index = gesture.GetDragIndex(position, relative);
-
-        if (index == RawGesture.InvalidIndex)
-        {
-            GDLogger.Log(this, $"Invalid drag index for gesture: {gesture}");
-            return;
-        }
-        
         var args = new SingleDrag(position, relative);
         foreach(var g in _singleInterpreters[index])
             g.OnSingleSwipe(args);
     }
 
-    public virtual void OnSingleTap(Vector2 position, object rawGesture)
-    {
-        var gesture = new RawGesture(rawGesture);
-        int index = gesture.GetTouchIndex(position, false);
-
-        if (index == RawGesture.InvalidIndex)
-        {
-            GDLogger.Log(this, $"Invalid tap index for gesture: {gesture}");
-            return;
-        }
-        
+    public virtual void OnSingleTap(Vector2 position, int index, object rawGesture)
+    {   
         var args = new SingleTap(position);
         foreach(var g in _singleInterpreters[index])
             g.OnSingleTap(args);
