@@ -6,11 +6,8 @@ using GodotExtensions;
 
 public class GDTIMForwarder : Node, IGestureReceiver
 {
-    // this currently does not support multiple concurrent gestures. GDTIM might not either?
-    // this class should probably be used each time the base
-    // system tracks an individual gesture
-    // this may require fat finger width set? it might double up "single drag events"? 
-
+    // todo: IGestureReceivers should be able to specify if they want to receive multitouch at all, or if they want to receive
+    // those as separate single touches instead
     Dictionary<int, HashSet<IGestureInterpreter>> _singleInterpreters = new Dictionary<int, HashSet<IGestureInterpreter>>();
     readonly HashSet<IGestureInterpreter> _multiInterpreters = new HashSet<IGestureInterpreter>();
 

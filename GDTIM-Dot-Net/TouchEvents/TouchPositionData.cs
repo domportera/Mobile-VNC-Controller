@@ -1,61 +1,51 @@
 using Godot;
-
+using static GDTIMDotNet.UnitConstants;
 namespace GDTIMDotNet
 {
     public struct TouchPositionData //translation into c++ may require this to be a Godot.Reference
     {
-        public TouchPositionData(double time, Vector2 position)
+        public TouchPositionData(double time, Vector2 position, float dpi)
         {
             Time = time;
             Position = position;
             Speed = 0;
-            SmoothedSpeed = 0;
-            DPI = OS.GetScreenDpi();
+            _dpi = dpi;
             PositionDelta = Vector2.Zero;
+            DistanceTraveled = 0f;
         }
 
-        // TODO: move these calculations into the Touch class and let this remain a relatively slim struct.
-        // the touch is the one that should be making sense of its data
-        public TouchPositionData(double time, Vector2 position, Vector2 relative)
+        public TouchPositionData(double time, double previousTime, Vector2 position, Vector2 relative, float dpi)
         {
             Time = time;
             Position = position;
-            DPI = OS.GetScreenDpi();
-            Speed = position.DistanceTo(previous.Position) / (time - previous.Time);
-            SmoothedSpeed = position.DistanceTo(final.Position) / (time - final.Time);
+            _dpi = dpi;
+            DistanceTraveled = relative.DistanceTo(Vector2.Zero);
             PositionDelta = relative;
-            SmoothPositionDelta = position - final.Position;
-            
-            //todo: can replace the "smooth" with another name ("historical? idfk) and do actual smoothing on these
-            //values by interpolating values between this and previous/final
-            // can choose to make this a class, but do I really want all those heap allocations?
+            Speed = DistanceTraveled / (time - previousTime);
         }
 
-        Vector2 _previousPosition, _finalPositon;
-        
-        static float CalculateSpeed(TouchPositionData data, )
-
-        readonly float DPI;
+        readonly float _dpi;
         public double Time { get; }
         public Vector2 Position { get; }
         public Vector2 PositionDelta { get; }
-        public Vector2 SmoothPositionDelta { get; }
+        public float DistanceTraveled { get; }
         public double Speed { get; }
-        public double SmoothedSpeed { get; }
         
-        public Vector2 PositionInches => Position * OS.GetScreenDpi();
+        public Vector2 PositionDeltaInches => PositionDelta * _dpi;
+        public Vector2 PositionDeltaCm => PositionDeltaInches * InchesToCmF;
+        public Vector2 PositionDeltaMm => PositionDeltaCm * CmToMm;
+        
+        public Vector2 PositionInches => Position * _dpi;
         public Vector2 PositionCm => PositionInches * InchesToCmF;
         public Vector2 PositionMm => PositionCm * CmToMm;
-        public double SpeedInches => Speed * OS.GetScreenDpi();
+        
+        public double SpeedInches => Speed * _dpi;
         public double SpeedCm => SpeedInches * InchesToCmD;
-        public double SpeedMm => SmoothedSpeedCm * CmToMm;
-        public double SmoothedSpeedInches => SmoothedSpeed * OS.GetScreenDpi();
-        public double SmoothedSpeedCm => SmoothedSpeedInches * InchesToCmD;
-        public double SmoothedSpeedMm => SmoothedSpeedCm * CmToMm;
+        public double SpeedMm => SpeedCm * CmToMm;
 
-        const float InchesToCmF = 2.54f;
-        const double InchesToCmD = 2.54;
-        const int CmToMm = 10;
+        public float DistanceTraveledInches => DistanceTraveled * _dpi;
+        public float DistanceTraveledCm => DistanceTraveledInches * InchesToCmF;
+        public float DistanceTraveledMm => DistanceTraveledCm * CmToMm;
 
         public override string ToString()
         {

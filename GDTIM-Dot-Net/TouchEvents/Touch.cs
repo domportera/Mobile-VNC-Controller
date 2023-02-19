@@ -4,30 +4,66 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using GodotExtensions;
+using static GDTIMDotNet.UnitConstants;
 
 namespace GDTIMDotNet
 {
-    public class Touch
+    public class Touch // Nice Touch ™
     {
-        public double LastUpdated {get; private set;}
-        public TouchPositionData Current;
-        public int Index {get; }
-
         const double DragHistoryDuration = 0.3;
-
-        public event EventHandler Updated;
-
-        Queue<TouchPositionData> _history = new Queue<TouchPositionData>();
-        
-
         public Touch(double time, int index, Vector2 position)
         {
-            Current = new TouchPositionData(time, position);
+            Dpi = OS.GetScreenDpi();
+            Current = new TouchPositionData(time, position, Dpi);
             _history.Enqueue(Current);
-            LastUpdated = time;
+            StartPosition = position;
             Index = index;
+            StartTime = time;
         }
+        
+        readonly Queue<TouchPositionData> _history = new Queue<TouchPositionData>();
+        public readonly float Dpi;
 
+        public event EventHandler Updated;
+        public TouchPositionData Current;
+        
+        public int Index {get; }
+        public double LastUpdateTime => Current.Time;
+        public double TimeAlive => LastUpdateTime - StartTime;
+        public double StartTime { get; }
+        
+        public Vector2 StartPosition { get; }
+        public Vector2 StartPositionInches => StartPosition * Dpi;
+        public Vector2 StartPositionCm => StartPositionInches * InchesToCmF;
+        public Vector2 StartPositionMm => StartPositionCm * CmToMm;
+        
+        public Vector2 Position => Current.Position;
+        
+        public Vector2 PositionCm => Current.PositionCm;
+        public Vector2 PositionInches => Current.PositionInches;
+        public Vector2 PositionMm => Current.PositionMm;
+        public Vector2 PositionDelta => Current.PositionDelta;
+        
+        public double Speed => Current.Speed;
+        public double SpeedCm => Current.SpeedCm;
+        public double SpeedMm => Current.SpeedMm;
+        public double SpeedInches => Current.SpeedInches;
+        
+        
+        public float TotalDistanceTraveled { get; private set; } = 0f;
+        public float TotalDistanceTraveledInches => TotalDistanceTraveled * Dpi;
+        public float TotalDistanceTraveledCm => TotalDistanceTraveledInches * InchesToCmF;
+        public float TotalDistanceTraveledMm => TotalDistanceTraveledCm * CmToMm;
+
+        public Vector2 PositionSmoothedSimple => (Current.Position + _history.Peek().Position) / 2f;
+        public Vector2 DeltaSmoothedSimple => (Current.PositionDelta + _history.Peek().PositionDelta) / 2f;
+        public double SpeedSmoothedSimple => (Current.Speed + _history.Peek().Speed) / 2;
+
+        
+        const float TapWiggleThresholdMm = 5f;
+        public bool CanBeATap => TotalDistanceTraveledMm < TapWiggleThresholdMm;
+        
+        
         public override string ToString()
         {
             return $"({nameof(Touch)}): {Current.ToString()}";
@@ -43,14 +79,15 @@ namespace GDTIMDotNet
 
             bool hasHistory = _history.Count > 0;
             TouchPositionData oldest = hasHistory ? _history.Peek() : Current;
-            var positionData = new TouchPositionData(time, position, relative, Current, oldest);
+            var positionData = new TouchPositionData(time, LastUpdateTime, position, relative, Dpi);
             
-            LastUpdated = time;
+            TotalDistanceTraveled += positionData.DistanceTraveled;
             Current = positionData;
+            
             _history.Enqueue(positionData);
 
             double timeElapsed = time - oldest.Time;
-            if (hasHistory && timeElapsed > DragHistoryDuration)
+            if (/*hasHistory && */timeElapsed > DragHistoryDuration) // add check if changing data structures for a more advanced "smoothing" system
                 _history.Dequeue();
             
 #if ERROR_CHECK_GDTIM

@@ -110,7 +110,7 @@ namespace GDTIMDotNet
             var touches = presses ? Presses : Releases;
             foreach (KeyValuePair<int, Touch> touchEntry in touches)
             {
-                if (touchEntry.Value.PositionPixels == position)
+                if (touchEntry.Value.Current.Position == position)
                     return touchEntry.Key;
             }
             

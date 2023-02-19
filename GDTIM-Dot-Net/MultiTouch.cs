@@ -1,6 +1,7 @@
 #define ERROR_CHECK_GDTIM
 using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Channels;
 using Godot;
 
 namespace GDTIMDotNet
@@ -12,7 +13,7 @@ namespace GDTIMDotNet
     {
         public event EventHandler<Touch> TouchAdded;
         public event EventHandler<Touch> TouchRemoved;
-        public event EventHandler<double> Process;
+        public event EventHandler AfterInput;
         
         Dictionary<int, Touch> _touches = new Dictionary<int, Touch>();
         static Vector2 Resolution => OS.WindowSize;
@@ -32,7 +33,7 @@ namespace GDTIMDotNet
 
         public override void _Ready()
         {
-            _ = new GestureCalculator(this);
+            _ = new GestureGenerator(this, null);
         }
 
         public override void _Input(InputEvent input)
@@ -52,11 +53,21 @@ namespace GDTIMDotNet
                     HandleTouchDragEvent(drag);
                     break;
             }
+            
+            AfterInput.Invoke(this, EventArgs.Empty);
         }
 
         public override void _Process(float delta)
         {
-            Process.Invoke(this, Time);
+            double time = Time;
+            foreach (KeyValuePair<int, Touch> touchEntry in _touches)
+            {
+                Touch touch = touchEntry.Value;
+                if (time - touch.LastUpdateTime > delta)
+                {
+                    touch.Update(time, touch.Position, Vector2.Zero);
+                }
+            }
         }
 
         void HandleTouchDragEvent(InputEventScreenDrag drag)
@@ -71,11 +82,14 @@ namespace GDTIMDotNet
         {
             if (_acceptTouch)
                 AcceptEvent();
-            
+
             if (touch.Pressed)
+            {
                 AddTouch(touch.Index, Time, touch.Position);
-            else
-                RemoveTouch(touch.Index, Time, touch.Position);
+                return;
+            }
+            
+            RemoveTouch(touch.Index, Time, touch.Position);
         }
 
         void HandleMouseMotionEvent(InputEventMouseMotion mouse)
@@ -112,6 +126,8 @@ namespace GDTIMDotNet
             return int.MinValue + mouseButton;
         }
 
+        static bool IsMouseBurton(int indez) => indez < 0;
+
         void AddTouch(int index, double time, Vector2 position)
         {
             #if ERROR_CHECK_GDTIM
@@ -133,6 +149,28 @@ namespace GDTIMDotNet
             
             Touch removedTouch = _touches[touchIndex];
             _touches.Remove(touchIndex);
+
+            if (IsMouseBurton(index))
+                return;
+            
+            // decrement other touch indexes
+            // may need to do a finger width proximity calculation
+            // for touch persistence but im gonna prwtend i domt have to
+            var toShift = new List<int>();
+            foreach (var kvp in _touchIndices)
+            {
+                if (kvp.Key > index)
+                    toShift.Add(kvp.Key);
+            }
+
+            toShift.Sort();
+            foreach (int i in toShift)
+            {
+                int adjusted = i - 1;
+                var indexToMove = _touchIndices[i];
+                _touchIndices.Remove(i);
+                _touchIndices[adjusted] = indexToMove;
+            }
         }
 
         void DragTouch(int index, double time, Vector2 position, Vector2 relative)
