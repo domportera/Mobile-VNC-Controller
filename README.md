@@ -4,14 +4,24 @@ Made in Godot 3.5.1.
 
 Currently, the only builds available live in the Releases section.
 
-Special thanks to [Godot Touch Input Manager](https://github.com/Federico-Ciuffardi/GodotTouchInputManager)
+This project has been a workbench for several tools I plan on releasing separately. As this is my first real Godot project, I've run into several limitations that I otherwise would have taken for granted that I think others would too. So if all goes well, the following will be byproducts of this project:
 
+1. A Nice Touch ™️ system built from scratch that makes multitouch and gestures easily accessible, allowing nodes to claim ownership over touch events for simplified game and application logic.
+2. A small UI library to allow for multitouch and button up/down events
+3. An in-game console log to view the outputs of a debug system (if anyone knows of a way too hook into GD.Print natively please lmk)
+4. A Drag-down split container (used in my console) - currently limited by Godot 3.5 but I may work around that if I can
+5. 
+
+C# takes priority for these systems, however I would like to expose as much of it as possible to GDScript. 
+
+
+Special thanks to [Godot Touch Input Manager](https://github.com/Federico-Ciuffardi/GodotTouchInputManager) for providing the touch foundation for the first iterations of builds.
 ## Planned Features
 o = in progress
 - [ ] gyro mouse movement
   - [ ] screen off functionality w/ volume buttons for clicks
 - [ ] mouse sensitivity options
-- [ ] mouse acceleration
+- [o] mouse acceleration
 - [ ] list of saved VNC servers + passwords (encrypted)
 - [ ] vnc server discovery
 - [o] full-keyboard emulation (platform restrictions aside, this is complete)
@@ -20,8 +30,8 @@ o = in progress
 - [ ] keyboard type selection (godot restriction afaik)
 - [x] System key buttons for every possible system key with multi-key shortcuts
 - [ ] system key command editable list 
-- [ ] system key button multi-touch support
-- [ ] system key button realtime press-up and press-down
+- [ot] system key button multi-touch support
+- [x] system key button realtime press-up and press-down
 
 ## UI To-dos
 - [ ] proper font scaling and multi-resolution support
@@ -32,16 +42,6 @@ o = in progress
 - [ ] minimalist layout
 - [ ] gamepad layout 
 - [ ] button icons
-
-## Library Development
-- [o] genericization of tools and libraries developed for this for use in other projects
-    - [ ] ui-control-constrained gestures (from the Trackpad)
-    - [ ] multi-touch and press-up-and-down godot UI
-    - [ ] runtime debug log console
-    - [ ] general .NET and Godot .NET libraries
-        - [ ] fuse with DomsUnityHelper and make many functions platform-agnostic
-    - [ ] Android wireless debugging .bat script
-- [ ] push touch UI developments upstream 
 
  ## Technical To-dos
 - [ ] framerate limit option
