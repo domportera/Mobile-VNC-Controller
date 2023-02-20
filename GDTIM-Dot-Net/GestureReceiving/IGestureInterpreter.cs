@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace GDTIMDotNet
+namespace GDTIMDotNet.GestureReceiving
 {
     public interface IGestureInterpreter
     {

@@ -1,8 +1,7 @@
 ﻿using System;
 using Godot;
 
-namespace GDTIMDotNet
-{
+namespace GDTIMDotNet.GestureReceiving{
     public class GestureInterpreter : Node, IGestureInterpreter
     {
         [Export] bool _consumeMultiTouchOnSingleTouch = false;

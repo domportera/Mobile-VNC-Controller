@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using GDTIMDotNet;
+using GDTIMDotNet.GestureReceiving;
 using Godot;
 using GodotExtensions;
 

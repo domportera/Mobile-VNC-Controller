@@ -62,8 +62,10 @@ namespace GDTIMDotNet
         
         const float TapWiggleThresholdMm = 5f;
         public bool CanBeATap => TotalDistanceTraveledMm < TapWiggleThresholdMm;
-        
-        
+        public float DirectionDegrees => Current.DirectionDegrees;
+        public float DirectionRadians => Current.DirectionRadians;
+
+
         public override string ToString()
         {
             return $"({nameof(Touch)}): {Current.ToString()}";

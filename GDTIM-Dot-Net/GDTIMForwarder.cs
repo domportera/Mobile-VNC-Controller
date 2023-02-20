@@ -2,12 +2,15 @@ using Godot;
 using System.Collections.Generic;
 using System.Linq;
 using GDTIMDotNet;
+using GDTIMDotNet.GestureReceiving;
 using GodotExtensions;
 
 public class GDTIMForwarder : Node, IGestureReceiver
 {
     // todo: IGestureReceivers should be able to specify if they want to receive multitouch at all, or if they want to receive
     // those as separate single touches instead
+    // todo:  re-work how nodes claim touches and how the Forwarder splits up gestures based on the claims. If a multitouch in but a node claimed one of those
+    // touches, do we split the multitouch/drag into a single touch + (multiTouch or singletouch)?
     Dictionary<int, HashSet<IGestureInterpreter>> _singleInterpreters = new Dictionary<int, HashSet<IGestureInterpreter>>();
     readonly HashSet<IGestureInterpreter> _multiInterpreters = new HashSet<IGestureInterpreter>();
 

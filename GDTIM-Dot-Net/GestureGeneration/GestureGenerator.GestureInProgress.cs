@@ -7,30 +7,12 @@ using System.Threading.Tasks;
 using GodotExtensions;
 using Vector2 = Godot.Vector2;
 
-namespace GDTIMDotNet
+namespace GDTIMDotNet.GestureGeneration
 {
     internal partial class GestureGenerator
     {
         class GestureCalculator//Analyzer? nah
         {
-
-            public DragType DragState
-            {
-                get
-                {
-                    switch (_dragging.Count)
-                    {
-                        case 0:
-                            return DragType.None;
-                        case 1:
-                            return DragType.Single;
-                        default:
-                            return DragType.Multi;
-                    }
-                }
-            }
-        
-            public enum DragType {None, Single, Multi}
             public GestureCalculator(Touch firstTouch)
             {
                 AddTouch(firstTouch);

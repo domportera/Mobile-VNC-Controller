@@ -2,7 +2,7 @@ using Godot;
 using GodotExtensions;
 using System;
 
-namespace GDTIMDotNet
+namespace GDTIMDotNet.GestureReceiving
 {
 	public class ControlGestureInterpreter : Control, IGestureInterpreter
 	{
