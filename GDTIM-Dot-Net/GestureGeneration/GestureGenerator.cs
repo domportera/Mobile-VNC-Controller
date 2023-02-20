@@ -139,8 +139,9 @@ namespace GDTIMDotNet.GestureGeneration
             }
         }
 
-        DragRelationshipType InterpretDragRelationship(Touch primaryTouch, Touch secondaryTouch, out float separationAmount)
+        DragRelationshipType InterpretDragRelationship(Touch primaryTouch, Touch secondaryTouch, out float separationAmount, out float twistAmount)
         {
+            // todo: calculate amount of twist so receivers can get that shit
             separationAmount = 0f;
             float difference = Mathf.Abs(primaryTouch.DirectionRadians - secondaryTouch.DirectionRadians);
 
