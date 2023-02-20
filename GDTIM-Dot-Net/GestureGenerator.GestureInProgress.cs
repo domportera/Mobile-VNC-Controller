@@ -58,7 +58,7 @@ namespace GDTIMDotNet
                 int touchCount = _touches.Count;
                 if (considerForGesture)
                 {
-                    ConsiderSingleGesture(touch, touchCount);
+                    ConsiderGesture(touch, touchCount);
                 }
 
                 if (touchCount == 0)
@@ -157,7 +157,7 @@ namespace GDTIMDotNet
                 }
             }
 
-            void ConsiderSingleGesture(Touch touch, int touchCount)
+            void ConsiderGesture(Touch touch, int touchCount)
             {
                 OneTimeGestureType touchGesture = GetTouchGestureType(touch);
                 var singleGesture = new SingleTouchGesture(touchGesture, touch);
@@ -186,11 +186,14 @@ namespace GDTIMDotNet
             {
                 _pendingGesture = true;
                 await Task.Delay(LiftTimeMs);
-                _pendingGesture = false;
+                
+                if(_pendingGesture)
+                    EndMultiGesture();
             }
 
             void EndMultiGesture()
             {
+                _pendingGesture = false;
                 #if ERROR_CHECK_GDTIM
                 if (_multiGestureCandidates.Count == 0)
                 {
@@ -278,6 +281,9 @@ namespace GDTIMDotNet
                         MultiSwipe.Invoke(this, touches);
                         break;
                     case OneTimeGestureType.Tap:
+                        // note: can potentially split these touches up by their start time for if they're within the
+                        // Lift time or something, thus potentially splitting this into multiple single taps or multi + single taps.
+                        // I think this is unnecessary and possibly unintuitive though, given how quick a tap usually is.
                         MultiTap.Invoke(this, touches);
                         break;
                     default:
@@ -315,7 +321,7 @@ namespace GDTIMDotNet
                     return OneTimeGestureType.Swipe;
                 }
 
-                if (touch.CanBeATap)
+                if (touch.CanBeATap && touch.TimeAlive < TapTime)
                 {
                     return OneTimeGestureType.Tap;
                 }

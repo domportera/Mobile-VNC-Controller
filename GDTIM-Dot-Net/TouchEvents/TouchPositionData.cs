@@ -12,6 +12,7 @@ namespace GDTIMDotNet
             _dpi = dpi;
             PositionDelta = Vector2.Zero;
             DistanceTraveled = 0f;
+            DirectionRadians = float.NaN;
         }
 
         public TouchPositionData(double time, double previousTime, Vector2 position, Vector2 relative, float dpi)
@@ -22,12 +23,15 @@ namespace GDTIMDotNet
             DistanceTraveled = relative.DistanceTo(Vector2.Zero);
             PositionDelta = relative;
             Speed = DistanceTraveled / (time - previousTime);
+            DirectionRadians = relative == Vector2.Zero ? float.NaN : (float) System.Math.Atan2(relative.y, relative.x);
         }
 
         readonly float _dpi;
         public double Time { get; }
         public Vector2 Position { get; }
         public Vector2 PositionDelta { get; }
+        public float DirectionRadians { get; }
+        public float DirectionDegrees => Mathf.Rad2Deg(DirectionRadians);
         public float DistanceTraveled { get; }
         public double Speed { get; }
         

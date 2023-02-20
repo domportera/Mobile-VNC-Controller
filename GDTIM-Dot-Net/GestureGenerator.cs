@@ -11,6 +11,19 @@ namespace GDTIMDotNet
     {
         const double TapTime = 0.4f;
         const double LongPressTime = 0.6;
+        const float Pi = (float)Math.PI;
+        
+        // the amount of imperfection of drag directions considered to be dragging in the same direction, thus forming multi-drags
+        const float DragDirectionThreshold = Pi / 8f;
+
+        // the amount of imperfection allowed in what is considered a pinch
+        const float PinchAngleThreshold = Pi / 6f;
+        
+        // imperfection range for detecting touches with opposite directions
+        static readonly Vector2 PinchAngleThresholdRange = new Vector2(Pi - PinchAngleThreshold/2f, Pi + PinchAngleThreshold/2f);
+        
+        // touches going in this direction should be growing closer/separating by at least their total movement deltas * (1 - PinchWiggleRoom). Or else it's a twist
+        const float PinchWiggleRoom = 0.2f; 
 
         readonly Dictionary<Touch, GestureCalculator> _calculatorsByTouch = new Dictionary<Touch, GestureCalculator>();
         readonly HashSet<GestureCalculator> _gestureCalculators = new HashSet<GestureCalculator>();
@@ -27,6 +40,7 @@ namespace GDTIMDotNet
         public event EventHandler<Touch> LongPress;
         public event EventHandler<Touch> SingleDrag;
         public event EventHandler<IReadOnlyCollection<Touch>> MultiDrag;
+        public event EventHandler<IReadOnlyCollection<Touch>> RawMultiDrag;
 
         public GestureGenerator(MultiTouch touchProvider, IGestureReceiver receiver)
         {
@@ -37,6 +51,7 @@ namespace GDTIMDotNet
 
         public void OnInput(object sender, EventArgs e)
         {
+            // todo: parse multidrags for directions that agree with eachother, pinch, pinch, twist, etc here instead
             foreach (GestureCalculator g in _gestureCalculators)
             {
                 int dragCount = g.DraggingTouches.Count;
@@ -47,7 +62,21 @@ namespace GDTIMDotNet
                     continue;
                 }
 
-                MultiDrag.Invoke(this, g.DraggingTouches);
+                InterpretMultiDrag(g.DraggingTouches);
+            }
+        }
+
+        void InterpretMultiDrag(IReadOnlyCollection<Touch> draggingTouches)
+        {
+            
+            RawMultiDrag.Invoke(this, draggingTouches);
+
+            for (int i = 0; i < draggingTouches.Count; i++)
+            {
+                for (int j = i + 1; j < draggingTouches.Count; j++)
+                {
+                    
+                }
             }
         }
 
