@@ -94,15 +94,18 @@ config/icon="res://icon.png"
 
 [autoload]
 
-InputManager="*res://GDTIMv2_1_2/InputManager.gd"
-GdtimtoDotNet="*res://GDTIM-Dot-Net/GDTIMToDotNet.gd"
-GdtimForwarder="*res://GDTIM-Dot-Net/GDTIMForwarder.cs"
+InputManager="res://GDTIMv2_1_2/InputManager.gd"
+GdtimtoDotNet="res://GDTIM-Dot-Net/GDTIMToDotNet.gd"
+GdtimForwarder="res://GDTIM-Dot-Net/GDTIMForwarder.cs"
 
 [display]
 
 window/size/width=1080
 window/size/height=1920
+window/dpi/allow_hidpi=true
 window/handheld/orientation="portrait"
+window/stretch/mode="viewport"
+window/stretch/shrink=0.49
 
 [editor_plugins]
 

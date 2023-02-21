@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GDTIMDotNet.GestureReceiving;
 using Godot;
+using GodotExtensions;
 
 namespace GDTIMDotNet.GestureGeneration
 {
@@ -35,13 +36,13 @@ namespace GDTIMDotNet.GestureGeneration
         const MultiGestureInterpretationType MultiGestureInterpretationMode = MultiGestureInterpretationType.RaiseAll;
         enum MultiGestureInterpretationType {IgnoreOddMenOut, IgnoreOddMenOutButSendThemAnyway, RaiseAll}
 
-        public event EventHandler<SingleTapData> Tap;
-        public event EventHandler<SingleDragData> Drag;
-        public event EventHandler<LongPressData> LongPress;
-        public event EventHandler<SingleSwipeData> Swipe;
+        public event EventHandler<Touch> Tap;
+        public event EventHandler<Touch> Drag;
+        public event EventHandler<Touch> LongPress;
+        public event EventHandler<Touch> Swipe;
         public event EventHandler<MultiDragData> MultiDrag;
         public event EventHandler<RawMultiDragData> RawMultiDrag;
-        public event EventHandler<RawPinchTwistData> RawPinchTwist;
+        public event EventHandler<RawTwoFingerDragData> RawPinchTwist;
         public event EventHandler<MultiLongPressData> MultiLongPress;
         public event EventHandler<MultiSwipeData> MultiSwipe;
         public event EventHandler<MultiTapData> MultiTap;
@@ -80,13 +81,12 @@ namespace GDTIMDotNet.GestureGeneration
             }
         }
 
-        enum DragRelationshipType {None, Identical, Pinch, Twist}
         void InterpretMultiDrag(IReadOnlyList<Touch> draggingTouches)
         {
             RawMultiDrag.Invoke(this, new RawMultiDragData(draggingTouches));
             
             List<Touch> touchesToConsiderForGestures = draggingTouches.ToList();
-            List<Touch> multiDragTouches = new List<Touch>();
+            HashSet<Touch> multiDragTouches = new HashSet<Touch>();
             for (int i = 0; i < touchesToConsiderForGestures.Count; i++)
             {
                 Touch primaryTouch = touchesToConsiderForGestures[i];
@@ -94,27 +94,28 @@ namespace GDTIMDotNet.GestureGeneration
                 for (int j = i + 1; j < touchesToConsiderForGestures.Count; j++)
                 {
                     Touch secondaryTouch = touchesToConsiderForGestures[j];
-                    DragRelationshipType relationship = InterpretDragRelationship(primaryTouch, secondaryTouch,
-                                                                                    out float separationAmount);
+                    RawTwoFingerDragData data = InterpretDragRelationship(primaryTouch, secondaryTouch);
 
                     bool moveToNextPrimaryTouch = false;
-                    switch (relationship)
+                    switch (data.Relationship)
                     {
                         case DragRelationshipType.None:
                             break;
                         case DragRelationshipType.Identical:
+                            multiDragTouches.Add(primaryTouch);
+                            multiDragTouches.Add(secondaryTouch);
                             touchesToConsiderForGestures.Remove(secondaryTouch);
                             j--; // decrement iterator to account for removed touch
                             break;
                         case DragRelationshipType.Pinch:
                             touchesToConsiderForGestures.Remove(secondaryTouch);
                             moveToNextPrimaryTouch = true;
-                            Pinch.Invoke(this, todo);
+                            Pinch.Invoke(this, new PinchData(ref data));
                             break;
                         case DragRelationshipType.Twist:
                             touchesToConsiderForGestures.Remove(secondaryTouch);
                             moveToNextPrimaryTouch = true;
-                            Twist.Invoke(this, todo);
+                            Twist.Invoke(this, new TwistData(ref data));
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -124,12 +125,17 @@ namespace GDTIMDotNet.GestureGeneration
                 }
 
 
-                if (multiDragTouches.Count > 0)
+                if (multiDragTouches.Count == 0) continue;
+#if ERROR_CHECK_GDTIM
+                if (multiDragTouches.Count == 1)
                 {
-                    Touch[] copiedDragList = multiDragTouches.ToArray();
-                    MultiDrag.Invoke(this, new MultiDragData(copiedDragList));
-                    multiDragTouches.Clear();
+                    GDLogger.Error(this, $"We got multi-drags with a count of 1 - this should be impossible");
+                    continue;
                 }
+#endif
+                Touch[] copiedDragList = multiDragTouches.ToArray();
+                MultiDrag.Invoke(this, new MultiDragData(copiedDragList));
+                multiDragTouches.Clear();
             }
 
             // todo: raise SingleDrag events for these unused touches
@@ -139,53 +145,83 @@ namespace GDTIMDotNet.GestureGeneration
             }
         }
 
-        DragRelationshipType InterpretDragRelationship(Touch primaryTouch, Touch secondaryTouch, out float separationAmount, out float twistAmount)
+        static RawTwoFingerDragData InterpretDragRelationship(Touch firstTouch, Touch secondTouch)
         {
-            // todo: calculate amount of twist so receivers can get that shit
-            separationAmount = 0f;
-            float difference = Mathf.Abs(primaryTouch.DirectionRadians - secondaryTouch.DirectionRadians);
+            Vector2 firstPosition = firstTouch.Position;
+            Vector2 secondPosition = secondTouch.Position;
+            Vector2 firstPositionPrevious = firstTouch.PreviousPosition;
+            Vector2 secondPositionPrevious = secondTouch.PreviousPosition;
+            
+            Vector2 previousCenter = (secondPositionPrevious + firstPositionPrevious) / 2f;
+            Vector2 center = (firstPosition + secondPosition) / 2f;
+            Vector2 centerDelta = center - previousCenter;
 
-            bool identical = EqualDirection(difference, tolerance: DragDirectionThreshold);
-            bool opposite = OppositeDirection(difference, tolerance: OppositeAngleThreshold);
+            Vector2 firstPositionRelativeToCenter = firstPosition - center;
+            Vector2 firstPositionPreviousRelativeToCenter = firstPositionPrevious - previousCenter;
+            
+            float twistRadians = DetermineTwistAngle();
 
-            if (identical)
+            float separationAmount = firstPosition.DistanceTo(secondPosition)
+                                     - firstPositionPrevious.DistanceTo(secondPositionPrevious);
+            
+            DragRelationshipType relationship = DetermineDragRelationshipType();
+
+
+            return new RawTwoFingerDragData(firstTouch, secondTouch, separationAmount,
+                                            twistRadians, center, centerDelta, relationship);
+
+            DragRelationshipType DetermineDragRelationshipType()
             {
-                return DragRelationshipType.Identical;
+                float difference = Mathf.Abs(firstTouch.DirectionRadians - secondTouch.DirectionRadians);
+                bool identical = EqualDirection(difference, tolerance: DragDirectionThreshold);
+                bool opposite = OppositeDirection(difference, tolerance: OppositeAngleThreshold);
+                
+                var dragRelationship = DragRelationshipType.None;
+                if (identical)
+                {
+                    dragRelationship = DragRelationshipType.Identical;
+                }
+                else if (opposite)
+                {
+                    bool isPinch = IsPinch(firstTouch, secondTouch);
+                    dragRelationship = isPinch ? DragRelationshipType.Pinch : DragRelationshipType.Twist;
+                }
+
+                return dragRelationship;
+            }
+
+            float DetermineTwistAngle()
+            {
+                // since we're using the center point, we only need to calculate the twist amount
+                // using one of the fingers, as their relative twist delta would be the same
+                float angle = Mathf.Atan2(firstPositionRelativeToCenter.y,
+                    firstPositionRelativeToCenter.x);
+                float previousAngle = Mathf.Atan2(firstPositionPreviousRelativeToCenter.y,
+                    firstPositionPreviousRelativeToCenter.x);
+
+                float twistAngle = angle - previousAngle;
+                return twistAngle;
             }
             
-            if (opposite)
+            bool EqualDirection(float angleDifference, float tolerance)
             {
-                bool isPinch = IsPinch(primaryTouch, secondaryTouch, out separationAmount);
-                return isPinch ? DragRelationshipType.Pinch : DragRelationshipType.Twist;
+                return angleDifference < tolerance;
             }
 
-            return DragRelationshipType.None;
-
-        }
-
-
-        bool EqualDirection(float angleDifference, float tolerance)
-        {
-            return angleDifference < tolerance;
-        }
-
-        bool OppositeDirection(float angleDifference, float tolerance)
-        {
-            float toleranceHalved = tolerance / 2f;
-            return angleDifference < Pi + toleranceHalved 
-                   && angleDifference > Pi - toleranceHalved;
-        }
-
-        bool IsPinch(Touch touch1, Touch touch2, out float separationAmount)
-        {
-            Vector2 touch1PreviousPosition = touch1.Position - touch1.PositionDelta;
-            Vector2 touch2PreviousPosition = touch2.Position - touch2.PositionDelta;
-            separationAmount = touch1.Position.DistanceTo(touch2.Position) - touch1PreviousPosition.DistanceTo(touch2PreviousPosition);
-
-            // if they're moving apart or closer to eachother at nearly the same amount as the total of their speeds,
-            // then we can assume it is a pinching action.
-            bool isPinch = Mathf.Abs(separationAmount) > (touch1.Speed + touch2.Speed) * PinchDirectionPrecision;
-            return isPinch;
+            bool OppositeDirection(float angleDifference, float tolerance)
+            {
+                float toleranceHalved = tolerance / 2f;
+                return angleDifference < Pi + toleranceHalved 
+                       && angleDifference > Pi - toleranceHalved;
+            }
+            
+            bool IsPinch(Touch touch1, Touch touch2)
+            {
+                // if they're moving apart or closer to eachother at nearly the same amount as the total of their speeds,
+                // then we can assume it is a pinching action.
+                bool isPinch = Mathf.Abs(separationAmount) > (touch1.Speed + touch2.Speed) * PinchDirectionPrecision;
+                return isPinch;
+            }
         }
 
         void OnTouchRemoved(object sender, Touch touch)
@@ -311,4 +347,6 @@ namespace GDTIMDotNet.GestureGeneration
             return nearest;
         }
     }
+    
+    public enum DragRelationshipType {None, Identical, Pinch, Twist}
 }

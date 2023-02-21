@@ -9,6 +9,9 @@ using Vector2 = Godot.Vector2;
 
 namespace GDTIMDotNet.GestureGeneration
 {
+    // todo: multi-finger gestures are not split/optimized by their start time.
+    // we can get snappier single-finger gestures and more predictable multi-finger gestures
+    // if we determine a touch's start time brethren
     internal partial class GestureGenerator
     {
         class GestureCalculator//Analyzer? nah
@@ -233,10 +236,9 @@ namespace GDTIMDotNet.GestureGeneration
                         continue;
                     }
 
-
                     if (MultiGestureInterpretationMode == MultiGestureInterpretationType.IgnoreOddMenOutButSendThemAnyway)
                     {
-                        var listToSend = _multiGestureCandidates.Select(x => x.Touch).ToList();
+                        List<Touch> listToSend = _multiGestureCandidates.Select(x => x.Touch).ToList();
                         RaiseMultiGestureEvent(gestureTouches.Key, listToSend);
                         continue;
                     }

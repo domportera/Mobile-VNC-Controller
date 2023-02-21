@@ -25,7 +25,7 @@ namespace GDTIMDotNet
         public readonly float Dpi;
 
         public event EventHandler Updated;
-        public TouchPositionData Current;
+        public TouchPositionData Current { get; private set; }
         
         public int Index {get; }
         public double LastUpdateTime => Current.Time;
@@ -43,6 +43,11 @@ namespace GDTIMDotNet
         public Vector2 PositionInches => Current.PositionInches;
         public Vector2 PositionMm => Current.PositionMm;
         public Vector2 PositionDelta => Current.PositionDelta;
+        
+        public Vector2 PreviousPosition => Current.Position - PositionDelta;
+        public Vector2 PreviousPositionInches => PreviousPosition * Dpi;
+        public Vector2 PreviousPositionCm => PreviousPositionInches * InchesToCmF;
+        public Vector2 PreviousPositionMm => PreviousPositionCm * CmToMm;
         
         public double Speed => Current.Speed;
         public double SpeedCm => Current.SpeedCm;
@@ -72,7 +77,7 @@ namespace GDTIMDotNet
         }
 
         // todo: speeds will not be updated as this Update function currently wont be called when touch is still
-        public void Update(double time, Vector2 position, Vector2 relative)
+        internal void Update(double time, Vector2 position, Vector2 relative)
         {
 #if ERROR_CHECK_GDTIM
             if(position != Current.Position + relative)
