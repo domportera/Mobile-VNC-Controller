@@ -74,7 +74,7 @@ namespace GDTIMDotNet.GestureReceiving
 
 		void InterpretTouchActions(InputEvent input)
 		{
-			if (!(input is GDTIMTouchAction action)) return;
+			if (!(input is NiceTouchAction action)) return;
 			
 			if (action is TouchBegin begin)
 			{

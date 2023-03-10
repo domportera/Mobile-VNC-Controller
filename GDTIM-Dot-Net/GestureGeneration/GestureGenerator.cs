@@ -36,6 +36,7 @@ namespace GDTIMDotNet.GestureGeneration
         const MultiGestureInterpretationType MultiGestureInterpretationMode = MultiGestureInterpretationType.RaiseAll;
         enum MultiGestureInterpretationType {IgnoreOddMenOut, IgnoreOddMenOutButSendThemAnyway, RaiseAll}
 
+        public event EventHandler<TouchData> Touch;
         public event EventHandler<Touch> Tap;
         public event EventHandler<Touch> Drag;
         public event EventHandler<Touch> LongPress;
@@ -61,6 +62,20 @@ namespace GDTIMDotNet.GestureGeneration
             touchProvider.TouchAdded += OnTouchAdded;
             touchProvider.TouchRemoved += OnTouchRemoved;
             touchProvider.AfterInput += OnInput;
+
+            Touch += receiver.OnSingleTouch;
+            Tap += receiver.OnSingleTap;
+            Drag += receiver.OnSingleDrag;
+            LongPress += receiver.OnSingleLongPress;
+            Swipe += receiver.OnSingleSwipe;
+            MultiDrag += receiver.OnMultiDrag;
+            RawMultiDrag += receiver.OnRawMultiDrag;
+            RawPinchTwist += receiver.OnRawPinchTwist;
+            MultiLongPress += receiver.OnMultiLongPress;
+            MultiSwipe += receiver.OnMultiSwipe;
+            MultiTap += receiver.OnMultiTap;
+            Pinch += receiver.OnPinch;
+            Twist += receiver.OnTwist;
         }
 
         void OnInput(object sender, EventArgs e)
@@ -76,15 +91,17 @@ namespace GDTIMDotNet.GestureGeneration
                     continue;
                 }
 
+                var draggingTouches = g.DraggingTouches.ToList();
+                RawMultiDrag.Invoke(this, new RawMultiDragData(draggingTouches));
                 // copy list since DraggingTouches is a property with a backing non-readonly list
-                InterpretMultiDrag(g.DraggingTouches.ToList());
+                InterpretMultiDrag(draggingTouches);
             }
         }
 
+        // todo: what if something starts dragging and stops? should this distinction be made at all?
+        // should stationary touches be considered for pinches/twists?
         void InterpretMultiDrag(IReadOnlyList<Touch> draggingTouches)
         {
-            RawMultiDrag.Invoke(this, new RawMultiDragData(draggingTouches));
-            
             List<Touch> touchesToConsiderForGestures = draggingTouches.ToList();
             HashSet<Touch> multiDragTouches = new HashSet<Touch>();
             for (int i = 0; i < touchesToConsiderForGestures.Count; i++)
@@ -110,11 +127,13 @@ namespace GDTIMDotNet.GestureGeneration
                         case DragRelationshipType.Pinch:
                             touchesToConsiderForGestures.Remove(secondaryTouch);
                             moveToNextPrimaryTouch = true;
+                            RawPinchTwist.Invoke(this, data);
                             Pinch.Invoke(this, new PinchData(ref data));
                             break;
                         case DragRelationshipType.Twist:
                             touchesToConsiderForGestures.Remove(secondaryTouch);
                             moveToNextPrimaryTouch = true;
+                            RawPinchTwist.Invoke(this, data);
                             Twist.Invoke(this, new TwistData(ref data));
                             break;
                         default:
@@ -234,10 +253,14 @@ namespace GDTIMDotNet.GestureGeneration
                 return;
 
             gesture.RemoveTouch(touch, true);
+            var touchData = new TouchData(touch, false);
+            Touch.Invoke(this, touchData);
         }
 
         void OnTouchAdded(object sender, Touch touch)
         {
+            var touchData = new TouchData(touch, true);
+            Touch.Invoke(this, touchData);
             GestureCalculator gesture = GetGesture(touch);
 
             if (gesture is null)
@@ -281,37 +304,47 @@ namespace GDTIMDotNet.GestureGeneration
 
         void OnMultiLongPress(object sender, IReadOnlyList<Touch> e)
         {
-            
+            var data = new MultiLongPressData(e);
+            MultiLongPress.Invoke(this, data);
         }
 
         void OnMultiDrag(object sender, IReadOnlyCollection<Touch> e)
         {
-            throw new NotImplementedException();
+            // leaves this for the gesture interpretation above
+            return;
         }
 
         void OnMultiSwipe(object sender, IReadOnlyList<Touch> e)
         {
-            throw new NotImplementedException();
+            var data = new MultiSwipeData(e);
+            MultiSwipe.Invoke(this, data);
         }
 
         void OnMultiTap(object sender, IReadOnlyList<Touch> e)
         {
-            throw new NotImplementedException();
+            var data = new MultiTapData(e);
+            MultiTap.Invoke(this, data);
         }
 
         void OnSingleDrag(object sender, Touch e)
         {
-            throw new NotImplementedException();
+            Drag.Invoke(this, e);
         }
 
         void OnSingleSwipe(object sender, Touch e)
         {
-            throw new NotImplementedException();
+            Swipe.Invoke(this, e);
         }
 
         void OnSingleTap(object sender, Touch e)
         {
-            throw new NotImplementedException();
+            Tap.Invoke(this, e);
+        }
+
+        void OnLongPress(object sender, Touch e)
+        {
+            _longPresses.Add(e);
+            LongPress.Invoke(this, e);
         }
 
         void OnGestureEnded(object sender, EventArgs e)
@@ -319,12 +352,6 @@ namespace GDTIMDotNet.GestureGeneration
             GestureCalculator calculator = (GestureCalculator)sender;
             _gestureCalculators.Remove(calculator);
             _recycledGestureCalculators.Add(calculator);
-        }
-
-        void OnLongPress(object sender, Touch e)
-        {
-            _longPresses.Add(e);
-            LongPress.Invoke(this, e);
         }
 
         GestureCalculator GetGesture(Touch touch)

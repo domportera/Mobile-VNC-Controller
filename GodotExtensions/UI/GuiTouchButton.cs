@@ -1,5 +1,6 @@
 using System;
 using GDTIMDotNet;
+using GDTIMDotNet.GestureReceiving;
 using Godot;
 
 namespace GodotExtensions

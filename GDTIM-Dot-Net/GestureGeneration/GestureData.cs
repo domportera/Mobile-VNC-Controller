@@ -3,11 +3,11 @@ using Godot;
 
 namespace GDTIMDotNet.GestureGeneration
 {
-
     interface IMultiFingerGesture
     {
         Vector2 Center { get; }
         Vector2 CenterDelta { get; }
+        IReadOnlyList<Touch> Touches { get; }
     }
 
     interface ITwoFingerGesture
@@ -17,7 +17,6 @@ namespace GDTIMDotNet.GestureGeneration
         Touch Touch2 { get; }
     }
     
-
     public struct RawTwoFingerDragData
     {
         public RawTwoFingerDragData(Touch touch1, Touch touch2, float separationAmount,
@@ -45,17 +44,16 @@ namespace GDTIMDotNet.GestureGeneration
 
     }
 
-    public struct RawMultiDragData
+    public struct RawMultiDragData : IMultiFingerGesture
     {
-        public IReadOnlyCollection<Touch> Touches { get; }
+        public IReadOnlyList<Touch> Touches { get; }
         public Vector2 Center => Touches.Centroid();
         public Vector2 CenterDelta => Touches.CentroidDelta();
 
-        public RawMultiDragData(IReadOnlyCollection<Touch> touches)
+        public RawMultiDragData(IReadOnlyList<Touch> touches)
         {
             Touches = touches;
         }
-
     }
 
     public struct PinchData : ITwoFingerGesture
@@ -90,7 +88,7 @@ namespace GDTIMDotNet.GestureGeneration
         public float TwistDegrees => RawData.TwistDegrees;
     }
 
-    public struct MultiDragData
+    public struct MultiDragData : IMultiFingerGesture
     {
         public IReadOnlyList<Touch> Touches { get; }
         public float DirectionRadians => Touches.AverageDirectionRadians();
@@ -104,7 +102,7 @@ namespace GDTIMDotNet.GestureGeneration
         }
     }
 
-    public struct MultiLongPressData
+    public struct MultiLongPressData : IMultiFingerGesture
     {
         public MultiLongPressData(IReadOnlyList<Touch> touches)
         {
@@ -118,13 +116,17 @@ namespace GDTIMDotNet.GestureGeneration
         public Vector2 CenterDelta => Touches.CentroidDelta();
     }
 
-    public struct MultiSwipeData
+    public struct MultiSwipeData : IMultiFingerGesture
     {
         public MultiSwipeData(IReadOnlyList<Touch> touches)
         {
             Touches = touches;
+            CenterDelta = touches.CentroidDelta(out var centroid);
+            Center = centroid;
         }
 
+        public Vector2 Center { get; }
+        public Vector2 CenterDelta { get; }
         public IReadOnlyList<Touch> Touches { get; }
         public double AverageSpeed => Touches.AverageSpeed();
         public double AverageSpeedInches => Touches.AverageSpeedInches();
@@ -137,15 +139,27 @@ namespace GDTIMDotNet.GestureGeneration
         
     }
     
-    public struct MultiTapData
+    public struct MultiTapData : IMultiFingerGesture
     {
         public MultiTapData(IReadOnlyList<Touch> touches)
         {
             Touches = touches;
         }
 
+        public Vector2 CenterDelta => Touches.CentroidDelta();
         public IReadOnlyList<Touch> Touches { get; }
         public Vector2 Center => Touches.Centroid();
+    }
+
+    public struct TouchData
+    {
+        public Touch Touch { get; }
+        public bool Pressed { get; }
+        public TouchData(Touch touch, bool pressed)
+        {
+            Touch = touch;
+            Pressed = pressed;
+        }
     }
 
     #region Unused - unnecessary for now

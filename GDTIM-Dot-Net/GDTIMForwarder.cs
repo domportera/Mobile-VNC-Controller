@@ -2,159 +2,141 @@ using Godot;
 using System.Collections.Generic;
 using System.Linq;
 using GDTIMDotNet;
+using GDTIMDotNet.GestureGeneration;
 using GDTIMDotNet.GestureReceiving;
 using GodotExtensions;
 
 public class GDTIMForwarder : Node, IGestureReceiver
 {
-    // todo: IGestureReceivers should be able to specify if they want to receive multitouch at all, or if they want to receive
-    // those as separate single touches instead
     // todo:  re-work how nodes claim touches and how the Forwarder splits up gestures based on the claims. If a multitouch in but a node claimed one of those
     // touches, do we split the multitouch/drag into a single touch + (multiTouch or singletouch)?
-    Dictionary<int, HashSet<IGestureInterpreter>> _singleInterpreters = new Dictionary<int, HashSet<IGestureInterpreter>>();
-    readonly HashSet<IGestureInterpreter> _multiInterpreters = new HashSet<IGestureInterpreter>();
 
-    // if true, single interpreters that choose to consume multiTouch
-    // will claim them all as their own.
-    // this can cause issues where only the first finger's touch
-    // determine if receiving nodes get multitouch events
-    readonly bool _exclusiveMultiTouch = false;
-
-    bool _cancelSingleTouchOnMultiTouch = false;
-    bool _cancelled = false;
+    // todo: raw version of each gesture that is unclaimed, fruit ninja style with typical godot bindings
     
-    //state variable
-    bool _checkedForMultiInterpreters = false;
-
-    RawGesture _previousSingleTouchGesture;
-    public virtual void OnSingleTouch(Vector2 position, bool pressed, bool cancelled, int index, object rawGesture)
+    readonly Dictionary<Touch, HashSet<IGestureInterpreter>> _claimedTouches = new Dictionary<Touch, HashSet<IGestureInterpreter>>();
+    readonly Dictionary<IGestureInterpreter, HashSet<Touch>> _touchesClaimedByInterpreters = new Dictionary<IGestureInterpreter, HashSet<Touch>>();
+    readonly HashSet<Touch> _unclaimedTouches = new HashSet<Touch>();
+    
+    readonly Stack<HashSet<IGestureInterpreter>> _recycledInterpreterCollections = new Stack<HashSet<IGestureInterpreter>>();
+    readonly Stack<HashSet<Touch>> _recycledTouchCollections = new Stack<HashSet<Touch>>();
+    
+    public void OnSingleTouch(object sender, TouchData touchData)
     {
-        RawGesture gesture = new RawGesture(rawGesture);
-       // gesture.PrintTouchData();
-        
-        if (cancelled)
+        Touch touch = touchData.Touch;
+        _unclaimedTouches.Add(touch);
+        if (touchData.Pressed)
         {
-            if (_cancelSingleTouchOnMultiTouch)
-            {
-                // maybe we want to raise a separate OnSingleChangedToMultiTouch event instead?
-                EndSingleTouch(position, true, index);
-            }
-            
-            return;
-        }
-        
-        if (pressed)
-        {
-            BeginSingleTouch(position, index);
+            BeginSingleTouch(touch);
         }
         else
         {
-            EndSingleTouch(position, false, index);
-            _multiInterpreters.Clear();
-            _checkedForMultiInterpreters = false;
+            // todo: delay endsingletouch if it's in use by a multi-gesture?
+            EndSingleTouch(touch);
         }
     }
-    void BeginSingleTouch(Vector2 position, int index)
+    void BeginSingleTouch(Touch touch)
     {
-        if (!_singleInterpreters.ContainsKey(index))
-        {
-            _singleInterpreters.Add(index, new HashSet<IGestureInterpreter>());
-        }
-        
-        var args = new TouchBegin(position, index);
+        var args = new TouchBegin(touch);
         args.Accepted += OnSingleTouchAccepted;
+        
+        bool recycledAvailable = _recycledInterpreterCollections.Count > 0;
+
+        HashSet<IGestureInterpreter> collection =
+            recycledAvailable ? _recycledInterpreterCollections.Pop() : new HashSet<IGestureInterpreter>();
+        
+        _claimedTouches.Add(touch, collection);
+        
         Input.ParseInputEvent(args); //unfortunately limited to not triggering _GuiInput /:
     }
 
-    void OnSingleTouchAccepted(object sender, TouchBegin.TouchBeginEventArgs args)
+    void OnSingleTouchAccepted(object sender, NiceTouchAction.TouchBeginEventArgs args)
     {
-        if(args.SubscribeToMultiTouch)
-            _multiInterpreters.Add(args.Interpreter);
+        var thisEvent = (TouchBegin)sender;
+        Touch touch = thisEvent.Touch;
+        _unclaimedTouches.Remove(touch);
 
-        HashSet<IGestureInterpreter> thisFingersInterpreters = _singleInterpreters[args.Index];
-        thisFingersInterpreters.Add(args.Interpreter);
-        
+        HashSet<IGestureInterpreter> claimers = _claimedTouches[touch];
+
+        claimers.Add(args.Interpreter);
         args.Interpreter.OnTouchBegin((TouchBegin)sender);
     }
 
-    void EndSingleTouch(Vector2 position, bool cancelled, int index)
+    void EndSingleTouch(Touch touch)
     {
-        var args = new TouchEnd(position, index, cancelled);
-
-        foreach (IGestureInterpreter interpreter in _singleInterpreters[index])
+        HashSet<IGestureInterpreter> claimers = _claimedTouches[touch];
+        foreach (IGestureInterpreter interpreter in claimers)
         {
-            interpreter.OnTouchEnd(args);
+            interpreter.OnTouchEnd(touch);
         }
 
-        // TODO: clear next input event? this will create bugs as SingleTap gestures will not be processed if we clear this immediately
-        _singleInterpreters[index].Clear();
-    }
-
-    void BeginMultiTouch(MultiTouch args)
-    {
-        if (_checkedForMultiInterpreters) 
-            return;
-        if (_exclusiveMultiTouch && _multiInterpreters.Count > 0) 
-            return;
-        
-        Input.ParseInputEvent(args);
-        _checkedForMultiInterpreters = true;
+        claimers.Clear();
+        _claimedTouches.Remove(touch);
+        _recycledInterpreterCollections.Push(claimers);
+        _unclaimedTouches.Add(touch);
     }
 
 
     #region Single Touch
 
-    public virtual void OnSingleDrag(Vector2 position, Vector2 relative, int index, object rawGesture)
+    public void OnSingleDrag(object sender, Touch touch)
     {
-        var gesture = new RawGesture(rawGesture);
-
-        if (index == RawGesture.InvalidIndex)
-        {
-            GDLogger.Log(this, $"Invalid drag index for gesture: {gesture}");
-            return;
-        }
-        
-        var args = new SingleDrag(position, relative);
-        foreach(var g in _singleInterpreters[index])
-            g.OnSingleDrag(args);
+        HashSet<IGestureInterpreter> touchers = _claimedTouches[touch];
+        foreach(var g in touchers)
+            g.OnSingleDrag(touch);
     }
 
-    public virtual void OnSingleLongPress(Vector2 position, int index, object rawGesture)
+    public void OnSingleLongPress(object sender, Touch touch)
     {
-        var args = new SingleTap(position);
-        foreach(var g in _singleInterpreters[index])
-            g.OnSingleLongPress(args);
+        HashSet<IGestureInterpreter> touchers = _claimedTouches[touch];
+        foreach(var g in touchers)
+            g.OnSingleTap(touch);
     }
 
-    public virtual void OnSingleSwipe(Vector2 position, Vector2 relative, int index, object rawGesture)
+    public void OnSingleSwipe(object sender, Touch touch)
     {
-        var args = new SingleDrag(position, relative);
-        foreach(var g in _singleInterpreters[index])
-            g.OnSingleSwipe(args);
+        HashSet<IGestureInterpreter> touchers = _claimedTouches[touch];
+        foreach(var g in touchers)
+            g.OnSingleSwipe(touch);
     }
 
-    public virtual void OnSingleTap(Vector2 position, int index, object rawGesture)
+    public void OnSingleTap(object sender, Touch touch)
     {   
-        var args = new SingleTap(position);
-        foreach(var g in _singleInterpreters[index])
-            g.OnSingleTap(args);
+        HashSet<IGestureInterpreter> touchers = _claimedTouches[touch];
+        foreach(var g in touchers)
+            g.OnSingleTap(touch);
     }
     
     #endregion Single Touch
 
-
     #region Multi Touch
-    public virtual void OnTwist(Vector2 position, float relative, int fingers, object rawGesture)
+    
+    void BeginMultiTouch(MultiTouchBegin args)
+    {
+        _checkedForMultiInterpreters = true;
+        
+        Input.ParseInputEvent(args);
+    }
+
+    void DistributeMultiTouch<T>(ref T gesture) where T : IMultiFingerGesture// todo: `in` keyword in c# 7
+    {
+        
+    }
+    void DistributeTwoFingerTouch<T>(ref T gesture) where T : ITwoFingerGesture // todo: `in` keyword in c# 7
+    {
+        
+    }
+    
+    public void OnTwist(object sender, TwistData twistData)
     {
         var args = new Twist(_multiInterpreters, position, relative, fingers);
-
+        DistributeTwoFingerTouch(ref twistData);
         BeginMultiTouch(args);
         
         foreach (IGestureInterpreter g in _multiInterpreters)
             g.OnTwist(args);
     }
 
-    public virtual void OnMultiDrag(Vector2 position, Vector2 relative, int fingers, object rawGesture)
+    public void OnMultiDrag(object sender, MultiDragData multiDragData)
     {
         var args = new MultiDrag(_multiInterpreters, position, relative, fingers);
         
@@ -164,7 +146,7 @@ public class GDTIMForwarder : Node, IGestureReceiver
             g.OnMultiDrag(args);
     }
 
-    public virtual void OnMultiLongPress(Vector2 position, int fingers, object rawGesture)
+    public void OnMultiLongPress(object sender, MultiLongPressData multiLongPressData)
     {
         var args = new MultiTap(_multiInterpreters, position, fingers);
         
@@ -174,7 +156,7 @@ public class GDTIMForwarder : Node, IGestureReceiver
             g.OnMultiLongPress(args);
     }
 
-    public virtual void OnMultiSwipe(Vector2 position, Vector2 relative, int fingers, object rawGesture)
+    public void OnMultiSwipe(object sender, MultiSwipeData multiSwipeData)
     {
         var args = new MultiDrag(_multiInterpreters, position, relative, fingers);
         
@@ -184,7 +166,7 @@ public class GDTIMForwarder : Node, IGestureReceiver
             g.OnMultiSwipe(args);
     }
 
-    public virtual void OnMultiTap(Vector2 position, int fingers, object rawGesture)
+    public void OnMultiTap(object sender, MultiTapData multiTapData)
     {
         var args = new MultiTap(_multiInterpreters, position, fingers);
         
@@ -194,7 +176,7 @@ public class GDTIMForwarder : Node, IGestureReceiver
             g.OnMultiTap(args);
     }
 
-    public virtual void OnPinch(Vector2 position, float relative, float distance, int fingers, object rawGesture)
+    public void OnPinch(object sender, PinchData pinchData)
     {
         var args = new Pinch(_multiInterpreters, position, relative, distance, fingers);
         
@@ -204,4 +186,14 @@ public class GDTIMForwarder : Node, IGestureReceiver
             g.OnPinch(args);
     }
     #endregion Multi Touch
+
+    public void OnRawMultiDrag(object sender, RawMultiDragData e)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void OnRawPinchTwist(object sender, RawTwoFingerDragData e)
+    {
+        throw new System.NotImplementedException();
+    }
 }

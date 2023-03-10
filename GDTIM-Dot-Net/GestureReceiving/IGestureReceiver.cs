@@ -1,3 +1,4 @@
+using GDTIMDotNet.GestureGeneration;
 using Godot;
 
 namespace GDTIMDotNet.GestureReceiving
@@ -6,28 +7,30 @@ namespace GDTIMDotNet.GestureReceiving
     /// Interface that must be implemented to receive events from InputManager.gd
     /// Once inherited, you will want to autoload your script and modify InputManager.gd to reference that??
     /// </summary>
-    public interface IGestureReceiver
+    public interface IGestureReceiver // TODO: should use ref structs instead (c# 7)
     {
-        void OnSingleTouch(Vector2 position, bool pressed, bool cancelled, int index);
+        void OnSingleTouch(object sender, TouchData touchData);
 
-        void OnSingleDrag(Vector2 position, Vector2 relative, int index);
+        void OnSingleDrag(object sender, Touch touch);
 
-        void OnSingleLongPress(Vector2 position, int index);
+        void OnSingleLongPress(object sender, Touch touch);
 
-        void OnSingleSwipe(Vector2 position, Vector2 relative, int index);
+        void OnSingleSwipe(object sender, Touch touch);
 
-        void OnSingleTap(Vector2 position, int index);
+        void OnSingleTap(object sender, Touch touch);
 
-        void OnTwist(Vector2 position, float relative, int fingers);
+        void OnTwist(object sender, TwistData twistData);
 
-        void OnMultiDrag(Vector2 position, Vector2 relative, int fingers);
+        void OnMultiDrag(object sender, MultiDragData multiDragData);
 
-        void OnMultiLongPress(Vector2 position, int fingers);
+        void OnMultiLongPress(object sender, MultiLongPressData multiLongPressData);
 
-        void OnMultiSwipe(Vector2 position, Vector2 relative, int fingers);
+        void OnMultiSwipe(object sender, MultiSwipeData multiSwipeData);
 
-        void OnMultiTap(Vector2 position, int fingers, object rawGesture);
+        void OnMultiTap(object sender, MultiTapData multiTapData);
 
-        void OnPinch(Vector2 position, float relative, float distance, int fingers);
+        void OnPinch(object sender, PinchData pinchData);
+        void OnRawMultiDrag(object sender, RawMultiDragData e);
+        void OnRawPinchTwist(object sender, RawTwoFingerDragData e);
     }
 }

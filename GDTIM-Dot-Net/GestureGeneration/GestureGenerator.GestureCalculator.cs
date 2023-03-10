@@ -116,7 +116,7 @@ namespace GDTIMDotNet.GestureGeneration
             void HandleDragging(Touch touch)
             {
                 bool isMoving = touch.PositionDelta != Vector2.Zero;
-                bool passedDragThreshold = touch.TotalDistanceTraveledMm > DragThresholdMm; // this calculation can be put into the Touch class since it only will change once
+                bool passedDragThreshold = touch.TotalDistanceTraveledMm > DragThresholdMm; // todo: this calculation can be put into the Touch class since it only will change once
                 bool isDragging = isMoving && passedDragThreshold;
 
                 if (!isDragging)
@@ -132,12 +132,6 @@ namespace GDTIMDotNet.GestureGeneration
                 }
                 else
                 {
-                    bool isTwisting = false;
-                    bool isPinching = false;
-
-                    if (isTwisting) return; // todo: twist
-                    if (isPinching) return; //todo: pinch
-
                     MultiDrag.Invoke(this, _dragging);
                 }
             }

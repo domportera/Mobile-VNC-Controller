@@ -6,11 +6,11 @@ namespace GDTIMDotNet.GestureReceiving
     public interface IGestureInterpreter
     {
         event EventHandler<TouchBegin> TouchBegin;
-        event EventHandler<TouchEnd> TouchEnd;
-        event EventHandler<SingleTap> SingleTap;
-        event EventHandler<SingleDrag> SingleDrag;
-        event EventHandler<SingleTap> SingleLongPress;
-        event EventHandler<SingleDrag> SingleSwipe;
+        event EventHandler<Touch> TouchEnd;
+        event EventHandler<Touch> SingleTap;
+        event EventHandler<Touch> SingleDrag;
+        event EventHandler<Touch> SingleLongPress;
+        event EventHandler<Touch> SingleSwipe;
         event EventHandler<MultiDrag> MultiDrag;
         event EventHandler<MultiDrag> MultiSwipe;
         event EventHandler<MultiTap> MultiTap;
@@ -19,15 +19,15 @@ namespace GDTIMDotNet.GestureReceiving
         event EventHandler<Twist> Twist;
 
         void OnTouchBegin(TouchBegin args);
-        void OnTouchEnd(TouchEnd args);
+        void OnTouchEnd(Touch args);
 
-        void OnSingleDrag(SingleDrag args);
+        void OnSingleDrag(Touch args);
         
-        void OnSingleTap(SingleTap args);
+        void OnSingleTap(Touch args);
 
-        void OnSingleLongPress(SingleTap args);
+        void OnSingleLongPress(Touch args);
 
-        void OnSingleSwipe(SingleDrag args);
+        void OnSingleSwipe(Touch args);
 
         void OnTwist(Twist args);
 
