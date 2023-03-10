@@ -26,50 +26,46 @@ public class MultiTouchBegin : NiceTouchAction
 	}
 }
 
-public class RawMultiTouch
+public class RawMultiTouch<T> where T : IMultiFingerGesture
 {
-	public IReadOnlyCollection<Touch> Touches { get; }
-	public RawMultiTouch(IReadOnlyCollection<Touch> touches)
+	protected T Data;
+	public IReadOnlyList<Touch> Touches => Data.Touches;
+	public int TouchCount => Data.TouchCount;
+	public Vector2 Center => Data.Center;
+	public Vector2 CenterRelative => Data.CenterDelta;
+
+	protected RawMultiTouch(ref T data) // todo: `ref` to `in` in C# 7
 	{
-		Touches = touches;
+		this.Data = data;
 	}
 }
 
-public class Pinch : RawMultiTouch
+public class Pinch : RawMultiTouch<PinchData>
 {
-	public readonly float Relative, Distance;
+	public readonly float SeparationAmount;
 
-	public Pinch(HashSet<IGestureInterpreter> touchers, Vector2 position,
-		float relative, float distance, int fingers) : base(touchers, position, fingers)
+	public Pinch(ref PinchData data) : base(ref data)
 	{
-		Relative = relative;
-		Distance = distance;
+		SeparationAmount = data.SeparationAmount;
 	}
 }
 
-public class Twist : RawMultiTouch
+public class Twist : RawMultiTouch<TwistData>
 {
-	public readonly float Relative;
-
-	public Twist(HashSet<IGestureInterpreter> touchers, Vector2 position, float relative, int fingers) :
-		base(touchers, position, fingers)
-	{
-		Relative = relative;
-	}
+	public float TwistDegrees => Data.TwistDegrees;
+	public float TwistRadians => Data.TwistRadians;
+	
+	public Twist(ref TwistData data) : base(ref data) {}
 }
 
-public class MultiTap : RawMultiTouch
+public class MultiTap : RawMultiTouch<MultiTapData>
 {
-	public MultiTap(HashSet<IGestureInterpreter> touchers, Vector2 position, int fingers):
-		base(touchers, position, fingers){}
+	public MultiTap(ref MultiTapData data) : base(ref data) { }
 }
 
-public class MultiDrag : RawMultiTouch
+public class MultiDrag : RawMultiTouch<MultiDragData>
 {
-	public readonly Vector2 Relative;
-	public MultiDrag(HashSet<IGestureInterpreter> touchers, Vector2 position, Vector2 relative, int fingers) 
-		: base (touchers, position, fingers)
-	{
-		Relative = relative;
-	}
+	public float DirectionRadians => Data.DirectionRadians;
+	public float DirectionDegrees => Data.DirectionDegrees;
+	public MultiDrag(ref MultiDragData data) : base(ref data) { }
 }

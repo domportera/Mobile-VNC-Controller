@@ -13,8 +13,8 @@ namespace GDTIMDotNet
         const double DragHistoryDuration = 0.3;
         public Touch(double time, int index, Vector2 position)
         {
-            Dpi = OS.GetScreenDpi();
-            Current = new TouchPositionData(time, position, Dpi);
+            _dpi = OS.GetScreenDpi();
+            Current = new TouchPositionData(time, position, _dpi);
             _history.Enqueue(Current);
             StartPosition = position;
             Index = index;
@@ -22,7 +22,7 @@ namespace GDTIMDotNet
         }
         
         readonly Queue<TouchPositionData> _history = new Queue<TouchPositionData>();
-        public readonly float Dpi;
+        readonly float _dpi;
 
         public event EventHandler Updated;
         public TouchPositionData Current { get; private set; }
@@ -33,7 +33,7 @@ namespace GDTIMDotNet
         public double StartTime { get; }
         
         public Vector2 StartPosition { get; }
-        public Vector2 StartPositionInches => StartPosition * Dpi;
+        public Vector2 StartPositionInches => StartPosition * _dpi;
         public Vector2 StartPositionCm => StartPositionInches * InchesToCmF;
         public Vector2 StartPositionMm => StartPositionCm * CmToMm;
         
@@ -45,7 +45,7 @@ namespace GDTIMDotNet
         public Vector2 PositionDelta => Current.PositionDelta;
         
         public Vector2 PreviousPosition => Current.Position - PositionDelta;
-        public Vector2 PreviousPositionInches => PreviousPosition * Dpi;
+        public Vector2 PreviousPositionInches => PreviousPosition * _dpi;
         public Vector2 PreviousPositionCm => PreviousPositionInches * InchesToCmF;
         public Vector2 PreviousPositionMm => PreviousPositionCm * CmToMm;
         
@@ -56,7 +56,7 @@ namespace GDTIMDotNet
         
         
         public float TotalDistanceTraveled { get; private set; } = 0f;
-        public float TotalDistanceTraveledInches => TotalDistanceTraveled * Dpi;
+        public float TotalDistanceTraveledInches => TotalDistanceTraveled * _dpi;
         public float TotalDistanceTraveledCm => TotalDistanceTraveledInches * InchesToCmF;
         public float TotalDistanceTraveledMm => TotalDistanceTraveledCm * CmToMm;
 
@@ -86,7 +86,7 @@ namespace GDTIMDotNet
 
             bool hasHistory = _history.Count > 0;
             TouchPositionData oldest = hasHistory ? _history.Peek() : Current;
-            var positionData = new TouchPositionData(time, LastUpdateTime, position, relative, Dpi);
+            var positionData = new TouchPositionData(time, LastUpdateTime, position, relative, _dpi);
             
             TotalDistanceTraveled += positionData.DistanceTraveled;
             Current = positionData;
