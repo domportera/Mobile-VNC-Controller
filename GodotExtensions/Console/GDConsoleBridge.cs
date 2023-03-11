@@ -14,6 +14,7 @@ public class GDConsoleBridge : Node
 	[Export] bool _showInGameConsole = true;
 	[Export] bool _openByDefault = false;
 	[Export] bool _autoScroll = true;
+	[Export] bool _pushErrorToDebugger = true;
 	
 	readonly Queue<Log> _logs = new Queue<Log>();
 	VBoxContainer _logVBox;
@@ -80,15 +81,20 @@ public class GDConsoleBridge : Node
 	
 	void HandleError(object sender, LogEventArgs a)
 	{
-		GD.PrintErr(a.Log);
-		GD.PushError(a.Log);
+		if(_pushErrorToDebugger)
+			GD.PushError(a.Log);
+		else
+			GD.PrintErr(a.Log);
+		
 		AddLog(LogType.Error, a.Log);
 	}
 	
 	void HandleException(object sender, ExceptionEventArgs a)
 	{
-		GD.PrintErr(a.Log);
-		GD.PushError(a.Log);
+		if(_pushErrorToDebugger)
+			GD.PushError(a.Log);
+		else
+			GD.PrintErr(a.Log);
 		AddLog(LogType.Exception, a.Log);
 	}
 
