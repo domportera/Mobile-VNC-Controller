@@ -30,7 +30,7 @@ namespace NiceTouch
 
         public override void _Ready()
         {
-            _ = new GestureGenerator(this, null);
+            _ = new GestureGenerator(this, new NiceTouchForwarder());
         }
 
         public override void _Input(InputEvent input)
