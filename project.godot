@@ -8,82 +8,6 @@
 
 config_version=4
 
-_global_script_classes=[ {
-"base": "InputEventAction",
-"class": "InputEventMultiScreenDrag",
-"language": "GDScript",
-"path": "res://GDTIMv2_1_2/CustomInputEvents/InputEventMultiScreenDrag.gd"
-}, {
-"base": "InputEventAction",
-"class": "InputEventMultiScreenLongPress",
-"language": "GDScript",
-"path": "res://GDTIMv2_1_2/CustomInputEvents/InputEventMultiScreenLongPress.gd"
-}, {
-"base": "InputEventAction",
-"class": "InputEventMultiScreenSwipe",
-"language": "GDScript",
-"path": "res://GDTIMv2_1_2/CustomInputEvents/InputEventMultiScreenSwipe.gd"
-}, {
-"base": "InputEventAction",
-"class": "InputEventMultiScreenTap",
-"language": "GDScript",
-"path": "res://GDTIMv2_1_2/CustomInputEvents/InputEventMultiScreenTap.gd"
-}, {
-"base": "InputEventAction",
-"class": "InputEventScreenPinch",
-"language": "GDScript",
-"path": "res://GDTIMv2_1_2/CustomInputEvents/InputEventScreenPinch.gd"
-}, {
-"base": "InputEventAction",
-"class": "InputEventScreenTwist",
-"language": "GDScript",
-"path": "res://GDTIMv2_1_2/CustomInputEvents/InputEventScreenTwist.gd"
-}, {
-"base": "InputEventAction",
-"class": "InputEventSingleScreenDrag",
-"language": "GDScript",
-"path": "res://GDTIMv2_1_2/CustomInputEvents/InputEventSingleScreenDrag.gd"
-}, {
-"base": "InputEventAction",
-"class": "InputEventSingleScreenLongPress",
-"language": "GDScript",
-"path": "res://GDTIMv2_1_2/CustomInputEvents/InputEventSingleScreenLongPress.gd"
-}, {
-"base": "InputEventAction",
-"class": "InputEventSingleScreenSwipe",
-"language": "GDScript",
-"path": "res://GDTIMv2_1_2/CustomInputEvents/InputEventSingleScreenSwipe.gd"
-}, {
-"base": "InputEventAction",
-"class": "InputEventSingleScreenTap",
-"language": "GDScript",
-"path": "res://GDTIMv2_1_2/CustomInputEvents/InputEventSingleScreenTap.gd"
-}, {
-"base": "InputEventAction",
-"class": "InputEventSingleScreenTouch",
-"language": "GDScript",
-"path": "res://GDTIMv2_1_2/CustomInputEvents/InputEventSingleScreenTouch.gd"
-}, {
-"base": "InputEventAction",
-"class": "RawGesture",
-"language": "GDScript",
-"path": "res://GDTIMv2_1_2/RawGesture.gd"
-} ]
-_global_script_class_icons={
-"InputEventMultiScreenDrag": "",
-"InputEventMultiScreenLongPress": "",
-"InputEventMultiScreenSwipe": "",
-"InputEventMultiScreenTap": "",
-"InputEventScreenPinch": "",
-"InputEventScreenTwist": "",
-"InputEventSingleScreenDrag": "",
-"InputEventSingleScreenLongPress": "",
-"InputEventSingleScreenSwipe": "",
-"InputEventSingleScreenTap": "",
-"InputEventSingleScreenTouch": "",
-"RawGesture": ""
-}
-
 [application]
 
 config/name="pc-vnc-controller"
@@ -94,9 +18,7 @@ config/icon="res://icon.png"
 
 [autoload]
 
-InputManager="res://GDTIMv2_1_2/InputManager.gd"
-GdtimtoDotNet="res://GDTIM-Dot-Net/GDTIMToDotNet.gd"
-GdtimForwarder="res://GDTIM-Dot-Net/GDTIMForwarder.cs"
+NiceTouch="*res://Nice-Touch/NiceTouch.cs"
 
 [display]
 

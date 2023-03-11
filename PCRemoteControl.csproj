@@ -9,8 +9,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="CustomInputEvents\**" />
+    <Compile Remove="NiceTouch\**" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Remove="CustomInputEvents\**" />
+    <EmbeddedResource Remove="NiceTouch\**" />
   </ItemGroup>
 </Project>
