@@ -1,10 +1,10 @@
-using GDTIMDotNet.GestureGeneration;
-using GDTIMDotNet.GestureReceiving;
 using Godot;
 using GodotExtensions;
+using NiceTouch.GestureGeneration;
+using NiceTouch.GestureReceiving;
 using PCRemoteControl.VNC;
 
-namespace GDTIMDotNet
+namespace NiceTouch
 {
     public class Trackpad : Control, IGestureConsumer
     {

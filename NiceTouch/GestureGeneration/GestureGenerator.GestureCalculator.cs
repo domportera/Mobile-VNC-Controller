@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using GodotExtensions;
 using Vector2 = Godot.Vector2;
 
-namespace GDTIMDotNet.GestureGeneration
+namespace NiceTouch.GestureGeneration
 {
     // todo: multi-finger gestures are not split/optimized by their start time.
     // we can get snappier single-finger gestures and more predictable multi-finger gestures

@@ -1,6 +1,6 @@
 using System;
-using GDTIMDotNet;
-using GDTIMDotNet.GestureReceiving;
+using NiceTouch;
+using NiceTouch.GestureReceiving;
 using Godot;
 
 namespace GodotExtensions

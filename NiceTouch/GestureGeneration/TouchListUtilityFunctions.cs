@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace GDTIMDotNet.GestureGeneration
+namespace NiceTouch.GestureGeneration
 {
     public static class TouchListUtilityFunctions
     {

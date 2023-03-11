@@ -1,7 +1,7 @@
-using GDTIMDotNet.GestureGeneration;
 using Godot;
+using NiceTouch.GestureGeneration;
 
-namespace GDTIMDotNet.GestureReceiving
+namespace NiceTouch.GestureReceiving
 {
     /// <summary>
     /// Interface that must be implemented to receive events from InputManager.gd

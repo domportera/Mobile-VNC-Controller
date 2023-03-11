@@ -2,10 +2,10 @@ using System;
 using Godot;
 using System.Collections.Generic;
 using System.Diagnostics;
-using GDTIMDotNet.GestureGeneration;
-using GDTIMDotNet.GestureReceiving;
+using NiceTouch.GestureGeneration;
+using NiceTouch.GestureReceiving;
 
-namespace GDTIMDotNet
+namespace NiceTouch
 {
     public partial class NiceTouchForwarder : Node, IGestureReceiver
     {

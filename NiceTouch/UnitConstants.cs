@@ -1,4 +1,4 @@
-namespace GDTIMDotNet
+namespace NiceTouch
 {
     public static class UnitConstants
     {

@@ -1,7 +1,7 @@
 using Godot;
 using GodotExtensions.GDScript_Extension_Methods;
 
-namespace GDTIMDotNet
+namespace NiceTouch
 {
     public class Drag : TouchEvent
     {

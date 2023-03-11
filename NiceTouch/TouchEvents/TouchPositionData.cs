@@ -1,6 +1,6 @@
 using Godot;
-using static GDTIMDotNet.UnitConstants;
-namespace GDTIMDotNet
+using static NiceTouch.UnitConstants;
+namespace NiceTouch
 {
     public struct TouchPositionData //translation into c++ may require this to be a Godot.Reference
     {

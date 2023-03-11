@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using GDTIMDotNet;
-using GDTIMDotNet.GestureGeneration;
-using GDTIMDotNet.GestureReceiving;
+using NiceTouch;
+using NiceTouch.GestureGeneration;
+using NiceTouch.GestureReceiving;
 using Godot;
 
 

@@ -1,10 +1,10 @@
 #define ERROR_CHECK_GDTIM
 using System;
 using System.Collections.Generic;
-using GDTIMDotNet.GestureGeneration;
 using Godot;
+using NiceTouch.GestureGeneration;
 
-namespace GDTIMDotNet
+namespace NiceTouch
 {
     /// <summary>
     /// A class that manages an infinite number of touches

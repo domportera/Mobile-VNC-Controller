@@ -2,7 +2,7 @@ using Godot;
 using GodotExtensions.GDScript_Extension_Methods;
 using GodotExtensions.TypeConversions;
 
-namespace GDTIMDotNet
+namespace NiceTouch
 {
     public abstract class TouchEvent: IGodotConversionBase
     {

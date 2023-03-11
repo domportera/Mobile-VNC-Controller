@@ -1,8 +1,8 @@
-using GDTIMDotNet.GestureGeneration;
 using Godot;
 using GodotExtensions;
+using NiceTouch.GestureGeneration;
 
-namespace GDTIMDotNet.GestureReceiving
+namespace NiceTouch.GestureReceiving
 {
     public interface IGestureConsumer
     {

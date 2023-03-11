@@ -6,7 +6,7 @@ using GodotExtensions.TypeConversions;
 using Object = Godot.Object;
 using System.Linq;
 
-namespace GDTIMDotNet
+namespace NiceTouch
 {
     public class RawGesture
     {

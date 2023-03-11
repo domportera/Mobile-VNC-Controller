@@ -3,11 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GDTIMDotNet.GestureReceiving;
 using Godot;
 using GodotExtensions;
+using NiceTouch.GestureReceiving;
 
-namespace GDTIMDotNet.GestureGeneration
+namespace NiceTouch.GestureGeneration
 {
     public static class GestureSettings
     {

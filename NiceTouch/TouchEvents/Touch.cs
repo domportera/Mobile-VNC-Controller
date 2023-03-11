@@ -2,12 +2,12 @@
 
 using System;
 using System.Collections.Generic;
-using GDTIMDotNet.GestureGeneration;
+using NiceTouch.GestureGeneration;
 using Godot;
 using GodotExtensions;
-using static GDTIMDotNet.UnitConstants;
+using static NiceTouch.UnitConstants;
 
-namespace GDTIMDotNet
+namespace NiceTouch
 {
     public static class TouchSettings
     {

@@ -1,8 +1,8 @@
 ﻿using System;
-using GDTIMDotNet.GestureGeneration;
 using Godot;
+using NiceTouch.GestureGeneration;
 
-namespace GDTIMDotNet.GestureReceiving{
+namespace NiceTouch.GestureReceiving{
     public class GestureInterpreter : Node, IGestureInterpreter
     {
         [Export] bool _preventPropagation = false;

@@ -1,5 +1,5 @@
 using System;
-using GDTIMDotNet.GestureReceiving;
+using NiceTouch.GestureReceiving;
 using Godot;
 
 public abstract class NiceTouchAction : InputEventAction

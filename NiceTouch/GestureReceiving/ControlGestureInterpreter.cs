@@ -1,9 +1,9 @@
 using Godot;
 using GodotExtensions;
 using System;
-using GDTIMDotNet.GestureGeneration;
+using NiceTouch.GestureGeneration;
 
-namespace GDTIMDotNet.GestureReceiving
+namespace NiceTouch.GestureReceiving
 {
 	public class ControlGestureInterpreter : Control, IGestureInterpreter
 	{
