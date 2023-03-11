@@ -1,4 +1,4 @@
-#define ERROR_CHECK_GDTIM
+#define ERROR_CHECK_NICE_TOUCH
 using System;
 using System.Collections.Generic;
 using Godot;
@@ -127,7 +127,7 @@ namespace NiceTouch
 
         void AddTouch(int index, double time, Vector2 position)
         {
-            #if ERROR_CHECK_GDTIM
+            #if ERROR_CHECK_NICE_TOUCH
             if (_touchIndices.ContainsKey(index))
             {
                 throw new Exception($"Touch {index} was added when we already had that index");

@@ -1,4 +1,4 @@
-#define ERROR_CHECK_GDTIM
+#define ERROR_CHECK_NICE_TOUCH
 
 using System;
 using System.Collections.Generic;
@@ -150,7 +150,7 @@ namespace NiceTouch.GestureGeneration
 
 
                 if (multiDragTouches.Count == 0) continue;
-#if ERROR_CHECK_GDTIM
+#if ERROR_CHECK_NICE_TOUCH
                 if (multiDragTouches.Count == 1)
                 {
                     GDLogger.Error(this, $"We got multi-drags with a count of 1 - this should be impossible");

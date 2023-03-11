@@ -1,4 +1,4 @@
-#define ERROR_CHECK_GDTIM
+#define ERROR_CHECK_NICE_TOUCH
 
 using System;
 using System.Collections.Generic;
@@ -33,7 +33,7 @@ namespace NiceTouch.GestureGeneration
                 bool success = _touches.Remove(touch);
                 _dragging.Remove(touch);
                 
-#if ERROR_CHECK_GDTIM
+#if ERROR_CHECK_NICE_TOUCH
                 if (!success)
                 {
                     GDLogger.Error(this, $"Tried to remove a touch this {nameof(GestureCalculator)} didn't have! {touch}");
@@ -169,7 +169,7 @@ namespace NiceTouch.GestureGeneration
             void EndMultiGesture()
             {
                 _pendingGesture = false;
-                #if ERROR_CHECK_GDTIM
+                #if ERROR_CHECK_NICE_TOUCH
                 if (_multiGestureCandidates.Count == 0)
                 {
                     GDLogger.Error(this, $"Ended a multi gesture with no touches! wtf?");

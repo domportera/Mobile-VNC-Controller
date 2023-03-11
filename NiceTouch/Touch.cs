@@ -1,4 +1,4 @@
-#define ERROR_CHECK_GDTIM
+#define ERROR_CHECK_NICE_TOUCH
 
 using System;
 using System.Collections.Generic;
@@ -95,7 +95,7 @@ namespace NiceTouch
         // todo: speeds will not be updated as this Update function currently wont be called when touch is still
         internal void Update(double time, Vector2 position, Vector2 relative)
         {
-#if ERROR_CHECK_GDTIM
+#if ERROR_CHECK_NICE_TOUCH
             if(position != Current.Position + relative)
                 GDLogger.Error(this, $"Touch {Index.ToString()} missed an update!");
 #endif
@@ -113,7 +113,7 @@ namespace NiceTouch
             if (/*hasHistory && */timeElapsed > DragHistoryDuration) // add check if changing data structures for a more advanced "smoothing" system
                 _history.Dequeue();
             
-#if ERROR_CHECK_GDTIM
+#if ERROR_CHECK_NICE_TOUCH
             if (Updated == null)
             {
                 GDLogger.Error(this, $"Touch {Index.ToString()} does not have any listeners");
