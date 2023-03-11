@@ -1,7 +1,3 @@
-using Godot;
-using GodotExtensions;
-using NiceTouch.GestureGeneration;
-
 namespace NiceTouch.GestureReceiving
 {
     public interface IGestureConsumer

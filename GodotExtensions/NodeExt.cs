@@ -1,7 +1,6 @@
 using Godot;
 using System;
 using CustomDotNetExtensions;
-using Object = Godot.Object;
 
 
 namespace GodotExtensions

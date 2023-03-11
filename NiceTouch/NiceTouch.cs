@@ -9,7 +9,7 @@ namespace NiceTouch
     /// <summary>
     /// A class that manages an infinite number of touches
     /// </summary>
-    internal class MultiTouch : Control
+    internal class NiceTouch : Control
     {
         public event EventHandler<Touch> TouchAdded;
         public event EventHandler<Touch> TouchRemoved;

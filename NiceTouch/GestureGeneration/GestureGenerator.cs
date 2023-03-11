@@ -16,20 +16,22 @@ namespace NiceTouch.GestureGeneration
         public const float TouchAcceptDistanceCm = 7f;
         public const double TapTime = 0.4d;
         public const double LongPressTime = 0.6d;
+        
+        const float Pi = (float)Math.PI;
+        
+        // the amount of imperfection of drag directions considered to be dragging in the same direction, thus forming multi-drags
+        public const float DragDirectionThreshold = Pi / 8f;
+
+        // the amount of imperfection allowed in what is considered a pinch or twist
+        public const float OppositeAngleThreshold = Pi / 10f;
+        
+        // touches going in this direction should be growing closer/separating by at least their total movement deltas * PinchDirectionPrecision. Or else it's a twist
+        public const float PinchDirectionPrecision = 0.8f; 
     }
     
     internal partial class GestureGenerator
     {
         public const float Pi = (float)Math.PI;
-        
-        // the amount of imperfection of drag directions considered to be dragging in the same direction, thus forming multi-drags
-        const float DragDirectionThreshold = Pi / 8f;
-
-        // the amount of imperfection allowed in what is considered a pinch or twist
-        const float OppositeAngleThreshold = Pi / 10f;
-        
-        // touches going in this direction should be growing closer/separating by at least their total movement deltas * PinchDirectionPrecision. Or else it's a twist
-        const float PinchDirectionPrecision = 0.8f; 
 
         readonly Dictionary<Touch, GestureCalculator> _calculatorsByTouch = new Dictionary<Touch, GestureCalculator>();
         readonly HashSet<GestureCalculator> _gestureCalculators = new HashSet<GestureCalculator>();
@@ -54,7 +56,7 @@ namespace NiceTouch.GestureGeneration
         public event EventHandler<TwistData> Twist;
 
 
-        public GestureGenerator(MultiTouch touchProvider, IGestureReceiver receiver)
+        public GestureGenerator(NiceTouch touchProvider, IGestureReceiver receiver)
         {
             if (GestureSettings.TapTime > GestureSettings.LongPressTime)
             {
@@ -195,8 +197,8 @@ namespace NiceTouch.GestureGeneration
             DragRelationshipType DetermineDragRelationshipType()
             {
                 float difference = Mathf.Abs(firstTouch.DirectionRadians - secondTouch.DirectionRadians);
-                bool identical = EqualDirection(difference, tolerance: DragDirectionThreshold);
-                bool opposite = OppositeDirection(difference, tolerance: OppositeAngleThreshold);
+                bool identical = EqualDirection(difference, tolerance: GestureSettings.DragDirectionThreshold);
+                bool opposite = OppositeDirection(difference, tolerance: GestureSettings.OppositeAngleThreshold);
                 
                 var dragRelationship = DragRelationshipType.None;
                 if (identical)
@@ -241,7 +243,7 @@ namespace NiceTouch.GestureGeneration
             {
                 // if they're moving apart or closer to eachother at nearly the same amount as the total of their speeds,
                 // then we can assume it is a pinching action.
-                bool isPinch = Mathf.Abs(separationAmount) > (touch1.Speed + touch2.Speed) * PinchDirectionPrecision;
+                bool isPinch = Mathf.Abs(separationAmount) > (touch1.Speed + touch2.Speed) * GestureSettings.PinchDirectionPrecision;
                 return isPinch;
             }
         }

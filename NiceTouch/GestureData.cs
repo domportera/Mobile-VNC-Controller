@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Godot;
+using NiceTouch.GestureGeneration;
 
-namespace NiceTouch.GestureGeneration
+namespace NiceTouch
 {
     public interface IMultiFingerGesture
     {

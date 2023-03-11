@@ -1,7 +1,5 @@
 using Godot;
-using GodotExtensions;
 using System;
-using NiceTouch.GestureGeneration;
 
 namespace NiceTouch.GestureReceiving
 {

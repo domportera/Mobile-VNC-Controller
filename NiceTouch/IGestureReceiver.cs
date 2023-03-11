@@ -1,5 +1,3 @@
-using Godot;
-using NiceTouch.GestureGeneration;
 
 namespace NiceTouch.GestureReceiving
 {

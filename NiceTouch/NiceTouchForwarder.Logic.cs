@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Godot;
-using NiceTouch.GestureGeneration;
 using NiceTouch.GestureReceiving;
 
 namespace NiceTouch

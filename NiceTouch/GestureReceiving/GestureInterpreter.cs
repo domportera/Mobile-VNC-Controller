@@ -1,6 +1,5 @@
 ﻿using System;
 using Godot;
-using NiceTouch.GestureGeneration;
 
 namespace NiceTouch.GestureReceiving{
     public class GestureInterpreter : Node, IGestureInterpreter

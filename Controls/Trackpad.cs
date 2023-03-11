@@ -1,6 +1,5 @@
 using Godot;
 using GodotExtensions;
-using NiceTouch.GestureGeneration;
 using NiceTouch.GestureReceiving;
 using PCRemoteControl.VNC;
 

@@ -1,15 +1,13 @@
-using System;
-using Godot;
 using System.Collections.Generic;
 using System.Diagnostics;
-using NiceTouch.GestureGeneration;
 using NiceTouch.GestureReceiving;
 
 namespace NiceTouch
 {
-    public partial class NiceTouchForwarder : Node, IGestureReceiver
+    public partial class NiceTouchForwarder : IGestureReceiver
     {
         // todo: raw version of each gesture that is unclaimed, fruit ninja style with typical godot bindings
+        // these classes are made, just need to create and call them
 
         readonly Dictionary<Touch, HashSet<IGestureInterpreter>> _claimedTouches =
             new Dictionary<Touch, HashSet<IGestureInterpreter>>();

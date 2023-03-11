@@ -1,12 +1,8 @@
 using CustomDotNetExtensions;
 using Godot;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
 using GodotExtensions;
-using GodotExtensions.GDScript_Extension_Methods;
 
 public class GDConsoleBridge : Node
 {
