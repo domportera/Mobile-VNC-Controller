@@ -2,16 +2,29 @@
 
 using System;
 using System.Collections.Generic;
+using GDTIMDotNet.GestureGeneration;
 using Godot;
 using GodotExtensions;
 using static GDTIMDotNet.UnitConstants;
 
 namespace GDTIMDotNet
 {
+    public static class TouchSettings
+    {
+        public const double MoveSpeedThresholdMm = 0d;
+        public const float DragDistanceThresholdMm = 2f;
+    }
+    
     public class Touch // Nice Touch ™
     {
         const double DragHistoryDuration = 0.3;
-        public Touch(double time, int index, Vector2 position)
+
+        public Touch()
+        {
+            throw new NotImplementedException();
+        }
+        
+        internal Touch(double time, int index, Vector2 position)
         {
             _dpi = OS.GetScreenDpi();
             Current = new TouchPositionData(time, position, _dpi);
@@ -31,6 +44,10 @@ namespace GDTIMDotNet
         public double LastUpdateTime => Current.Time;
         public double TimeAlive => LastUpdateTime - StartTime;
         public double StartTime { get; }
+
+        public bool IsDragging => IsMoving && HasDragged;
+        public bool HasDragged => TotalDistanceTraveledMm > TouchSettings.DragDistanceThresholdMm;
+        bool IsMoving => SpeedMm > TouchSettings.MoveSpeedThresholdMm;
         
         public Vector2 StartPosition { get; }
         public Vector2 StartPositionInches => StartPosition * _dpi;

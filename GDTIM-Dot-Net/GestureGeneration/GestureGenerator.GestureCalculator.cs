@@ -54,7 +54,7 @@ namespace GDTIMDotNet.GestureGeneration
 
             public bool AssessTouchPosition(Vector2 positionCm, out float distanceCm)
             {
-                float nearestDistance = TouchAcceptDistanceCm;
+                float nearestDistance = GestureSettings.TouchAcceptDistanceCm;
                 bool accepted = false;
                 
                 foreach (Touch touch in _touches)
@@ -82,7 +82,7 @@ namespace GDTIMDotNet.GestureGeneration
             bool _processingMultiLongPress = false;
             bool HandleLongPresses(Touch touch)
             {
-                bool isLongPress = touch.TimeAlive >= LongPressTime && touch.CanBeATap;
+                bool isLongPress = touch.TimeAlive >= GestureSettings.LongPressTime && touch.CanBeATap;
                 if (!isLongPress) return false;
 
                 _multiLongPressCandidates.Add(touch);
@@ -100,7 +100,7 @@ namespace GDTIMDotNet.GestureGeneration
             async void BeginMultiLongPress()
             {
                 _processingMultiLongPress = true;
-                await Task.Delay(LiftTimeMs);
+                await Task.Delay(GestureSettings.LiftTimeMs);
 
                 if (_multiLongPressCandidates.Count == 1)
                 {
@@ -115,11 +115,7 @@ namespace GDTIMDotNet.GestureGeneration
 
             void HandleDragging(Touch touch)
             {
-                bool isMoving = touch.PositionDelta != Vector2.Zero;
-                bool passedDragThreshold = touch.TotalDistanceTraveledMm > DragThresholdMm; // todo: this calculation can be put into the Touch class since it only will change once
-                bool isDragging = isMoving && passedDragThreshold;
-
-                if (!isDragging)
+                if (!touch.IsDragging)
                 {
                     _dragging.Remove(touch);
                     return;
@@ -164,7 +160,7 @@ namespace GDTIMDotNet.GestureGeneration
             async void BeginMultiGesture()
             {
                 _pendingGesture = true;
-                await Task.Delay(LiftTimeMs);
+                await Task.Delay(GestureSettings.LiftTimeMs);
                 
                 if(_pendingGesture)
                     EndMultiGesture();
@@ -293,13 +289,13 @@ namespace GDTIMDotNet.GestureGeneration
 
             OneTimeGestureType GetTouchGestureType(Touch touch)
             { 
-                if (touch.SpeedCm > SwipeSpeedThreshold)
+                if (touch.SpeedCm > GestureSettings.SwipeSpeedThreshold)
                 {
                     //SingleSwipe.Invoke(this, touch);
                     return OneTimeGestureType.Swipe;
                 }
 
-                if (touch.CanBeATap && touch.TimeAlive < TapTime)
+                if (touch.CanBeATap && touch.TimeAlive < GestureSettings.TapTime)
                 {
                     return OneTimeGestureType.Tap;
                 }

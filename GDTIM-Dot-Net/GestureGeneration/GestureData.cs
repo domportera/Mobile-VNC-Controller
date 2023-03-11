@@ -103,7 +103,7 @@ namespace GDTIMDotNet.GestureGeneration
         public Vector2 Center => Touches.Centroid();
         public Vector2 CenterDelta => Touches.CentroidDelta();
 
-        public MultiDragData(Touch[] touches)
+        public MultiDragData(IReadOnlyList<Touch> touches)
         {
             Touches = touches;
         }
@@ -116,8 +116,6 @@ namespace GDTIMDotNet.GestureGeneration
             Touches = touches;
         }
 
-        public float DirectionRadians => Touches.AverageDirectionRadians();
-        public float DirectionDegrees => Touches.AverageDirectionDegrees();
         public IReadOnlyList<Touch> Touches { get; }
         public int TouchCount => Touches.Count;
         public Vector2 Center => Touches.Centroid();

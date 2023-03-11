@@ -4,26 +4,19 @@ using GDTIMDotNet.GestureGeneration;
 using GDTIMDotNet.GestureReceiving;
 using Godot;
 
-public class TouchBegin : NiceTouchAction
+
+public class TouchAction : NiceTouchAction
 {
 	public Touch Touch { get; }
-	public TouchBegin(Touch touch) : base(touch.Position)
+	public TouchAction(Touch touch) : base(touch.Position)
 	{
 		Touch = touch;
 	}
 }
 
-public class MultiTouchBegin : NiceTouchAction
+public class TouchBegin : TouchAction
 {
-	public int Fingers => Touches.Count;
-	public IReadOnlyCollection<Touch> Touches { get; }
-
-	public MultiTouchBegin(IReadOnlyCollection<Touch> touches) : base(touches.Centroid())
-	{
-		Touches = touches;
-		Action = GetType().Name;
-		Pressed = true;
-	}
+	public TouchBegin(Touch touch) : base(touch) {}
 }
 
 public class RawMultiTouch<T> where T : IMultiFingerGesture
@@ -61,6 +54,11 @@ public class Twist : RawMultiTouch<TwistData>
 public class MultiTap : RawMultiTouch<MultiTapData>
 {
 	public MultiTap(ref MultiTapData data) : base(ref data) { }
+}
+
+public class MultiLongPress : RawMultiTouch<MultiLongPressData>
+{
+	public MultiLongPress(ref MultiLongPressData data) : base(ref data) { }
 }
 
 public class MultiDrag : RawMultiTouch<MultiDragData>

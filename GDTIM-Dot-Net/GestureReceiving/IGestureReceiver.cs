@@ -21,13 +21,13 @@ namespace GDTIMDotNet.GestureReceiving
 
         void OnTwist(object sender, TwistData twistData);
 
-        void OnMultiDrag(object sender, MultiDragData multiDragData);
+        void OnMultiDrag(object sender, MultiDragData gesture);
 
-        void OnMultiLongPress(object sender, MultiLongPressData multiLongPressData);
+        void OnMultiLongPress(object sender, MultiLongPressData gesture);
 
-        void OnMultiSwipe(object sender, MultiSwipeData multiSwipeData);
+        void OnMultiSwipe(object sender, MultiSwipeData gesture);
 
-        void OnMultiTap(object sender, MultiTapData multiTapData);
+        void OnMultiTap(object sender, MultiTapData gesture);
 
         void OnPinch(object sender, PinchData pinchData);
         void OnRawMultiDrag(object sender, RawMultiDragData e);

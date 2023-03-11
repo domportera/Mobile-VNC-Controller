@@ -8,11 +8,6 @@ namespace GDTIMDotNet
 {
     public partial class NiceTouchForwarder
     {
-        void BeginMultiTouch(MultiTouchBegin args)
-        {
-            Input.ParseInputEvent(args);
-        }
-
         void BeginSingleTouch(Touch touch)
         {
             var args = new TouchBegin(touch);
@@ -49,7 +44,7 @@ namespace GDTIMDotNet
 
             interpreterTouchCollection.Add(touch);
             claimers.Add(interpreter);
-            args.Interpreter.OnTouchBegin((TouchBegin)sender);
+            args.Interpreter.OnTouchBegin(thisEvent.Touch);
         }
 
         void EndSingleTouch(Touch touch)
@@ -74,7 +69,7 @@ namespace GDTIMDotNet
         /// <param name="twisters"></param>
         /// <param name="partialRecievers"></param>
         /// <typeparam name="T"></typeparam>
-        void FilterTouches<T>(T gesture, out List<IGestureInterpreter> twisters, out List<InterpreterWithTouches> partialRecievers) where T : IMultiFingerGesture
+        void FilterTouches<T>(ref T gesture, out List<IGestureInterpreter> twisters, out List<InterpreterWithTouches> partialRecievers) where T : IMultiFingerGesture
         {
             partialRecievers = DistributeMultiTouch(ref gesture);
             twisters = FilterUsersWithTouches(ref partialRecievers, gesture.TouchCount);
@@ -133,6 +128,27 @@ namespace GDTIMDotNet
             }
 
             return _fullGestureReceivers;
+        }
+
+        static void HandlePartialDragGestures(List<InterpreterWithTouches> partialReceivers)
+        {
+            foreach (InterpreterWithTouches ut in partialReceivers)
+            {
+                if (ut.JustOneTouch)
+                {
+                    var touch = ut.Touches[0];
+                    if (touch.IsDragging)
+                        // drag
+                        ut.Interpreter.OnSingleDrag(touch);
+                    //else
+                        //do nothing - i havent moved since last time?
+                        //ut.Interpreter.OnSingleDrag(touch);
+
+                    continue;
+                }
+
+                //interpret new gestures out of these htings... oh boy
+            }
         }
         
 

@@ -1,24 +1,25 @@
 using System;
+using GDTIMDotNet.GestureGeneration;
 using Godot;
 
 namespace GDTIMDotNet.GestureReceiving
 {
     public interface IGestureInterpreter
     {
-        event EventHandler<TouchBegin> TouchBegin;
+        event EventHandler<Touch> TouchBegin;
         event EventHandler<Touch> TouchEnd;
         event EventHandler<Touch> SingleTap;
         event EventHandler<Touch> SingleDrag;
         event EventHandler<Touch> SingleLongPress;
         event EventHandler<Touch> SingleSwipe;
-        event EventHandler<MultiDrag> MultiDrag;
-        event EventHandler<MultiDrag> MultiSwipe;
-        event EventHandler<MultiTap> MultiTap;
-        event EventHandler<MultiTap> MultiLongPress;
-        event EventHandler<Pinch> Pinch;
-        event EventHandler<Twist> Twist;
+        event EventHandler<MultiDragData> MultiDrag;
+        event EventHandler<MultiDragData> MultiSwipe;
+        event EventHandler<MultiTapData> MultiTap;
+        event EventHandler<MultiTapData> MultiLongPress;
+        event EventHandler<PinchData> Pinch;
+        event EventHandler<TwistData> Twist;
 
-        void OnTouchBegin(TouchBegin args);
+        void OnTouchBegin(Touch args);
         void OnTouchEnd(Touch args);
 
         void OnSingleDrag(Touch args);
@@ -29,17 +30,17 @@ namespace GDTIMDotNet.GestureReceiving
 
         void OnSingleSwipe(Touch args);
 
-        void OnTwist(Twist args);
+        void OnTwist(TwistData args);
 
-        void OnMultiDrag(MultiDrag args);
+        void OnMultiDrag(MultiDragData args);
 
-        void OnMultiLongPress(MultiTap args);
+        void OnMultiLongPress(MultiLongPressData args);
 
-        void OnMultiSwipe(MultiDrag args);
+        void OnMultiSwipe(MultiSwipeData args);
 
-        void OnMultiTap(MultiTap args);
+        void OnMultiTap(MultiTapData args);
 
-        void OnPinch(Pinch args);
+        void OnPinch(PinchData args);
 
         void SubscribeToGestures(IGestureConsumer consumer);
     }

@@ -1,11 +1,9 @@
+using System;
 using Godot;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using GDTIMDotNet;
 using GDTIMDotNet.GestureGeneration;
 using GDTIMDotNet.GestureReceiving;
-using GodotExtensions;
 
 namespace GDTIMDotNet
 {
@@ -69,77 +67,130 @@ namespace GDTIMDotNet
                 g.OnSingleTap(touch);
         }
         
-        public void OnTwist(object sender, TwistData twistData)
+        // comprised of one drag + one drag/hold
+        public void OnTwist(object sender, TwistData gesture)
         {
-            FilterTouches(twistData, 
+            FilterTouches(ref gesture, 
                 out List<IGestureInterpreter> fullReceivers, 
                 out List<InterpreterWithTouches> partialReceivers);
             
-            foreach (InterpreterWithTouches ut in partialReceivers)
-            {
-                // handle partial gesture
-            }
-
-            if (fullReceivers.Count == 0)
-                return;
-            
-            var args = new Twist(ref twistData);
-            BeginMultiTouch(args);
             foreach (IGestureInterpreter g in fullReceivers)
+                g.OnTwist(gesture);
+
+            foreach (InterpreterWithTouches receiver in partialReceivers)
             {
-                g.OnTwist(args);
+                Debug.Assert(receiver.JustOneTouch); //twists only have two touches so this must be one
+                Touch touch = receiver.Touches[0];
+                receiver.Interpreter.OnSingleDrag(touch);
             }
         }
 
+        // comprised of one drag + one drag/hold
+        public void OnPinch(object sender, PinchData gesture)
+        { 
+            FilterTouches(ref gesture, 
+                out List<IGestureInterpreter> fullReceivers, 
+                out List<InterpreterWithTouches> partialReceivers);
+            
+            foreach (IGestureInterpreter g in fullReceivers)
+                g.OnPinch(gesture);
 
-        public void OnPinch(object sender, PinchData pinchData)
-        {
-            var args = new Pinch(_multiInterpreters, position, relative, distance, fingers);
-
-            BeginMultiTouch(args);
-
-            foreach (IGestureInterpreter g in _multiInterpreters)
-                g.OnPinch(args);
+            foreach (InterpreterWithTouches receiver in partialReceivers)
+            {
+                Debug.Assert(receiver.JustOneTouch); //pinches only have two touches so this must be one
+                Touch touch = receiver.Touches[0];
+                receiver.Interpreter.OnSingleDrag(touch);
+                
+                // todo: pinches and  twists should be allowed to contain a stationary touch
+            }
         }
         
-        public void OnMultiDrag(object sender, MultiDragData multiDragData)
+        public void OnMultiDrag(object sender, MultiDragData gesture)
         {
-            var args = new MultiDrag(_multiInterpreters, position, relative, fingers);
+            FilterTouches(ref gesture, 
+                out List<IGestureInterpreter> fullReceivers, 
+                out List<InterpreterWithTouches> partialReceivers);
+            
+            foreach (IGestureInterpreter g in fullReceivers)
+                g.OnMultiDrag(gesture);
 
-            BeginMultiTouch(args);
+            foreach (InterpreterWithTouches receiver in partialReceivers)
+            {
+                if (receiver.JustOneTouch)
+                {
+                    receiver.Interpreter.OnSingleDrag(receiver.Touches[0]);
+                    continue;
+                }
 
-            foreach (IGestureInterpreter g in _multiInterpreters)
-                g.OnMultiDrag(args);
+                var multiGesture = new MultiDragData(receiver.Touches);
+                receiver.Interpreter.OnMultiDrag(multiGesture);
+            }
         }
 
-        public void OnMultiLongPress(object sender, MultiLongPressData multiLongPressData)
+        public void OnMultiLongPress(object sender, MultiLongPressData gesture)
         {
-            var args = new MultiTap(_multiInterpreters, position, fingers);
+            FilterTouches(ref gesture, 
+                out List<IGestureInterpreter> fullReceivers, 
+                out List<InterpreterWithTouches> partialReceivers);
+            
+            foreach (IGestureInterpreter g in fullReceivers)
+                g.OnMultiLongPress(gesture);
 
-            BeginMultiTouch(args);
+            foreach (InterpreterWithTouches receiver in partialReceivers)
+            {
+                if (receiver.JustOneTouch)
+                {
+                    receiver.Interpreter.OnSingleLongPress(receiver.Touches[0]);
+                    continue;
+                }
 
-            foreach (IGestureInterpreter g in _multiInterpreters)
-                g.OnMultiLongPress(args);
+                var multiGesture = new MultiLongPressData(receiver.Touches);
+                receiver.Interpreter.OnMultiLongPress(multiGesture);
+            }
         }
 
-        public void OnMultiSwipe(object sender, MultiSwipeData multiSwipeData)
+        public void OnMultiSwipe(object sender, MultiSwipeData gesture)
         {
-            var args = new MultiDrag(_multiInterpreters, position, relative, fingers);
+            FilterTouches(ref gesture, 
+                out List<IGestureInterpreter> fullReceivers, 
+                out List<InterpreterWithTouches> partialReceivers);
+            
+            foreach (IGestureInterpreter g in fullReceivers)
+                g.OnMultiSwipe(gesture);
 
-            BeginMultiTouch(args);
+            foreach (InterpreterWithTouches receiver in partialReceivers)
+            {
+                if (receiver.JustOneTouch)
+                {
+                    receiver.Interpreter.OnSingleSwipe(receiver.Touches[0]);
+                    continue;
+                }
 
-            foreach (IGestureInterpreter g in _multiInterpreters)
-                g.OnMultiSwipe(args);
+                var multiGesture = new MultiSwipeData(receiver.Touches);
+                receiver.Interpreter.OnMultiSwipe(multiGesture);
+            }
         }
 
-        public void OnMultiTap(object sender, MultiTapData multiTapData)
+        public void OnMultiTap(object sender, MultiTapData gesture)
         {
-            var args = new MultiTap(_multiInterpreters, position, fingers);
+            FilterTouches(ref gesture, 
+                out List<IGestureInterpreter> fullReceivers, 
+                out List<InterpreterWithTouches> partialReceivers);
 
-            BeginMultiTouch(args);
+            foreach (IGestureInterpreter g in fullReceivers)
+                g.OnMultiTap(gesture);
 
-            foreach (IGestureInterpreter g in _multiInterpreters)
-                g.OnMultiTap(args);
+            foreach (InterpreterWithTouches receiver in partialReceivers)
+            {
+                if (receiver.JustOneTouch)
+                {
+                    receiver.Interpreter.OnSingleTap(receiver.Touches[0]);
+                    continue;
+                }
+
+                var multiGesture = new MultiTapData(receiver.Touches);
+                receiver.Interpreter.OnMultiTap(multiGesture);
+            }
         }
         
         public void OnRawMultiDrag(object sender, RawMultiDragData e)

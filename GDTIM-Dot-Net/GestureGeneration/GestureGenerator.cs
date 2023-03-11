@@ -9,15 +9,18 @@ using GodotExtensions;
 
 namespace GDTIMDotNet.GestureGeneration
 {
+    public static class GestureSettings
+    {
+        public const int LiftTimeMs = 150;
+        public const float SwipeSpeedThreshold = 1f;
+        public const float TouchAcceptDistanceCm = 7f;
+        public const double TapTime = 0.4d;
+        public const double LongPressTime = 0.6d;
+    }
+    
     internal partial class GestureGenerator
     {
-        const int LiftTimeMs = 150;
-        const float DragThresholdMm = 2f;
-        const float SwipeSpeedThreshold = 1f;
-        const float TouchAcceptDistanceCm = 7;
-        const double TapTime = 0.4f;
-        const double LongPressTime = 0.6;
-        const float Pi = (float)Math.PI;
+        public const float Pi = (float)Math.PI;
         
         // the amount of imperfection of drag directions considered to be dragging in the same direction, thus forming multi-drags
         const float DragDirectionThreshold = Pi / 8f;
@@ -53,10 +56,10 @@ namespace GDTIMDotNet.GestureGeneration
 
         public GestureGenerator(MultiTouch touchProvider, IGestureReceiver receiver)
         {
-            if (TapTime > LongPressTime)
+            if (GestureSettings.TapTime > GestureSettings.LongPressTime)
             {
-                throw new ArgumentOutOfRangeException(nameof(TapTime), TapTime,
-                    $"Value must be less than that of {nameof(LongPressTime)}");
+                throw new ArgumentOutOfRangeException(nameof(GestureSettings.TapTime), GestureSettings.TapTime,
+                    $"Value must be less than that of {nameof(GestureSettings.LongPressTime)}");
             }
             
             touchProvider.TouchAdded += OnTouchAdded;
