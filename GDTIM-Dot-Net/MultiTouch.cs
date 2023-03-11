@@ -14,17 +14,14 @@ namespace GDTIMDotNet
         public event EventHandler<Touch> TouchAdded;
         public event EventHandler<Touch> TouchRemoved;
         public event EventHandler AfterInput;
-        
-        Dictionary<int, Touch> _touches = new Dictionary<int, Touch>();
-        static Vector2 Resolution => OS.WindowSize;
-        static float Dpi => OS.GetScreenDpi();
+
+        readonly Dictionary<int, Touch> _touches = new Dictionary<int, Touch>();
 
         readonly bool _allowMouse = true;
         readonly bool _acceptTouch = true;
         readonly bool _acceptMouse = true;
 
         static double Time => Godot.Time.GetTicksUsec() / (double)1000000;
-        static double TimeElapsedSince(double time) => Time - time;
 
         static int _incrementingTouchIndex = 0;
         readonly Dictionary<int, int> _touchIndices = new Dictionary<int, int>();
@@ -126,7 +123,7 @@ namespace GDTIMDotNet
             return int.MinValue + mouseButton;
         }
 
-        static bool IsMouseBurton(int indez) => indez < 0;
+        static bool IsMouseButton(int indez) => indez < 0;
 
         void AddTouch(int index, double time, Vector2 position)
         {
@@ -139,7 +136,9 @@ namespace GDTIMDotNet
 
             int touchIndex = _incrementingTouchIndex++;
             _touchIndices[index] = touchIndex;
-            _touches[index] = new Touch(time, touchIndex, position);
+            Touch touch = new Touch(time, touchIndex, position);
+            _touches[index] = touch;
+            TouchAdded.Invoke(this, touch);
         }
 
         void RemoveTouch(int index, double time, Vector2 position)
@@ -149,15 +148,16 @@ namespace GDTIMDotNet
             
             Touch removedTouch = _touches[touchIndex];
             _touches.Remove(touchIndex);
+            TouchRemoved.Invoke(this, removedTouch);
 
-            if (IsMouseBurton(index))
+            if (IsMouseButton(index))
                 return;
             
             // decrement other touch indexes
             // may need to do a finger width proximity calculation
             // for touch persistence but im gonna prwtend i domt have to
             var toShift = new List<int>();
-            foreach (var kvp in _touchIndices)
+            foreach (KeyValuePair<int, int> kvp in _touchIndices)
             {
                 if (kvp.Key > index)
                     toShift.Add(kvp.Key);
@@ -167,7 +167,7 @@ namespace GDTIMDotNet
             foreach (int i in toShift)
             {
                 int adjusted = i - 1;
-                var indexToMove = _touchIndices[i];
+                int indexToMove = _touchIndices[i];
                 _touchIndices.Remove(i);
                 _touchIndices[adjusted] = indexToMove;
             }

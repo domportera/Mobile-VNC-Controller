@@ -1,24 +1,24 @@
 ﻿using System;
+using GDTIMDotNet.GestureGeneration;
 using Godot;
 
 namespace GDTIMDotNet.GestureReceiving{
     public class GestureInterpreter : Node, IGestureInterpreter
     {
-        [Export] bool _consumeMultiTouchOnSingleTouch = false;
         [Export] bool _preventPropagation = false;
         [Export] GestureInputMode _inputMode = GestureInputMode.UnhandledInput;
-        public event EventHandler<TouchBegin> TouchBegin;
-        public event EventHandler<TouchEnd> TouchEnd;
-        public event EventHandler<SingleTap> SingleTap;
-        public event EventHandler<SingleDrag> SingleDrag;
-        public event EventHandler<SingleTap> SingleLongPress;
-        public event EventHandler<SingleDrag> SingleSwipe;
-        public event EventHandler<MultiDrag> MultiDrag;
-        public event EventHandler<MultiDrag> MultiSwipe;
-        public event EventHandler<MultiTap> MultiTap;
-        public event EventHandler<MultiTap> MultiLongPress;
-        public event EventHandler<Pinch> Pinch;
-        public event EventHandler<Twist> Twist;
+        public event EventHandler<Touch> TouchBegin;
+        public event EventHandler<Touch> TouchEnd;
+        public event EventHandler<Touch> SingleTap;
+        public event EventHandler<Touch> SingleDrag;
+        public event EventHandler<Touch> SingleLongPress;
+        public event EventHandler<Touch> SingleSwipe;
+        public event EventHandler<MultiDragData> MultiDrag;
+        public event EventHandler<MultiSwipeData> MultiSwipe;
+        public event EventHandler<MultiTapData> MultiTap;
+        public event EventHandler<MultiLongPressData> MultiLongPress;
+        public event EventHandler<PinchData> Pinch;
+        public event EventHandler<TwistData> Twist;
 
         enum GestureInputMode {Input, UnhandledInput}
 
@@ -47,70 +47,67 @@ namespace GDTIMDotNet.GestureReceiving{
             switch (input)
             {
                 case TouchBegin touchBegin:
-                    touchBegin.AcceptGesturesNode(this, _consumeMultiTouchOnSingleTouch, _preventPropagation);
+                    touchBegin.AcceptGesturesNode(this, _preventPropagation);
                     return;
-                case global::MultiTouch multiTouchBegin:
-                    multiTouchBegin.AcceptGestures(this);
-                    break;
             }
         }
 
-        public virtual void OnTouchBegin(TouchBegin args)
+        public virtual void OnTouchBegin(Touch args)
         {
             TouchBegin?.Invoke(this, args);
         }
 
-        public void OnTouchEnd(TouchEnd args)
+        public void OnTouchEnd(Touch args)
         {
             TouchEnd?.Invoke(this, args);
         }
 
-        public virtual void OnSingleDrag(SingleDrag args)
+        public virtual void OnSingleDrag(Touch args)
         {
             SingleDrag?.Invoke(this, args);
         }
         
-        public virtual void OnSingleLongPress(SingleTap args)
+        public virtual void OnSingleLongPress(Touch args)
         {
             SingleLongPress?.Invoke(this, args);
         }
 
-        public virtual void OnSingleSwipe(SingleDrag args)
+        public virtual void OnSingleSwipe(Touch args)
         {
             SingleSwipe?.Invoke(this, args);
         }
 
-        public virtual void OnSingleTap(SingleTap args)
+        public virtual void OnSingleTap(Touch args)
         {
             SingleTap?.Invoke(this, args);
         }
 
-        public virtual void OnTwist(Twist args)
+        public virtual void OnTwist(TwistData args)
         {
             Twist?.Invoke(this, args);
         }
 
-        public virtual void OnMultiDrag(MultiDrag args)
+        public virtual void OnMultiDrag(MultiDragData args)
         {
             MultiDrag?.Invoke(this, args);
         }
 
-        public virtual void OnMultiLongPress(MultiTap args)
+        public virtual void OnMultiLongPress(MultiLongPressData args)
         {
             MultiLongPress?.Invoke(this, args);
         }
 
-        public virtual void OnMultiSwipe(MultiDrag args)
+        public virtual void OnMultiSwipe(MultiSwipeData args)
         {
             MultiSwipe?.Invoke(this, args);
         }
 
-        public virtual void OnMultiTap(MultiTap args)
+        public virtual void OnMultiTap(MultiTapData args)
         {
             MultiTap?.Invoke(this, args);
         }
 
-        public virtual void OnPinch(Pinch args)
+        public virtual void OnPinch(PinchData args)
         {
             Pinch?.Invoke(this, args);
         }

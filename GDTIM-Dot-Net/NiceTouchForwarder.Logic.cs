@@ -23,7 +23,7 @@ namespace GDTIMDotNet
             Input.ParseInputEvent(args); //unfortunately limited to not triggering _GuiInput /:
         }
 
-        void OnSingleTouchAccepted(object sender, NiceTouchAction.TouchBeginEventArgs args)
+        void OnSingleTouchAccepted(object sender, TouchBegin.TouchBeginEventArgs args)
         {
             var thisEvent = (TouchBegin)sender;
             Touch touch = thisEvent.Touch;

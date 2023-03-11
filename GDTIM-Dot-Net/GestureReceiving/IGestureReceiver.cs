@@ -30,7 +30,7 @@ namespace GDTIMDotNet.GestureReceiving
         void OnMultiTap(object sender, MultiTapData gesture);
 
         void OnPinch(object sender, PinchData pinchData);
-        void OnRawMultiDrag(object sender, RawMultiDragData e);
-        void OnRawPinchTwist(object sender, RawTwoFingerDragData e);
+        void OnRawMultiDrag(object sender, RawMultiDragData e); // todo: is this necessary or useful?
+        void OnRawPinchTwist(object sender, RawTwoFingerDragData e); // todo: is this necessary or useful?
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using GDTIMDotNet;
 using GDTIMDotNet.GestureGeneration;
@@ -16,10 +17,75 @@ public class TouchAction : NiceTouchAction
 
 public class TouchBegin : TouchAction
 {
+	bool _preventPropagation = false;
 	public TouchBegin(Touch touch) : base(touch) {}
+	public void AcceptGesturesControl<T>(T control, bool disregardMouseFilter, bool acceptFocus = true)
+            where T : Control, IGestureInterpreter
+        {
+            if (!disregardMouseFilter)
+            {
+                switch (control.MouseFilter)
+                {
+                    case Control.MouseFilterEnum.Ignore:
+                        return;
+                    case Control.MouseFilterEnum.Stop:
+                        AcceptNode(control);
+                        control.AcceptEvent();
+                        break;
+                    case Control.MouseFilterEnum.Pass:
+                        AcceptNode(control);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+            }
+            else
+            {
+                AcceptNode(control);
+            }
+    
+            if (acceptFocus && control.FocusMode != Control.FocusModeEnum.None)
+            {
+                Control.FocusModeEnum focusMode = control.FocusMode;
+                control.FocusMode = Control.FocusModeEnum.All;
+                control.GrabFocus();
+                control.FocusMode = focusMode;
+            }
+        }
+    	
+    
+        public void AcceptGesturesNode<T>(T node, bool preventPropagation)
+            where T : Node, IGestureInterpreter
+        {
+            if (_preventPropagation) return;
+            _preventPropagation = preventPropagation;
+            
+            if(preventPropagation)
+	            node.GetViewport().SetInputAsHandled();
+    		
+            AcceptNode(node);
+        }
+    
+        void AcceptNode<T>(T node) where T : Node, IGestureInterpreter
+        {
+            var args = new TouchBeginEventArgs(node);
+            Accepted?.Invoke(this, args);
+        }
+    	
+    
+        internal event EventHandler<TouchBeginEventArgs> Accepted;
+        internal class TouchBeginEventArgs : EventArgs
+        {
+            public readonly IGestureInterpreter Interpreter;
+    
+            public TouchBeginEventArgs(IGestureInterpreter interpreter)
+            {
+                Interpreter = interpreter;
+            }
+        }
 }
 
-public class RawMultiTouch<T> where T : IMultiFingerGesture
+public class RawMultiTouch<T> : NiceTouchAction where T : IMultiFingerGesture
 {
 	protected T Data;
 	public IReadOnlyList<Touch> Touches => Data.Touches;
@@ -27,7 +93,7 @@ public class RawMultiTouch<T> where T : IMultiFingerGesture
 	public Vector2 Center => Data.Center;
 	public Vector2 CenterRelative => Data.CenterDelta;
 
-	protected RawMultiTouch(ref T data) // todo: `ref` to `in` in C# 7
+	protected RawMultiTouch(ref T data) : base(data.Center)// todo: `ref` to `in` in C# 7
 	{
 		this.Data = data;
 	}

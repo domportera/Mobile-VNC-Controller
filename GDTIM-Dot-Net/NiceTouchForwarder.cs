@@ -195,12 +195,12 @@ namespace GDTIMDotNet
         
         public void OnRawMultiDrag(object sender, RawMultiDragData e)
         {
-            throw new System.NotImplementedException();
+            return;
         }
 
         public void OnRawPinchTwist(object sender, RawTwoFingerDragData e)
         {
-            throw new System.NotImplementedException();
+            return;
         }
     }
 }

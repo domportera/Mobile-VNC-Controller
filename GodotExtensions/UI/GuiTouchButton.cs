@@ -30,7 +30,7 @@ namespace GodotExtensions
             interpreter.TouchEnd += OnTouchEnd;
         }
 
-        void OnTouchEnd(object sender, TouchEnd e)
+        void OnTouchEnd(object sender, Touch e)
         {
             
             Pressed = false;
@@ -42,7 +42,7 @@ namespace GodotExtensions
                 EmitSignal("pressed");
         }
 
-        void OnTouchBegin(object sender, TouchBegin e)
+        void OnTouchBegin(object sender, Touch e)
         {
             if (Disabled) return;
             

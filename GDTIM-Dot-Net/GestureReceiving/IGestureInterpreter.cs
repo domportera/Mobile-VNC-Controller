@@ -13,9 +13,9 @@ namespace GDTIMDotNet.GestureReceiving
         event EventHandler<Touch> SingleLongPress;
         event EventHandler<Touch> SingleSwipe;
         event EventHandler<MultiDragData> MultiDrag;
-        event EventHandler<MultiDragData> MultiSwipe;
+        event EventHandler<MultiSwipeData> MultiSwipe;
         event EventHandler<MultiTapData> MultiTap;
-        event EventHandler<MultiTapData> MultiLongPress;
+        event EventHandler<MultiLongPressData> MultiLongPress;
         event EventHandler<PinchData> Pinch;
         event EventHandler<TwistData> Twist;
 

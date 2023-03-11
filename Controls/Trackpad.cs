@@ -1,3 +1,4 @@
+using GDTIMDotNet.GestureGeneration;
 using GDTIMDotNet.GestureReceiving;
 using Godot;
 using GodotExtensions;
@@ -46,83 +47,83 @@ namespace GDTIMDotNet
             _deltaTime = delta;
         }
 
-        public void OnSingleTouch(object sender, TouchBegin e)
+        public void OnSingleTouch(object sender, Touch e)
         {
             LongPress(false, _longPressedButton);
             ResetState();
         }
 
-        public void OnSingleLongPress(object sender, SingleTap e)
+        public void OnSingleLongPress(object sender, Touch e)
         {
             LongPress(true, MouseButton.Left);
         }
 
-        public void OnSingleDrag(object sender, SingleDrag e)
+        public void OnSingleDrag(object sender, Touch e)
         {
-            HandleDrag(e.Relative);
+            HandleDrag(e.PositionDelta);
         }
 
-        public void OnSingleTap(object sender, SingleTap e)
+        public void OnSingleTap(object sender, Touch e)
         {
             _vncHandler.MouseButtonDown(MouseButton.Left);
             _vncHandler.MouseButtonUp(MouseButton.Left);
         }
         
-        public void OnSingleSwipe(object sender, SingleDrag e)
+        public void OnSingleSwipe(object sender, Touch e)
         {
             GDLogger.Log(this,"Single Swipe");
         }
 
-        public void OnMultiLongPress(object sender, MultiTap e)
+        public void OnMultiLongPress(object sender, MultiLongPressData e)
         {
-            if (e.Fingers > 3) return;
+            if (e.TouchCount > 3) return;
             
-            MouseButton longPressButton = e.Fingers == 2 ? MouseButton.Right : MouseButton.Middle;
+            MouseButton longPressButton = e.TouchCount == 2 ? MouseButton.Right : MouseButton.Middle;
             LongPress(true, longPressButton);
         }
 
-        public void OnMultiSwipe(object sender, MultiDrag e)
+        public void OnMultiSwipe(object sender, MultiSwipeData e)
         {
             if (IsMultiLongPressed) return;
-            if (e.Fingers != 2)
+            if (e.TouchCount != 2)
                 return;
 
-            Scroll(e.Relative);
+            Scroll(e.CenterDelta);
         }
 
-        public void OnMultiTap(object sender, MultiTap e)
+        public void OnMultiTap(object sender, MultiTapData e)
         {
-            if (e.Fingers == 2)
+            if (e.TouchCount == 2)
             {
                 RightClick();
             }
-            else if (e.Fingers == 3)
+            else if (e.TouchCount == 3)
             {
                 MiddleClick();
             }
         }
 
-        public void OnTwist(object sender, Twist e)
+        public void OnTwist(object sender, TwistData e)
         {
             if (!StateIsDefault) return;
         }
 
-        public void OnPinch(object sender, Pinch e)
+        public void OnPinch(object sender, PinchData e)
         {
             if (!StateIsDefault && _state != MouseState.Zooming) return;
-            HandleZoom(e.Relative);
+            HandleZoom(e.SeparationAmount);
         }
 
-        public void OnMultiDrag(object sender, MultiDrag e)
+        public void OnMultiDrag(object sender, MultiDragData e)
         {
             if (IsMultiLongPressed)
             {
-                HandleDrag(e.Relative);
+                HandleDrag(e.CenterDelta);
                 return;
             }
 
             if (StateIsDefault || _state == MouseState.Scrolling)
-                Scroll(e.Relative);
+                Scroll(e.CenterDelta);
         }
         
         void ResetState()

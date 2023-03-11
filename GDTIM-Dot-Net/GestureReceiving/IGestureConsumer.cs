@@ -1,3 +1,4 @@
+using GDTIMDotNet.GestureGeneration;
 using Godot;
 using GodotExtensions;
 
@@ -5,26 +6,26 @@ namespace GDTIMDotNet.GestureReceiving
 {
     public interface IGestureConsumer
     {
-        void OnSingleTouch(object sender, TouchBegin e);
+        void OnSingleTouch(object sender, Touch e);
 
-        void OnSingleDrag(object sender, SingleDrag e);
+        void OnSingleDrag(object sender, Touch e);
 
-        void OnSingleLongPress(object sender, SingleTap e);
+        void OnSingleLongPress(object sender, Touch e);
 
-        void OnSingleSwipe(object sender, SingleDrag e);
+        void OnSingleSwipe(object sender, Touch e);
 
-        void OnSingleTap(object sender, SingleTap e);
+        void OnSingleTap(object sender, Touch e);
 
-        void OnTwist(object sender, Twist e);
+        void OnTwist(object sender, TwistData e);
 
-        void OnMultiDrag(object sender, MultiDrag e);
+        void OnMultiDrag(object sender, MultiDragData e);
 
-        void OnMultiLongPress(object sender, MultiTap e);
+        void OnMultiLongPress(object sender, MultiLongPressData e);
 
-        void OnMultiSwipe(object sender, MultiDrag e);
+        void OnMultiSwipe(object sender, MultiSwipeData e);
 
-        void OnMultiTap(object sender, MultiTap e);
+        void OnMultiTap(object sender, MultiTapData e);
 
-        void OnPinch(object sender, Pinch e);
+        void OnPinch(object sender, PinchData e);
     }
 }
