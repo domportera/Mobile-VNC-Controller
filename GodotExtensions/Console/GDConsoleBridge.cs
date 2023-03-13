@@ -151,7 +151,6 @@ public class GDConsoleBridge : Node
 	class Log : Label
 	{
 		public LogType Type;
-		public bool Focused;
 		public bool Ready { get; private set; }
 
 		public override void _Ready()
