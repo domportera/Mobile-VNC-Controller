@@ -1,3 +1,5 @@
+# This project is on hold until Godot 4 can export C# to Android
+
 # Mobile-VNC-Controller
 An android application to control a device hosting a VNC server. It does not mirror the display - it simply provides convenient mobile control for controlling your PC without needing to sit at your desk. Work in progress.
 Made in Godot 3.5.1.
