@@ -35,13 +35,13 @@ namespace PCRemoteControl.VNC
 		{
 			_authHelper = GetNode<VncAuthHelper>(_pathToVncAuthHelper);
 			_connectButton = GetNode<GuiTouchButton>(_pathToConnectButton);
-			_connectButton.Connect("pressed_up", new Callable(this, Connect));
+			_connectButton.Connect("pressed_up", this, Connect);
 			InitializeClient();
 		}
 
 		public override void _Notification(int what)
 		{
-			if (what == MainLoop.NotificationWmQuitRequest)
+			if (what == NotificationWMCloseRequest)
 				_clipboardCts?.Cancel();
 		}
 
@@ -69,10 +69,10 @@ namespace PCRemoteControl.VNC
 				OnDemandMode = false
 			};
 			
-			TryConnect(authInfo.Ip, new Callable(authInfo.Port, options));
+			TryConnect(authInfo.Ip, authInfo.Port, options);
 		}
 
-		void TryConnect(string ip, new Callable(int port, VncClientConnectOptions options))
+		void TryConnect(string ip, int port, VncClientConnectOptions options)
 		{
 			if(_client.IsConnected)
 				_client.Close();
@@ -80,7 +80,7 @@ namespace PCRemoteControl.VNC
 			try
 			{
 				_connecting = true;
-				_client.Connect(ip, new Callable(port, options));
+				_client.Connect(ip, port, options);
 			}
 			catch (Exception e)
 			{
@@ -109,7 +109,7 @@ namespace PCRemoteControl.VNC
 			}
 		}
 
-		public void SendKey(KeyList key, bool pressed)
+		public void SendKey(Key key, bool pressed)
 		{
 			if (!_client.IsConnected) return;
 			bool gotKey = key.ToKeySym(out KeySym keySym);
@@ -126,28 +126,28 @@ namespace PCRemoteControl.VNC
 		{
 			if (!_client.IsConnected) return;
 			_client.SendLocalClipboardChange(text);
-			SendKey(KeyList.Control, true);
-			SendKey(KeyList.V, true);
-			SendKey(KeyList.Control, false);
-			SendKey(KeyList.V, false);
+			SendKey(Key.Ctrl, true);
+			SendKey(Key.V, true);
+			SendKey(Key.Ctrl, false);
+			SendKey(Key.V, false);
 			//revert clipboard to what user expects
-			_client.SendLocalClipboardChange(OS.Clipboard);
+			_client.SendLocalClipboardChange(DisplayServer.ClipboardGet());
 		}
 
 		public void Scroll(Vector2 amount)
 		{
-			MouseButton verticalScrollButton = amount.y > 0 ? MouseButton.ScrollUp : MouseButton.ScrollDown;
-			MouseButton horizontalScrollButton = amount.x > 0 ? MouseButton.ScrollRight : MouseButton.ScrollLeft;
+			MouseButton verticalScrollButton = amount.Y > 0 ? MouseButton.ScrollUp : MouseButton.ScrollDown;
+			MouseButton horizontalScrollButton = amount.X > 0 ? MouseButton.ScrollRight : MouseButton.ScrollLeft;
 
-			amount = new Vector2(Mathf.Abs(amount.x), Mathf.Abs(amount.y));
+			amount = new Vector2(Mathf.Abs(amount.X), Mathf.Abs(amount.Y));
 
-			for (int i = 0; i < amount.y; i++)
+			for (int i = 0; i < amount.Y; i++)
 			{
 				MouseButtonDown(verticalScrollButton);
 				MouseButtonUp(verticalScrollButton);
 			}
 
-			for (int i = 0; i < amount.x; i++)
+			for (int i = 0; i < amount.X; i++)
 			{
 				MouseButtonDown(horizontalScrollButton);
 				MouseButtonUp(horizontalScrollButton);
@@ -170,8 +170,8 @@ namespace PCRemoteControl.VNC
 		{
 			_mousePosition += delta;
 			_mousePosition = new Vector2(
-				Mathf.Clamp(_mousePosition.x, 0, _serverResolution.x),
-				Mathf.Clamp(_mousePosition.y, 0, _serverResolution.y)
+				Mathf.Clamp(_mousePosition.X, 0, _serverResolution.X),
+				Mathf.Clamp(_mousePosition.Y, 0, _serverResolution.Y)
 			);
 
 			UpdateMouse();
@@ -205,13 +205,13 @@ namespace PCRemoteControl.VNC
 		void ClientOnRemoteClipboardChanged(object sender, RemoteClipboardChangedEventArgs e)
 		{
 			Log($"Received clipboard: {e.Contents}");
-			OS.Clipboard = e.Contents;
+			DisplayServer.ClipboardSet(e.Contents);
 		}
 
 		void UpdateMouse()
 		{
 			if (!_client.IsConnected) return;
-			_client.SendPointerEvent((int)_mousePosition.x, (int)_mousePosition.y, _currentPressedButtons);
+			_client.SendPointerEvent((int)_mousePosition.X, (int)_mousePosition.Y, _currentPressedButtons);
 		}
 
 
@@ -219,7 +219,7 @@ namespace PCRemoteControl.VNC
 
 		async void MonitorClipboard(CancellationToken token)
 		{
-			_myClipboard = OS.Clipboard;
+			_myClipboard = DisplayServer.ClipboardGet();
 			_client.SendLocalClipboardChange(_myClipboard);
 			while (!token.IsCancellationRequested)
 			{
@@ -229,10 +229,11 @@ namespace PCRemoteControl.VNC
 
 			void SyncClipboard()
 			{
-				bool shouldSyncClipboard = OS.HasClipboard() && _myClipboard.Equals(OS.Clipboard);
+				var currentClipboard = DisplayServer.ClipboardGet();
+				bool shouldSyncClipboard = DisplayServer.ClipboardHas() && _myClipboard.Equals(currentClipboard);
 				if (!shouldSyncClipboard) return;
 
-				_myClipboard = OS.Clipboard;
+				_myClipboard = currentClipboard;
 				_client.SendLocalClipboardChange(_myClipboard);
 			}
 		}

@@ -17,15 +17,15 @@ namespace GodotExtensions
     {
         // ReSharper disable once InconsistentNaming
         [Signal] //gdscript-style naming
-        delegate void pressed_down();
+        public delegate void pressed_downEventHandler();
         
         // ReSharper disable once InconsistentNaming
         [Signal] //gdscript-style naming
-        delegate void pressed_up();
+        public delegate void pressed_upEventHandler();
 
         // ReSharper disable once InconsistentNaming
         [Signal] //gdscript-style naming
-        delegate void toggle_immediate();
+        public delegate void toggle_immediateEventHandler();
         // godot event toggles erroneously, so it should be avoided as it will fire on mouse up
         // use this instead 
 

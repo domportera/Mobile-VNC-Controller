@@ -7,7 +7,7 @@ namespace GodotExtensions
         [Export] float _defaultHeight = 0.3f;
         
         Control _panel;
-        int DefaultHeight => (int)(OS.WindowSize.y * _defaultHeight);
+        int DefaultHeight => (int)(DisplayServer.WindowGetSize().Y * _defaultHeight);
         bool _canToggleMouseFilter = true;
         const int DragItemHeight = 12;
         const int TouchDragItemHeight = 24;
@@ -55,7 +55,7 @@ namespace GodotExtensions
 		
             void ChangeMouseFilterBasedOnPosition(Vector2 position, int dragItemHeight)
             {
-                MouseFilter = position.y > _panel.Size.y + dragItemHeight
+                MouseFilter = position.Y > _panel.Size.Y + dragItemHeight
                     ? MouseFilterEnum.Ignore
                     : MouseFilterEnum.Stop;
             }

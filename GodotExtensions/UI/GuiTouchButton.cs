@@ -9,11 +9,11 @@ namespace GodotExtensions
     {
         // ReSharper disable once InconsistentNaming
         [Signal] //gdscript-style naming
-        delegate void pressed_down();
+        public delegate void pressed_downEventHandler();
         
         // ReSharper disable once InconsistentNaming
         [Signal] //gdscript-style naming
-        delegate void pressed_up();
+        public delegate void pressed_upEventHandler();
         
         public event EventHandler PressDown;
         public event EventHandler PressUp;
@@ -32,8 +32,7 @@ namespace GodotExtensions
 
         void OnTouchEnd(object sender, Touch e)
         {
-            
-            Pressed = false;
+            ButtonPressed = false;
             
             EmitSignal(nameof(pressed_up));
             PressUp?.Invoke(this, EventArgs.Empty);
@@ -46,7 +45,7 @@ namespace GodotExtensions
         {
             if (Disabled) return;
             
-            Pressed = true;
+            ButtonPressed = true;
             
             EmitSignal(nameof(pressed_down));
             PressDown?.Invoke(this, EventArgs.Empty);

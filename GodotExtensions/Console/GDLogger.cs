@@ -15,9 +15,9 @@ namespace GodotExtensions
         public static void Error(object obj, string log) => Logger.Error(obj, log, false);
         public static void Exception(object obj, string log, Exception e) => Logger.Exception(obj, log, e, false);
 
-        public static void Log(Object obj, string log) => Logger.Log(obj, GenerateHeader(obj), log, false);
-        public static void Error(Object obj, string log) => Logger.Error(obj, GenerateHeader(obj), log, false);
-        public static void Exception(Object obj, string log, Exception e) => Logger.Exception(obj, GenerateHeader(obj), log, e, false);
+        public static void Log(GodotObject obj, string log) => Logger.Log(obj, GenerateHeader(obj), log, false);
+        public static void Error(GodotObject obj, string log) => Logger.Error(obj, GenerateHeader(obj), log, false);
+        public static void Exception(GodotObject obj, string log, Exception e) => Logger.Exception(obj, GenerateHeader(obj), log, e, false);
 
         public static void Log(Node node, string log) => Logger.Log(node, GenerateHeader(node), log, false);
         public static void Error(Node node, string log) => Logger.Error(node, GenerateHeader(node), log, false);
@@ -35,7 +35,7 @@ namespace GodotExtensions
         public static void Error(IIdentified obj, string log) => Logger.Error(obj, log, false);
         public static void Exception(IIdentified obj, string log, Exception e) => Logger.Exception(obj, log, e, false);
         
-        static string GenerateHeader(Object obj)
+        static string GenerateHeader(GodotObject obj)
         {
             return $"{obj.GetType().Name} {obj.GetInstanceId().ToString()}";
         }

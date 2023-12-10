@@ -24,11 +24,11 @@ namespace PCRemoteControl.Controls
         {
             base._Ready();
             _activationButton = GetNode<Button>(_activationButtonPath);
-            _activationButton.Connect("pressed", new Callable(this, OnKeyboardButton));
-            _viewport = GetViewport();
+            _activationButton.Connect("pressed", this, OnKeyboardButton);
+            _viewport = (SubViewport)GetViewport();
             
             _vncHandler = GetNode<VncHandler>(_vncHandlerPath);
-            this.Connect("text_entered", new Callable(this, SubmitText));
+            this.Connect("text_entered", this, SubmitText);
         }
 
         // todo: proper keyboard handling 
@@ -43,8 +43,8 @@ namespace PCRemoteControl.Controls
             if (!(@event is InputEventKey key)) return;
             
             bool pressed = key.Pressed;
-            KeyList physicalKey = (KeyList)key.PhysicalKeycode;
-            KeyList softKey = (KeyList)key.Keycode;
+            Key physicalKey = (Key)key.PhysicalKeycode;
+            Key softKey = (Key)key.Keycode;
             if (physicalKey != softKey)
             {
                 GDLogger.Log(this, $"Keys differ. Soft: {softKey} | Physical: {physicalKey}");
@@ -72,14 +72,14 @@ namespace PCRemoteControl.Controls
         async void OpenTextEditWithKeyboard()
         {
             _keyboardOpen = true;
-            int initialHeight = OS.GetVirtualKeyboardHeight();
+            int initialHeight = DisplayServer.VirtualKeyboardGetHeight();
             int height = initialHeight;
 
             await Task.Yield();
             
             while (height == initialHeight)
             {
-                height = OS.GetVirtualKeyboardHeight();
+                height = DisplayServer.VirtualKeyboardGetHeight();
                 SetTextEditPosition(height);
                 await Task.Yield();
             }
@@ -89,17 +89,17 @@ namespace PCRemoteControl.Controls
 
         async void WaitForKeyboardClosed()
         {
-            while (OS.GetVirtualKeyboardHeight() > 0)
+            while (DisplayServer.VirtualKeyboardGetHeight() > 0)
                 await Task.Yield();
             
             SubmitText();
             _keyboardOpen = false;
-            SetTextEditPosition((int)_viewport.Size.y);
+            SetTextEditPosition((int)_viewport.Size.Y);
         }
 
         void SetTextEditPosition(int yPosition)
         {
-            float windowHeight = _viewport.Size.y;
+            float windowHeight = _viewport.Size.Y;
             float bottom = 1f - yPosition / windowHeight;
             AnchorBottom = bottom;
             AnchorTop = bottom - _textEditHeight;
@@ -119,7 +119,7 @@ namespace PCRemoteControl.Controls
             Clear();
             
             if(_hideOnSubmit)
-                OS.HideVirtualKeyboard();
+                DisplayServer.VirtualKeyboardHide();
         }
     }
 }

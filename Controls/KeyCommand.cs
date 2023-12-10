@@ -8,20 +8,20 @@ namespace PCRemoteControl.Controls
     internal class KeyCommand
     {
         public string Name;
-        public KeyList[] Keys;
+        public Key[] Keys;
         public KeyInteractionMode Interaction;
         KeyExecution _onKey;
 
-        public delegate void KeyExecution(KeyList[] keys, bool pressed);
+        public delegate void KeyExecution(Key[] keys, bool pressed);
         
-        internal KeyCommand(KeyList key, KeyInteractionMode interaction, string name = "")
+        internal KeyCommand(Key key, KeyInteractionMode interaction, string name = "")
         {
             Keys = new []{ key };
             Interaction = interaction;
             Name = name == string.Empty ? key.AsString() : name;
         }
 
-        internal KeyCommand(params KeyList[] keys)
+        internal KeyCommand(params Key[] keys)
         {
             Interaction = KeyInteractionMode.Press;
             Keys = keys;
@@ -33,7 +33,7 @@ namespace PCRemoteControl.Controls
             }
         }
 
-        internal KeyCommand(string name, params KeyList[] keys)
+        internal KeyCommand(string name, params Key[] keys)
         {
             Interaction = KeyInteractionMode.Press;
             Keys = keys;

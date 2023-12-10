@@ -29,9 +29,9 @@ namespace PCRemoteControl.Controls
             return button;
         }
 
-        void ExecuteKeys(KeyList[] keys, bool pressed)
+        void ExecuteKeys(Key[] keys, bool pressed)
         {
-            foreach (KeyList key in keys)
+            foreach (Key key in keys)
             {
                 _vncHandler.SendKey(key, pressed);
                 GDLogger.Log(this, $"Button {key.AsString()} pressed {(pressed ? "down" : "up")}!\n");

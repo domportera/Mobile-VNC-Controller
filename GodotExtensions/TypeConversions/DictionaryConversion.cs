@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Godot;
 
 namespace GodotExtensions.TypeConversions
 {
@@ -22,7 +23,7 @@ namespace GodotExtensions.TypeConversions
         {
             IEnumerable<TKey> keys = gdDict.Keys.Cast<TKey>();
             IEnumerable<TValue> values = gdDict.Values
-                .Cast<Godot.Object>()
+                .Cast<GodotObject>()
                 .Select(x =>
                 {
                     var nu = new TValue();

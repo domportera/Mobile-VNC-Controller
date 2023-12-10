@@ -11,7 +11,7 @@ namespace GodotExtensions
         
         public static Vector2 RealPixelSize(this Control control)
         {
-            return control.RealPixelSize(OS.WindowSize);
+            return control.RealPixelSize(DisplayServer.WindowGetSize());
         }
 
         //todo: this calculation is likely incorrect (due to the negative nature of right-and-bottom margins 

@@ -1,7 +1,9 @@
+using Godot;
+
 namespace GodotExtensions.TypeConversions
 {
    public interface IGodotConversionBase
    {
-      void SetValuesFromObject(Godot.Object obj);
+      void SetValuesFromObject(GodotObject obj);
    }
 }

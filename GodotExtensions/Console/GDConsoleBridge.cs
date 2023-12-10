@@ -38,7 +38,7 @@ public partial class GDConsoleBridge : Node
 		Logger.ErrorEvent += HandleError;
 		Logger.ExceptionEvent += HandleException;
 		EditorDescription = "A bridge between the native c# console and the Godot console, homogenizing their output." +
-		                    "Also contains a log console in-game.";
+							"Also contains a log console in-game.";
 		
 		_vSplitPullDown = FindNode(_vSplitPath) as VSplitPullDown;
 		
@@ -148,7 +148,7 @@ public partial class GDConsoleBridge : Node
 			_scrollContainer.ScrollVertical = int.MaxValue;
 	}
 	enum LogType {Log, Error, Exception}
-	class Log : Label
+	partial class Log : Label
 	{
 		public LogType Type;
 		public bool Ready { get; private set; }

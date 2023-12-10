@@ -4,7 +4,7 @@ namespace GodotExtensions
 {
     public partial class MultiLineButton : MultiLineControlBase<Label, Button>
     {
-        public MultiLineButton(string labelText, bool addVerticalPadding, bool autoWrap = true, bool maximizeAnchors = true) 
+        public MultiLineButton(string labelText, bool addVerticalPadding, TextServer.AutowrapMode autoWrap = TextServer.AutowrapMode.WordSmart, bool maximizeAnchors = true) 
             : base(labelText, addVerticalPadding, autoWrap, maximizeAnchors){}
         
         public Button Button => BackgroundControl;
@@ -12,7 +12,7 @@ namespace GodotExtensions
 
     public partial class MultiLineTouchableButton : MultiLineControlBase<Label, GuiTouchButton>
     {
-        public MultiLineTouchableButton(string labelText, bool addVerticalPadding, bool autoWrap = true, bool maximizeAnchors = true) 
+        public MultiLineTouchableButton(string labelText, bool addVerticalPadding, TextServer.AutowrapMode autoWrap = TextServer.AutowrapMode.WordSmart, bool maximizeAnchors = true) 
             : base(labelText, addVerticalPadding, autoWrap, maximizeAnchors){}
 
         public IButtonUpDown ButtonUpDown => BackgroundControl;
@@ -32,7 +32,7 @@ namespace GodotExtensions
     /// <typeparam name="TControl">Type of control, inheriting from <see cref="Control"/></typeparam>
     public partial class MultiLineControlBase<TLabel, TControl> where TLabel : Label, new() where TControl : Control, new()
     {
-        protected MultiLineControlBase(string labelText, bool addVerticalPadding, bool autoWrap, bool maximizeAnchors)
+        protected MultiLineControlBase(string labelText, bool addVerticalPadding, TextServer.AutowrapMode autoWrap, bool maximizeAnchors)
         {
             BackgroundControl = new TControl();
             ConfigureButtonControl(BackgroundControl);
@@ -67,25 +67,25 @@ namespace GodotExtensions
 
         void ConfigureButtonControl(Control button)
         {
-            button.SizeFlagsHorizontal = (int)Control.SizeFlags.ExpandFill;
-            button.SizeFlagsVertical = (int)Control.SizeFlags.ExpandFill;
+            button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            button.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
             button.ShowBehindParent = true;
         }
 
         void ConfigureLabelControl(Control label, Control child)
         {
-            label.SizeFlagsHorizontal = (int)Control.SizeFlags.ExpandFill;
-            label.SizeFlagsVertical = (int)Control.SizeFlags.ExpandFill;
+            label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            label.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
             label.MouseFilter = Control.MouseFilterEnum.Ignore;
             Label.AddChild(child);
         }
 
-        static void ConfigureLabel(TLabel label, string text, bool autoWrap, bool addVerticalPadding)
+        static void ConfigureLabel(TLabel label, string text, TextServer.AutowrapMode autoWrap, bool addVerticalPadding)
         {
             label.Text = addVerticalPadding ? $"\n{text}\n" : text;
-            label.Autowrap = autoWrap;
-            label.Align = Godot.Label.AlignEnum.Center;
-            label.Valign = Godot.Label.VAlign.Center;
+            label.AutowrapMode = autoWrap;
+            label.HorizontalAlignment = HorizontalAlignment.Center;
+            label.VerticalAlignment = VerticalAlignment.Center;
         }
         
         public TControl BackgroundControl { get; }

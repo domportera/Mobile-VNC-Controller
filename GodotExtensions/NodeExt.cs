@@ -5,7 +5,7 @@ using CustomDotNetExtensions;
 
 namespace GodotExtensions
 {
-    public abstract class NodeExt : Node, IIdentifiedNamed
+    public abstract partial class NodeExt : Node, IIdentifiedNamed
     {
         public ulong ID => GetInstanceId();
 
