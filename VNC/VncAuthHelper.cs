@@ -3,7 +3,7 @@ using GodotExtensions;
 
 namespace PCRemoteControl.VNC
 {
-    public class VncAuthHelper : NodeExt
+    public partial class VncAuthHelper : NodeExt
     {
         [Export] NodePath _pathToIpField = "../IP Field";
         [Export] NodePath _pathToPasswordField = "../Password Field";

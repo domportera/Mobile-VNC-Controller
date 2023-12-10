@@ -1,4 +1,4 @@
-﻿using CustomDotNetExtensions;
+using CustomDotNetExtensions;
 using Godot;
 using System;
 using Object = Godot.Object;

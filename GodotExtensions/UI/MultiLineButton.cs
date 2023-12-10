@@ -2,7 +2,7 @@ using Godot;
 
 namespace GodotExtensions
 {
-    public class MultiLineButton : MultiLineControlBase<Label, Button>
+    public partial class MultiLineButton : MultiLineControlBase<Label, Button>
     {
         public MultiLineButton(string labelText, bool addVerticalPadding, bool autoWrap = true, bool maximizeAnchors = true) 
             : base(labelText, addVerticalPadding, autoWrap, maximizeAnchors){}
@@ -10,7 +10,7 @@ namespace GodotExtensions
         public Button Button => BackgroundControl;
     }
 
-    public class MultiLineTouchableButton : MultiLineControlBase<Label, GuiTouchButton>
+    public partial class MultiLineTouchableButton : MultiLineControlBase<Label, GuiTouchButton>
     {
         public MultiLineTouchableButton(string labelText, bool addVerticalPadding, bool autoWrap = true, bool maximizeAnchors = true) 
             : base(labelText, addVerticalPadding, autoWrap, maximizeAnchors){}
@@ -30,7 +30,7 @@ namespace GodotExtensions
     /// </summary>
     /// <typeparam name="TLabel">Type of label, inheriting from <see cref="Label"/></typeparam>
     /// <typeparam name="TControl">Type of control, inheriting from <see cref="Control"/></typeparam>
-    public class MultiLineControlBase<TLabel, TControl> where TLabel : Label, new() where TControl : Control, new()
+    public partial class MultiLineControlBase<TLabel, TControl> where TLabel : Label, new() where TControl : Control, new()
     {
         protected MultiLineControlBase(string labelText, bool addVerticalPadding, bool autoWrap, bool maximizeAnchors)
         {

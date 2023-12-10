@@ -5,7 +5,7 @@ using PCRemoteControl.VNC;
 
 namespace NiceTouch
 {
-    public class Trackpad : Control, IGestureConsumer
+    public partial class Trackpad : Control, IGestureConsumer
     {
         [Export] NodePath _vncHandlerPath = string.Empty;
         [Export] bool _mouseAcceleration = true;

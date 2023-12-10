@@ -13,7 +13,7 @@ namespace GodotExtensions
     /// Currently, touch input does not work due to a bug in Godot: https://github.com/godotengine/godot/issues/29525
     /// this is being held here anyway until I can test it in Godot 4 once Android export is implemented.
     /// </summary>
-    public class ButtonUpDown : Button, IButtonUpDown
+    public partial class ButtonUpDown : Button, IButtonUpDown
     {
         // ReSharper disable once InconsistentNaming
         [Signal] //gdscript-style naming

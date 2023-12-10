@@ -10,7 +10,7 @@ namespace GodotExtensions.GDScript_Extension_Methods
         public static string GetString(this Godot.Object obj, string name) => (string)obj.Get(name);
         public static Vector2 GetVec2(this Godot.Object obj, string name) => (Vector2)obj.Get(name);
         public static Vector3 GetVec3(this Godot.Object obj, string name) => (Vector3)obj.Get(name);
-        public static Quat GetQuat(this Godot.Object obj, string name) => (Quat)obj.Get(name);
+        public static Quaternion GetQuat(this Godot.Object obj, string name) => (Quaternion)obj.Get(name);
 
     }
 }

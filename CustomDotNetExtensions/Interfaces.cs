@@ -1,4 +1,4 @@
-﻿namespace CustomDotNetExtensions
+namespace CustomDotNetExtensions
 {
     public interface IIdentified
     {

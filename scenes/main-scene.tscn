@@ -6,7 +6,7 @@
 [ext_resource path="res://Controls/Keyboard.cs" type="Script" id=4]
 [ext_resource path="res://Controls/SystemKeys.cs" type="Script" id=5]
 [ext_resource path="res://VNC/VncAuthHelper.cs" type="Script" id=6]
-[ext_resource path="res://icon.png" type="Texture" id=7]
+[ext_resource path="res://icon.png" type="Texture2D" id=7]
 [ext_resource path="res://GodotExtensions/UI/GuiTouchButton.cs" type="Script" id=9]
 
 [sub_resource type="Theme" id=1]
@@ -32,40 +32,40 @@ _buttonPath = NodePath("../CanvasLayer/VBoxContainer/Bottom Bar/ConsoleToggleBut
 _openByDefault = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
-follow_viewport_enable = true
+follow_viewport_enabled = true
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 
 [node name="Top Margin" type="Control" parent="CanvasLayer/VBoxContainer"]
-margin_right = 1080.0
-margin_bottom = 58.0
+offset_right = 1080.0
+offset_bottom = 58.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.3
 
 [node name="Top Bar" type="HBoxContainer" parent="CanvasLayer/VBoxContainer"]
-margin_top = 62.0
-margin_right = 1080.0
-margin_bottom = 159.0
+offset_top = 62.0
+offset_right = 1080.0
+offset_bottom = 159.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.5
-custom_constants/separation = 10
+theme_override_constants/separation = 10
 
 [node name="IP Field" type="LineEdit" parent="CanvasLayer/VBoxContainer/Top Bar"]
-margin_right = 337.0
-margin_bottom = 97.0
+offset_right = 337.0
+offset_bottom = 97.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 1.8
 placeholder_text = "Address"
 
 [node name="Port Field" type="SpinBox" parent="CanvasLayer/VBoxContainer/Top Bar"]
-margin_left = 347.0
-margin_right = 535.0
-margin_bottom = 97.0
+offset_left = 347.0
+offset_right = 535.0
+offset_bottom = 97.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 min_value = 1025.0
@@ -75,9 +75,9 @@ rounded = true
 prefix = "Port:"
 
 [node name="Password Field" type="LineEdit" parent="CanvasLayer/VBoxContainer/Top Bar"]
-margin_left = 545.0
-margin_right = 882.0
-margin_bottom = 97.0
+offset_left = 545.0
+offset_right = 882.0
+offset_bottom = 97.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 1.8
@@ -85,9 +85,9 @@ secret = true
 placeholder_text = "Password"
 
 [node name="Connect Button" type="Button" parent="CanvasLayer/VBoxContainer/Top Bar"]
-margin_left = 892.0
-margin_right = 1080.0
-margin_bottom = 97.0
+offset_left = 892.0
+offset_right = 1080.0
+offset_bottom = 97.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Connect"
@@ -95,20 +95,20 @@ icon = ExtResource( 7 )
 script = ExtResource( 9 )
 
 [node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/VBoxContainer"]
-margin_top = 163.0
-margin_right = 1080.0
-margin_bottom = 746.0
+offset_top = 163.0
+offset_right = 1080.0
+offset_bottom = 746.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 3.0
 
 [node name="SystemKeysGrid" type="GridContainer" parent="CanvasLayer/VBoxContainer/ScrollContainer"]
-margin_right = 1080.0
-margin_bottom = 583.0
+offset_right = 1080.0
+offset_bottom = 583.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_constants/vseparation = 10
-custom_constants/hseparation = 10
+theme_override_constants/v_separation = 10
+theme_override_constants/h_separation = 10
 columns = 4
 script = ExtResource( 5 )
 _vncHandlerRelativePath = NodePath("../../../../VncHandler")
@@ -116,32 +116,32 @@ _vncHandlerRelativePath = NodePath("../../../../VncHandler")
 [node name="Trackpad" parent="CanvasLayer/VBoxContainer" instance=ExtResource( 3 )]
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_top = 750.0
-margin_right = 1080.0
-margin_bottom = 1721.0
+offset_top = 750.0
+offset_right = 1080.0
+offset_bottom = 1721.0
 size_flags_stretch_ratio = 5.0
 _vncHandlerPath = NodePath("../../../VncHandler")
 
 [node name="Bottom Bar" type="HBoxContainer" parent="CanvasLayer/VBoxContainer"]
-margin_top = 1725.0
-margin_right = 1080.0
-margin_bottom = 1920.0
+offset_top = 1725.0
+offset_right = 1080.0
+offset_bottom = 1920.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_constants/separation = 10
+theme_override_constants/separation = 10
 
 [node name="ConsoleToggleButton" type="Button" parent="CanvasLayer/VBoxContainer/Bottom Bar"]
-margin_right = 535.0
-margin_bottom = 195.0
+offset_right = 535.0
+offset_bottom = 195.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Console"
 script = ExtResource( 9 )
 
 [node name="KeyboardToggleButton2" type="Button" parent="CanvasLayer/VBoxContainer/Bottom Bar"]
-margin_left = 545.0
-margin_right = 1080.0
-margin_bottom = 195.0
+offset_left = 545.0
+offset_right = 1080.0
+offset_bottom = 195.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 text = "Keyboard"
@@ -152,17 +152,17 @@ anchor_left = 1.739
 anchor_top = -0.188
 anchor_right = 2.739
 anchor_bottom = -0.088
-margin_left = -0.120117
-margin_top = -0.039978
-margin_right = -0.120117
-margin_bottom = -0.0399933
-rect_pivot_offset = Vector2( 2589, -1150.48 )
+offset_left = -0.120117
+offset_top = -0.039978
+offset_right = -0.120117
+offset_bottom = -0.0399933
+pivot_offset = Vector2( 2589, -1150.48 )
 theme = SubResource( 1 )
 context_menu_enabled = false
 shortcut_keys_enabled = false
 middle_mouse_paste_enabled = false
 caret_blink = true
-caret_blink_speed = 0.5
+caret_blink_interval = 0.5
 script = ExtResource( 4 )
 _activationButtonPath = NodePath("../VBoxContainer/Bottom Bar/KeyboardToggleButton2")
 _vncHandlerPath = NodePath("../../VncHandler")

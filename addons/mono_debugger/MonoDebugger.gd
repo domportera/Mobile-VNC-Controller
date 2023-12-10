@@ -1,4 +1,4 @@
-tool
+@tool
 extends EditorPlugin
 
 var btn: CheckBox = null
@@ -10,8 +10,8 @@ func _enter_tree() -> void:
 	on = ProjectSettings.get_setting(setting)
 	btn = CheckBox.new()
 	btn.text = 'Wait For Debugger'
-	btn.pressed = on
-	btn.connect('pressed', self, '_on_button_pressed')
+	btn.button_pressed = on
+	btn.connect('pressed', Callable(self, '_on_button_pressed'))
 	add_control_to_container(CONTAINER_TOOLBAR, btn)
 
 func _exit_tree() -> void:

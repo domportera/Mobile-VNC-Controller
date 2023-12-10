@@ -5,7 +5,7 @@ using static PCRemoteControl.Controls.SystemKeyDefinitions;
 
 namespace PCRemoteControl.Controls
 {
-    public class SystemKeys : GridContainer
+    public partial class SystemKeys : GridContainer
     {
         [Export] NodePath _vncHandlerRelativePath = "../../../VncHandler";
         [Export] bool _padButtons = true;

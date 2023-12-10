@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using GodotExtensions;
 
-public class GDConsoleBridge : Node
+public partial class GDConsoleBridge : Node
 {
 	[Export] int _maxLogs = 1000;
 	[Export] NodePath _buttonPath = null;
@@ -104,7 +104,7 @@ public class GDConsoleBridge : Node
 		Log logItem = GetNextLogItem();
 		logItem.Type = type;
 		logItem.Text = log;
-		logItem.AddColorOverride(ColorOverrideName, _logColors[type]);
+		logItem.AddThemeColorOverride(ColorOverrideName, _logColors[type]);
 		_logs.Enqueue(logItem);
 
 		bool shouldAutoScroll = _autoScroll && !_vSplitPullDown.Collapsed && _vSplitPullDown.SplitOffset > 0;
@@ -113,7 +113,7 @@ public class GDConsoleBridge : Node
 			while (!logItem.Ready) // need to wait for instantiation to complete
 				await Task.Yield();
 
-			_scrollContainer.ScrollVertical = (int)_scrollContainer.GetVScrollbar().MaxValue;
+			_scrollContainer.ScrollVertical = (int)_scrollContainer.GetVScrollBar().MaxValue;
 		}
 
 		Log GetNextLogItem()
@@ -122,7 +122,7 @@ public class GDConsoleBridge : Node
 			if (_logs.Count == _maxLogs)
 			{
 				nextLog = _logs.Dequeue();
-				nextLog.RemoveColorOverride(ColorOverrideName);
+				nextLog.RemoveThemeColorOverride(ColorOverrideName);
 
 				int childCount = _logVBox.GetChildCount();
 				_logVBox.MoveChild(nextLog, childCount);
@@ -144,7 +144,7 @@ public class GDConsoleBridge : Node
 	async void AllowAutoScrollIfAtBottom()
 	{
 		await Task.Delay(100); // needs at least one frame of delay for scroll container to be updated by engine
-		if (_scrollContainer.ScrollVertical >= (int)_scrollContainer.GetVScrollbar().MaxValue)
+		if (_scrollContainer.ScrollVertical >= (int)_scrollContainer.GetVScrollBar().MaxValue)
 			_scrollContainer.ScrollVertical = int.MaxValue;
 	}
 	enum LogType {Log, Error, Exception}

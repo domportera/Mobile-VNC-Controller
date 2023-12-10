@@ -2,7 +2,7 @@ using Godot;
 
 namespace GodotExtensions
 {
-    public class VSplitPullDown : VSplitContainer
+    public partial class VSplitPullDown : VSplitContainer
     {
         [Export] float _defaultHeight = 0.3f;
         
@@ -55,7 +55,7 @@ namespace GodotExtensions
 		
             void ChangeMouseFilterBasedOnPosition(Vector2 position, int dragItemHeight)
             {
-                MouseFilter = position.y > _panel.RectSize.y + dragItemHeight
+                MouseFilter = position.y > _panel.Size.y + dragItemHeight
                     ? MouseFilterEnum.Ignore
                     : MouseFilterEnum.Stop;
             }

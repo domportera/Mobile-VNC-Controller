@@ -12,7 +12,7 @@ bg_color = Color( 0, 0, 0, 1 )
 
 [node name="Godot Console" type="CanvasLayer"]
 layer = 128
-follow_viewport_enable = true
+follow_viewport_enabled = true
 script = ExtResource( 1 )
 _vSplitPath = NodePath("VSplitContainer")
 _scrollContainerPath = NodePath("VSplitContainer/Panel/ScrollContainer")
@@ -25,8 +25,8 @@ theme = SubResource( 3 )
 script = ExtResource( 2 )
 
 [node name="Panel" type="Panel" parent="VSplitContainer"]
-margin_right = 1080.0
-custom_styles/panel = SubResource( 1 )
+offset_right = 1080.0
+theme_override_styles/panel = SubResource( 1 )
 
 [node name="ScrollContainer" type="ScrollContainer" parent="VSplitContainer/Panel"]
 anchor_right = 1.0
@@ -35,11 +35,11 @@ grow_vertical = 0
 follow_focus = true
 
 [node name="VBoxContainer" type="VBoxContainer" parent="VSplitContainer/Panel/ScrollContainer"]
-custom_constants/separation = 12
+theme_override_constants/separation = 12
 
 [node name="Invisible" type="Panel" parent="VSplitContainer"]
-margin_top = 12.0
-margin_right = 1080.0
-margin_bottom = 1920.0
+offset_top = 12.0
+offset_right = 1080.0
+offset_bottom = 1920.0
 mouse_filter = 2
-custom_styles/panel = SubResource( 2 )
+theme_override_styles/panel = SubResource( 2 )

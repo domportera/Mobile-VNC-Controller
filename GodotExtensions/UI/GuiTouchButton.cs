@@ -5,7 +5,7 @@ using Godot;
 
 namespace GodotExtensions
 {
-    public class GuiTouchButton : Button, IButtonUpDown
+    public partial class GuiTouchButton : Button, IButtonUpDown
     {
         // ReSharper disable once InconsistentNaming
         [Signal] //gdscript-style naming

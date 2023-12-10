@@ -6,7 +6,7 @@ namespace GodotExtensions
     {
         public static Vector2 RealRectSize(this Control control)
         {
-            return control.RectSize * control.RectScale;
+            return control.Size * control.Scale;
         }
         
         public static Vector2 RealPixelSize(this Control control)
@@ -20,8 +20,8 @@ namespace GodotExtensions
         {
             var anchorSize = new Vector2(control.AnchorRight - control.AnchorLeft,
                 control.AnchorBottom - control.AnchorTop);
-            var marginSize = new Vector2(control.MarginLeft + control.MarginRight,
-                control.MarginTop + control.MarginBottom);
+            var marginSize = new Vector2(control.OffsetLeft + control.OffsetRight,
+                control.OffsetTop + control.OffsetBottom);
         
             return resolution * anchorSize + marginSize;
         }
@@ -36,7 +36,7 @@ namespace GodotExtensions
 
         public static bool PointIsInside(this Control control, Vector2 position)
         {
-            Rect2 relevantRect = new Rect2(control.RectGlobalPosition, control.RealRectSize());
+            Rect2 relevantRect = new Rect2(control.GlobalPosition, control.RealRectSize());
             return relevantRect.HasPoint(position);
         }
     }

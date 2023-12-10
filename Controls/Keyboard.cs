@@ -1,12 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
 using GodotExtensions;
 using PCRemoteControl.VNC;
+using RemoteViewing.Vnc;
 
 namespace PCRemoteControl.Controls
 {
-    public class Keyboard : LineEdit
+    public partial class Keyboard : LineEdit
     {
         // raw text entry like this can use the clipboard from the TextEdit contents to auto-paste
         // using VncHandler.Paste(string)
@@ -16,17 +18,17 @@ namespace PCRemoteControl.Controls
         [Export] bool _hideOnSubmit = true;
         VncHandler _vncHandler;
         Button _activationButton;
-        Viewport _viewport;
+        SubViewport _viewport;
         
         public override void _Ready()
         {
             base._Ready();
             _activationButton = GetNode<Button>(_activationButtonPath);
-            _activationButton.Connect("pressed", this, OnKeyboardButton);
+            _activationButton.Connect("pressed", new Callable(this, OnKeyboardButton));
             _viewport = GetViewport();
             
             _vncHandler = GetNode<VncHandler>(_vncHandlerPath);
-            this.Connect("text_entered",this, SubmitText);
+            this.Connect("text_entered", new Callable(this, SubmitText));
         }
 
         // todo: proper keyboard handling 
@@ -41,8 +43,8 @@ namespace PCRemoteControl.Controls
             if (!(@event is InputEventKey key)) return;
             
             bool pressed = key.Pressed;
-            KeyList physicalKey = (KeyList)key.PhysicalScancode;
-            KeyList softKey = (KeyList)key.Scancode;
+            KeyList physicalKey = (KeyList)key.PhysicalKeycode;
+            KeyList softKey = (KeyList)key.Keycode;
             if (physicalKey != softKey)
             {
                 GDLogger.Log(this, $"Keys differ. Soft: {softKey} | Physical: {physicalKey}");
@@ -103,10 +105,10 @@ namespace PCRemoteControl.Controls
             AnchorTop = bottom - _textEditHeight;
             AnchorLeft = 0;
             AnchorRight = 1;
-            MarginLeft = 0;
-            MarginRight = 0;
-            MarginTop = 0;
-            MarginBottom = 0;
+            OffsetLeft = 0;
+            OffsetRight = 0;
+            OffsetTop = 0;
+            OffsetBottom = 0;
         }
 
         void SubmitText()
