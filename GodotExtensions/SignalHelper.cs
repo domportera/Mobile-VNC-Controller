@@ -11,25 +11,25 @@ namespace GodotExtensions
         public delegate void SignalFunction<in T1, in T2, in T3, in T4>(T1 param1, T2 param2, T3 param3, T4 param4);
         public delegate void SignalFunction<in T1, in T2, in T3, in T4, in T5>(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5);
         
-        public static Godot.Error Connect(this Object obj, string signalName, Object owner, SignalFunction method)
+        public static Godot.Error Connect(this Object obj, new Callable(string signalName, Object owner), SignalFunction method)
         {
-            Error error = obj.Connect(signalName, owner, method.Method.Name);
+            Error error = obj.Connect(signalName, new Callable(owner, method.Method.Name));
             if(error != Error.Ok)
                 GDLogger.Error(owner, GenerateSignalErrorString(obj, signalName, error));
             return error;
         }
         
-        public static Godot.Error Connect(this Object obj, string signalName, ObjectExt owner, SignalFunction method)
+        public static Godot.Error Connect(this Object obj, new Callable(string signalName, ObjectExt owner), SignalFunction method)
         {
-            Error error = obj.Connect(signalName, owner, method.Method.Name);
+            Error error = obj.Connect(signalName, new Callable(owner, method.Method.Name));
             if(error != Error.Ok)
                 GDLogger.Error(owner, GenerateSignalErrorString(obj, signalName, error));
             return error;
         }
         
-        public static Godot.Error Connect(this Object obj, string signalName, NodeExt owner, SignalFunction method)
+        public static Godot.Error Connect(this Object obj, new Callable(string signalName, NodeExt owner), SignalFunction method)
         {
-            Error error = obj.Connect(signalName, owner, method.Method.Name);
+            Error error = obj.Connect(signalName, new Callable(owner, method.Method.Name));
             if(error != Error.Ok)
                 GDLogger.Error(owner, GenerateSignalErrorString(obj, signalName, error));
             return error;
