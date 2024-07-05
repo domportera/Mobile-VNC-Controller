@@ -65,7 +65,7 @@ namespace PCRemoteControl.Controls
             if (_keyboardOpen) return;
             _keyboardOpen = true;
             
-            OS.ShowVirtualKeyboard();
+            DisplayServer.VirtualKeyboardShow("");
             Task.Run((Action)OpenTextEditWithKeyboard);
         }
 

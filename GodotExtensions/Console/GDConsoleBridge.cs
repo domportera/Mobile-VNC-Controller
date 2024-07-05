@@ -40,7 +40,7 @@ public partial class GDConsoleBridge : Node
 		EditorDescription = "A bridge between the native c# console and the Godot console, homogenizing their output." +
 							"Also contains a log console in-game.";
 		
-		_vSplitPullDown = FindNode(_vSplitPath) as VSplitPullDown;
+		_vSplitPullDown = GetNode(_vSplitPath) as VSplitPullDown;
 		
 		//should probably just split into 2 classes but that's a task for another day
 		if (!_showInGameConsole)

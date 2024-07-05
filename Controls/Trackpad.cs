@@ -17,12 +17,12 @@ namespace NiceTouch
 		MouseButton _longPressedButton = MouseButton.Left;
 		bool IsMultiLongPressed => _state == MouseState.LongPress && _longPressedButton != MouseButton.Left;
 	
-		float _deltaTime;
+		double _deltaTime;
 		// constants here are just comfortable numbers after regulating input speeds by
 		// control resolution and frame time
-		float ScrollSpeed => 2000f * _deltaTime;
-		float ZoomSpeed => 800f * _deltaTime;
-		float MouseSpeed => 40f * _deltaTime;
+		float ScrollSpeed => 2000f * (float)_deltaTime;
+		float ZoomSpeed => 800f * (float)_deltaTime;
+		float MouseSpeed => 40f * (float)_deltaTime;
 
 		MouseState _state = MouseState.Default;
 		bool StateIsDefault => _state == MouseState.Default;
@@ -41,7 +41,7 @@ namespace NiceTouch
 			_vncHandler = GetNode(_vncHandlerPath) as VncHandler;
 		}
 		
-		public override void _Process(float delta)
+		public override void _Process(double delta)
 		{
 			base._Process(delta);
 			_deltaTime = delta;
